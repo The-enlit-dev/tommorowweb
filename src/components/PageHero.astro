@@ -1,0 +1,66 @@
+---
+/** Hero for inner pages: label, big masked-line heading and an intro. */
+interface Props {
+  label: string
+  lines: string[]
+  /** Index of the line to set in the accent colour. */
+  accent?: number
+  intro?: string
+}
+const { label, lines, accent, intro } = Astro.props
+---
+
+<section class="phero">
+  <div class="wrap">
+    <p class="eyebrow mono">{label}</p>
+    <h1 class="phero-title" data-lines="load">
+      {
+        lines.map((l, i) => (
+          <span class:list={['line', { 'is-accent': i === accent }]} style={`--l:${i}`}>
+            <span>{l} </span>
+          </span>
+        ))
+      }
+    </h1>
+    <div class="phero-foot">
+      {intro && <p class="lead phero-intro">{intro}</p>}
+      <slot />
+    </div>
+  </div>
+</section>
+
+<style>
+  .phero {
+    padding-top: calc(var(--header-h) + clamp(3rem, 9vw, 8rem));
+    padding-bottom: clamp(3rem, 7vw, 6rem);
+  }
+  .phero-title {
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+  }
+  .phero-title .line {
+    display: block;
+  }
+  .is-accent > span {
+    color: var(--ink-muted);
+  }
+  .phero-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2rem;
+    align-items: end;
+    margin-top: clamp(2rem, 4vw, 3.5rem);
+  }
+  .phero-intro {
+    max-width: 52ch;
+    margin: 0;
+  }
+  @media (max-width: 760px) {
+    .phero-foot {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

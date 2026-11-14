@@ -1,0 +1,76 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+---
+
+<Base title="Page not found" description="This page doesn’t exist — maybe it’s coming tomorrow." noindex>
+  <section class="nf">
+    <div class="wrap">
+      <p class="eyebrow mono">Error 404</p>
+      <h1 class="nf-title">
+        This page isn’t here <span>yet.</span>
+      </h1>
+      <p class="lead">The link may be broken, or the page may have moved. Try one of these instead:</p>
+      <ul class="nf-links">
+        <li><a href="/" class="link-arrow">Home <Icon name="arrow-right" size={16} /></a></li>
+        <li><a href="/work/" class="link-arrow">Work <Icon name="arrow-right" size={16} /></a></li>
+        <li><a href="/services/" class="link-arrow">Services <Icon name="arrow-right" size={16} /></a></li>
+        <li><a href="/contact/" class="link-arrow">Contact <Icon name="arrow-right" size={16} /></a></li>
+      </ul>
+    </div>
+    <div class="nf-horizon" aria-hidden="true"></div>
+  </section>
+</Base>
+
+<style>
+  .nf {
+    position: relative;
+    min-height: 92svh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding-top: calc(var(--header-h) + 3rem);
+    overflow: hidden;
+  }
+  .nf-title {
+    max-width: 12ch;
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+  }
+  .nf-title span {
+    color: var(--ink-muted);
+  }
+  .nf .lead {
+    max-width: 44ch;
+    margin: 2rem 0 1.5rem;
+  }
+  .nf-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 1rem 2rem;
+    list-style: none;
+    margin: 0 0 6rem;
+    padding: 0;
+  }
+  .nf-horizon {
+    position: relative;
+    height: 8rem;
+    margin-top: auto;
+    border-top: 2px solid var(--ink);
+  }
+  /* A sun that hasn't risen yet — just its top edge peeking over the horizon. */
+  .nf-horizon::before {
+    content: '';
+    position: absolute;
+    left: 50%;
+    bottom: 100%;
+    width: min(18rem, 60vw);
+    height: 2.25rem;
+    border-radius: 18rem 18rem 0 0 / 2.25rem 2.25rem 0 0;
+    background: var(--sun);
+    transform: translateX(-50%);
+  }
+</style>

@@ -1,0 +1,73 @@
+---
+import Base from '../layouts/Base.astro'
+import { business } from '../config/site'
+---
+
+<Base title="Privacy" description="How Tomorrow Web handles the information you share through this website.">
+  <section class="priv">
+    <div class="wrap">
+      <p class="eyebrow mono">Privacy</p>
+      <h1 class="priv-title">Privacy, in plain English.</h1>
+      <div class="prose">
+        <p>This website is run by {business.name}. We keep it simple: we collect as little as possible and only use it to reply to you.</p>
+
+        <h2>What we collect</h2>
+        <p>
+          When you send an enquiry, we receive what you type into the form: your name, business name, email address, phone number
+          (if given), the type of website you need, your budget range, your current website (if given) and your message.
+        </p>
+        <p>
+          If you contact us by email or WhatsApp instead, we receive whatever you send through those services, which have their own
+          privacy policies.
+        </p>
+
+        <h2>How we use it</h2>
+        <ul>
+          <li>To reply to your enquiry and discuss your project.</li>
+          <li>To prepare a proposal or quote if you ask for one.</li>
+        </ul>
+        <p>We don’t sell your details, add you to mailing lists or share them with anyone for marketing.</p>
+
+        <h2>Where it’s stored</h2>
+        <p>
+          The enquiry form is handled by Netlify Forms, part of the hosting platform this website runs on. Submissions are stored in
+          our Netlify account and may be forwarded to our email inbox.
+        </p>
+
+        <h2>Cookies and tracking</h2>
+        <p>
+          This website doesn’t use advertising or analytics cookies. Fonts are served from this website itself, not a third party.
+          Our hosting provider may keep standard server logs (such as IP addresses) for security and reliability.
+        </p>
+
+        <h2>Your choices</h2>
+        <p>
+          You can ask us to show you, correct or delete the information you sent us at any time
+          {business.email ? <> by emailing <a href={`mailto:${business.email}`}>{business.email}</a></> : ' by contacting us'}.
+        </p>
+
+        <p class="priv-updated mono">Last updated: November 2026</p>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .priv {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 6rem));
+    padding-bottom: var(--section);
+  }
+  .priv-title {
+    max-width: 14ch;
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+    font-size: clamp(2.6rem, 6vw, 5.5rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.95;
+  }
+  .priv-updated {
+    margin-top: 3rem;
+    color: var(--ink-3);
+  }
+</style>

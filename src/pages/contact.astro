@@ -1,0 +1,210 @@
+---
+import Base from '../layouts/Base.astro'
+import EnquiryForm from '../components/EnquiryForm.astro'
+import Icon from '../components/Icon.astro'
+import { business, whatsappLink, whatsappDisplay } from '../config/site'
+
+const wa = whatsappLink()
+---
+
+<Base
+  title="Contact"
+  description="Tell Tomorrow Web about your project. Share what you need, your budget range and a few details — we’ll reply personally with advice and a clear next step."
+>
+  <section class="contact" aria-labelledby="contact-title">
+    <div class="wrap contact-grid">
+      <div class="contact-side">
+        <div class="contact-sticky">
+          <p class="eyebrow mono">Contact</p>
+          <h1 id="contact-title" class="contact-title" data-lines="load">
+            <span class="line"><span>Tell us about </span></span>
+            <span class="line" style="--l:1"><span>your project. </span></span>
+          </h1>
+          <p class="lead contact-intro">
+            A few details are all we need to start. We’ll reply personally — with questions, ideas and an honest view of what would
+            work best for you.
+          </p>
+
+          <ul class="direct" data-reveal style="--d:.3s">
+            {
+              business.email && (
+                <li>
+                  <a href={`mailto:${business.email}`} class="direct-link">
+                    <span class="direct-icon"><Icon name="mail" size={20} /></span>
+                    <span>
+                      <span class="mono">Email</span>
+                      <span class="direct-val">{business.email}</span>
+                    </span>
+                  </a>
+                </li>
+              )
+            }
+            {
+              wa ? (
+                <li>
+                  <a href={wa} class="direct-link" target="_blank" rel="noopener noreferrer">
+                    <span class="direct-icon is-wa"><Icon name="whatsapp" size={20} /></span>
+                    <span>
+                      <span class="mono">WhatsApp</span>
+                      <span class="direct-val">{whatsappDisplay()}</span>
+                      <span class="sr-only"> (opens in a new tab)</span>
+                    </span>
+                  </a>
+                </li>
+              ) : (
+                import.meta.env.DEV && (
+                  <li class="dev-note mono">Dev only: set business.whatsapp in src/config/site.ts to show WhatsApp here.</li>
+                )
+              )
+            }
+          </ul>
+
+          <div class="expect" data-reveal style="--d:.35s">
+            <h2 class="mono">What happens next</h2>
+            <ol>
+              <li>We read your enquiry and any links you share.</li>
+              <li>We reply with questions, ideas or a time to talk.</li>
+              <li>If we’re a good fit, you get a fixed written quote.</li>
+            </ol>
+          </div>
+        </div>
+      </div>
+
+      <div class="contact-form" data-reveal style="--d:.15s">
+        <EnquiryForm />
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .contact {
+    padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 6rem));
+    padding-bottom: var(--section);
+  }
+  .contact-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.25fr);
+    gap: 3rem clamp(2rem, 6vw, 7rem);
+  }
+  .contact-sticky {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+  }
+  .contact-title {
+    font-size: clamp(2.9rem, 6.4vw, 6.25rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+  }
+  .contact-title .line {
+    display: block;
+  }
+  .contact-title .line:last-child > span {
+    color: var(--ink-muted);
+  }
+  .contact-intro {
+    margin: 1.75rem 0 2.25rem;
+    max-width: 40ch;
+  }
+  .direct {
+    list-style: none;
+    margin: 0 0 2.5rem;
+    padding: 0;
+    display: grid;
+    gap: 0.75rem;
+  }
+  .direct-link {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    text-decoration: none;
+  }
+  .direct-link > span:last-child {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    min-width: 0;
+  }
+  .direct-link .mono {
+    color: var(--ink-3);
+    font-size: 0.68rem;
+  }
+  .direct-val {
+    font-weight: 600;
+    overflow-wrap: anywhere;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 0.4s var(--ease-out);
+  }
+  .direct-link:hover .direct-val {
+    background-size: 100% 1px;
+  }
+  .direct-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: background 0.3s, border-color 0.3s, color 0.3s;
+  }
+  .direct-link:hover .direct-icon {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+  .direct-icon.is-wa {
+    color: #1f8f4e;
+  }
+  .direct-link:hover .direct-icon.is-wa {
+    color: var(--ink);
+  }
+  .dev-note {
+    padding: 0.75rem 1rem;
+    border: 1px dashed var(--line-strong);
+    border-radius: 8px;
+    color: var(--ink-3);
+    text-transform: none;
+  }
+  .expect {
+    padding: 1.5rem;
+    border-radius: var(--radius);
+    background: var(--paper-2);
+  }
+  .expect h2 {
+    margin-bottom: 1rem;
+    color: var(--ink-3);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .expect ol {
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    counter-reset: s;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .expect li {
+    counter-increment: s;
+    display: flex;
+    gap: 0.75rem;
+    font-size: 0.97rem;
+  }
+  .expect li::before {
+    content: '0' counter(s);
+    font-family: var(--f-mono);
+    font-size: 0.75rem;
+    color: var(--sun-deep);
+    padding-top: 0.2rem;
+  }
+  @media (max-width: 960px) {
+    .contact-grid {
+      grid-template-columns: 1fr;
+    }
+    .contact-sticky {
+      position: static;
+    }
+  }
+</style>

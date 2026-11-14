@@ -1,0 +1,370 @@
+---
+import type { GetStaticPaths } from 'astro'
+import { getCollection, render, type CollectionEntry } from 'astro:content'
+import { Picture, getImage } from 'astro:assets'
+import Base from '../../layouts/Base.astro'
+import Icon from '../../components/Icon.astro'
+import CtaBand from '../../components/CtaBand.astro'
+import { business } from '../../config/site'
+
+export const getStaticPaths = (async () => {
+  const work = (await getCollection('work', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order)
+  return work.map((project, i) => ({
+    params: { slug: project.id },
+    props: { project, next: work[(i + 1) % work.length], index: i },
+  }))
+}) satisfies GetStaticPaths
+
+interface Props {
+  project: CollectionEntry<'work'>
+  next: CollectionEntry<'work'>
+  index: number
+}
+
+const { project, next, index } = Astro.props
+const p = project.data
+const { Content } = await render(project)
+const og = await getImage({ src: p.cover, width: 1200, height: 630, fit: 'cover', position: 'top', format: 'jpg', quality: 82 })
+const site = Astro.site!.href.replace(/\/$/, '')
+const pageUrl = `${site}/work/${project.id}/`
+const host = p.url ? new URL(p.url).host : ''
+
+const meta = [
+  { k: 'For', v: p.client },
+  { k: 'Year', v: p.year },
+  { k: 'Services', v: p.services.join(', ') },
+  ...(p.stack.length ? [{ k: 'Built with', v: p.stack.join(', ') }] : []),
+]
+
+const jsonLd = [
+  {
+    '@type': 'CreativeWork',
+    name: p.title,
+    description: p.summary,
+    url: pageUrl,
+    dateCreated: p.year,
+    creator: { '@type': 'Organization', name: business.name, url: `${site}/` },
+    ...(p.url ? { sameAs: p.url } : {}),
+    image: new URL(og.src, Astro.site).href,
+  },
+  {
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      { '@type': 'ListItem', position: 1, name: 'Home', item: `${site}/` },
+      { '@type': 'ListItem', position: 2, name: 'Work', item: `${site}/work/` },
+      { '@type': 'ListItem', position: 3, name: p.title, item: pageUrl },
+    ],
+  },
+]
+---
+
+<Base title={`${p.title} — Case study`} description={p.summary} image={og.src} imageAlt={p.coverAlt} type="article" jsonLd={jsonLd}>
+  <article style={`--accent:${p.color}`}>
+    <header class="cs-hero">
+      <div class="wrap">
+        <nav class="cs-crumbs mono" aria-label="Breadcrumb" data-reveal="fade">
+          <a href="/work/"><Icon name="arrow-left" size={14} /> All work</a>
+          <span aria-hidden="true">/</span>
+          <span aria-current="page">Case study {String(index + 1).padStart(2, '0')}</span>
+        </nav>
+
+        <p class="eyebrow mono" data-reveal>{p.relationship}</p>
+        <h1 class="cs-title" data-lines="load">
+          <span class="line"><span>{p.title}</span></span>
+        </h1>
+
+        <div class="cs-intro">
+          <p class="lead">{p.summary}</p>
+          <div class="cs-status" data-reveal style="--d:.3s">
+            <p class="chip status" data-status={p.status}>{p.status}</p>
+            {p.statusNote && <p class="cs-note">{p.statusNote}</p>}
+            {
+              p.url && (
+                <a href={p.url} class="btn btn-ink" target="_blank" rel="noopener noreferrer">
+                  Visit the live site <Icon name="arrow-up-right" size={18} />
+                  <span class="sr-only"> ({host}, opens in a new tab)</span>
+                </a>
+              )
+            }
+          </div>
+        </div>
+
+        <dl class="cs-meta" data-reveal style="--d:.35s">
+          {
+            meta.map((m) => (
+              <div>
+                <dt class="mono">{m.k}</dt>
+                <dd>{m.v}</dd>
+              </div>
+            ))
+          }
+        </dl>
+      </div>
+    </header>
+
+    <div class="wrap cs-cover" data-reveal="scale">
+      <div class="browser">
+        <div class="browser-bar" aria-hidden="true">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">{host || 'preview'}</span>
+        </div>
+        <Picture
+          src={p.cover}
+          alt={p.coverAlt}
+          widths={[640, 1000, 1400, 1600]}
+          sizes="(max-width: 1480px) 94vw, 1380px"
+          formats={['avif']}
+          fallbackFormat="webp"
+          loading="eager"
+          fetchpriority="high"
+        />
+      </div>
+    </div>
+
+    <section class="section cs-body" aria-label="Case study">
+      <div class="wrap cs-body-grid">
+        <aside class="cs-aside mono" aria-hidden="true">
+          <span class="cs-dot"></span>
+          Case study
+        </aside>
+        <div class="prose" data-reveal>
+          <Content />
+        </div>
+      </div>
+    </section>
+
+    {
+      (p.detail || p.mobile) && (
+        <section class="cs-gallery" aria-label="More screens">
+          <div class="wrap cs-gallery-grid">
+            {p.detail && (
+              <figure class="cs-shot" data-reveal>
+                <div class="browser">
+                  <div class="browser-bar" aria-hidden="true">
+                    <span class="dots">
+                      <i />
+                      <i />
+                      <i />
+                    </span>
+                    <span class="url">{host || 'preview'}</span>
+                  </div>
+                  <Picture src={p.detail} alt={p.detailAlt ?? ''} widths={[640, 1000, 1400]} sizes="(max-width: 900px) 94vw, 64vw" formats={['avif']}
+          fallbackFormat="webp" />
+                </div>
+              </figure>
+            )}
+            {p.mobile && (
+              <figure class="cs-phone" data-reveal style="--d:.12s">
+                <div class="phone">
+                  <Picture src={p.mobile} alt={p.mobileAlt ?? ''} widths={[390, 780]} sizes="(max-width: 900px) 70vw, 24vw" formats={['avif']}
+          fallbackFormat="webp" />
+                </div>
+                <figcaption class="mono">On a phone</figcaption>
+              </figure>
+            )}
+          </div>
+        </section>
+      )
+    }
+  </article>
+
+  <nav class="section cs-next" aria-label="Next project">
+    <div class="wrap">
+      <a href={`/work/${next.id}/`} class="next-link">
+        <span class="mono next-label">Next project</span>
+        <span class="next-title">{next.data.title}</span>
+        <span class="next-rel">{next.data.relationship}</span>
+        <span class="next-arrow" aria-hidden="true"><Icon name="arrow-right" size={28} /></span>
+      </a>
+    </div>
+  </nav>
+
+  <CtaBand title="Want a site like this?" />
+</Base>
+
+<style>
+  .cs-hero {
+    padding-top: calc(var(--header-h) + clamp(2rem, 6vw, 5rem));
+    padding-bottom: clamp(2.5rem, 5vw, 4rem);
+  }
+  .cs-crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+    margin-bottom: clamp(2rem, 5vw, 4rem);
+    color: var(--ink-3);
+  }
+  .cs-crumbs a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .cs-crumbs a:hover {
+    text-decoration: underline;
+  }
+  .cs-title {
+    font-size: clamp(2.75rem, 8.5vw, 8.5rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+    max-width: 14ch;
+  }
+  .cs-title .line {
+    display: block;
+  }
+  .cs-intro {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    margin-top: clamp(2rem, 4vw, 3rem);
+  }
+  .cs-intro .lead {
+    margin: 0;
+    max-width: 48ch;
+  }
+  .cs-status {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.9rem;
+  }
+  .cs-status .chip {
+    margin: 0;
+  }
+  .cs-note {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+    max-width: 38ch;
+  }
+  .cs-meta {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 1.5rem;
+    margin: clamp(2.5rem, 5vw, 4rem) 0 0;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-strong);
+  }
+  .cs-meta dt {
+    margin-bottom: 0.5rem;
+    color: var(--ink-3);
+  }
+  .cs-meta dd {
+    margin: 0;
+    font-weight: 500;
+  }
+  .cs-cover .browser {
+    border-top: 4px solid var(--accent);
+  }
+  .cs-body-grid {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 3fr;
+    gap: 2rem var(--gutter);
+  }
+  .cs-aside {
+    position: sticky;
+    top: calc(var(--header-h) + 2rem);
+    align-self: start;
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    color: var(--ink-3);
+  }
+  .cs-dot {
+    width: 0.6rem;
+    height: 0.6rem;
+    border-radius: 50%;
+    background: var(--accent);
+  }
+  .cs-gallery {
+    padding-bottom: var(--section);
+  }
+  .cs-gallery-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 2.4fr) minmax(0, 1fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: center;
+  }
+  .cs-gallery-grid > :only-child {
+    grid-column: 1 / -1;
+  }
+  .cs-shot,
+  .cs-phone {
+    margin: 0;
+  }
+  .cs-phone {
+    max-width: 22rem;
+    justify-self: center;
+    width: 100%;
+  }
+  .cs-phone figcaption {
+    margin-top: 1rem;
+    text-align: center;
+    color: var(--ink-3);
+  }
+
+  .cs-next {
+    border-top: 1px solid var(--line);
+    padding-block: clamp(4rem, 8vw, 7rem);
+  }
+  .next-link {
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.75rem 2rem;
+    align-items: center;
+    text-decoration: none;
+  }
+  .next-label {
+    grid-column: 1 / -1;
+    color: var(--ink-3);
+  }
+  .next-title {
+    font-family: var(--f-display);
+    font-size: clamp(2.5rem, 7vw, 6.5rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.95;
+    transition: color 0.3s;
+  }
+  .next-rel {
+    grid-row: 3;
+    color: var(--ink-2);
+  }
+  .next-arrow {
+    grid-column: 2;
+    grid-row: 2 / span 2;
+    display: grid;
+    place-items: center;
+    width: clamp(4rem, 8vw, 6.5rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: background 0.4s, border-color 0.4s, transform 0.6s var(--ease-out);
+  }
+  .next-link:hover .next-arrow {
+    background: var(--sun);
+    border-color: var(--sun);
+    transform: rotate(-45deg);
+  }
+  .next-link:hover .next-title {
+    color: var(--sun-deep);
+  }
+
+  @media (max-width: 900px) {
+    .cs-intro,
+    .cs-gallery-grid,
+    .cs-body-grid {
+      grid-template-columns: 1fr;
+    }
+    .cs-meta {
+      grid-template-columns: 1fr 1fr;
+    }
+    .cs-aside {
+      position: static;
+    }
+  }
+</style>

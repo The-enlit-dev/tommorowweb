@@ -1,0 +1,126 @@
+---
+import { business, whatsappLink, whatsappDisplay } from '../config/site'
+import Icon from './Icon.astro'
+
+interface Props {
+  title?: string
+  text?: string
+}
+const {
+  title = 'Let’s build your tomorrow.',
+  text = 'Tell us what you have in mind. We’ll reply personally with honest advice, ideas and a clear next step — no obligation.',
+} = Astro.props
+const wa = whatsappLink()
+const words = title.split(' ')
+const last = words.pop()
+---
+
+<section class="cta dark" aria-labelledby="cta-title">
+  <div class="cta-sun" data-sunrise aria-hidden="true"><i></i></div>
+  <div class="wrap cta-inner">
+    <p class="eyebrow mono" data-reveal>Start a project</p>
+    <h2 id="cta-title" class="cta-title" data-lines>
+      <span class="line"><span>{words.join(' ')} </span></span>
+      <span class="line" style="--l:1"><span>{last}</span></span>
+    </h2>
+    <div class="cta-foot">
+      <p class="lead" data-reveal>{text}</p>
+      <div class="cta-actions" data-reveal style="--d:.1s">
+        <a href="/contact/" class="btn btn-sun">Start a project <Icon name="arrow-right" size={18} /></a>
+        {
+          wa ? (
+            <a href={wa} class="btn btn-ghost-light" target="_blank" rel="noopener noreferrer">
+              <Icon name="whatsapp" size={18} /> Chat on WhatsApp<span class="sr-only"> ({whatsappDisplay()}, opens in a new tab)</span>
+            </a>
+          ) : (
+            business.email && (
+              <a href={`mailto:${business.email}`} class="btn btn-ghost-light">
+                <Icon name="mail" size={18} /> Email us
+              </a>
+            )
+          )
+        }
+      </div>
+    </div>
+  </div>
+</section>
+
+<style>
+  .cta {
+    position: relative;
+    overflow: hidden;
+    padding-block: clamp(6rem, 14vw, 12rem) clamp(4rem, 8vw, 7rem);
+    border-bottom: 1px solid var(--line-night);
+  }
+  .cta-inner {
+    position: relative;
+    z-index: 1;
+  }
+  .cta-title {
+    font-size: var(--fs-hero);
+    font-stretch: 80%;
+    font-weight: 700;
+    letter-spacing: -0.032em;
+    line-height: 0.9;
+    max-width: 12ch;
+  }
+  .cta-title .line:last-child > span {
+    color: var(--sun);
+  }
+  .cta-foot {
+    display: grid;
+    gap: 2rem;
+    justify-items: start;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+  }
+  .cta-foot .lead {
+    max-width: 44ch;
+    margin: 0;
+  }
+  .cta-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  /* The sun sits behind the heading and rises as the section scrolls up. */
+  .cta-sun {
+    --rise: 0.5;
+    position: absolute;
+    right: -12vw;
+    top: 0;
+    width: min(62vw, 900px);
+    aspect-ratio: 1;
+    pointer-events: none;
+    transform: translateY(calc(70% - var(--rise) * 55%));
+    will-change: transform;
+  }
+  .cta-sun i {
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    background: var(--sun);
+    opacity: 0.95;
+  }
+  .cta-sun::after {
+    content: '';
+    position: absolute;
+    inset: -14%;
+    border-radius: 50%;
+    border: 1px solid rgb(255 90 31 / 0.35);
+  }
+  @media (max-width: 760px) {
+    .cta-foot {
+      grid-template-columns: 1fr;
+    }
+    .cta {
+      padding-bottom: calc(clamp(4rem, 8vw, 7rem) + 34vw);
+    }
+    .cta-sun {
+      top: auto;
+      bottom: 0;
+      right: -18vw;
+      width: 92vw;
+      transform: translateY(calc(72% - var(--rise) * 14%));
+    }
+  }
+</style>

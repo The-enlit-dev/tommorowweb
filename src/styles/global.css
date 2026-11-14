@@ -1,0 +1,660 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tomorrow Web — design system
+   Tokens, base styles, layout helpers and shared components.
+   Page- and component-specific styles live next to their markup.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* Colour */
+  --paper: #f2efe8;
+  --paper-2: #e9e5db;
+  --paper-3: #ddd8cb;
+  --ink: #121211;
+  --ink-2: #5a574f; /* body copy on paper — 6.3:1 */
+  --ink-3: #605d55; /* meta text — 5.7:1 on paper, 4.6:1 on paper-3 */
+  --ink-muted: #8a877d; /* large display text only — 3.1:1 */
+  --line: rgb(18 18 17 / 0.14);
+  --line-strong: rgb(18 18 17 / 0.28);
+
+  --night: #0f0f0e;
+  --night-2: #1b1b19;
+  --on-night: #f2efe8;
+  --on-night-2: #a7a398; /* 7.6:1 on night */
+  --line-night: rgb(242 239 232 / 0.14);
+
+  --sun: #ff5a1f; /* shapes, large type, buttons with ink text */
+  --sun-deep: #b83a0b; /* small accent text on paper — 5:1 */
+
+  /* Type */
+  --f-display: 'Bricolage Grotesque Variable', 'Arial Narrow', system-ui, sans-serif;
+  --f-body: 'Inter Variable', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --f-mono: 'JetBrains Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --fs-hero: clamp(3.1rem, 10.4vw, 11rem);
+  --fs-h1: clamp(2.9rem, 8.2vw, 8.5rem);
+  --fs-h2: clamp(2.3rem, 5.6vw, 5.25rem);
+  --fs-h3: clamp(1.45rem, 2.3vw, 2.1rem);
+  --fs-lead: clamp(1.15rem, 1.5vw, 1.35rem);
+  --fs-statement: clamp(1.65rem, 3.6vw, 3.4rem);
+
+  /* Layout */
+  --gutter: clamp(1rem, 4vw, 3.5rem);
+  --max: 1480px;
+  --header-h: 4.5rem;
+  --section: clamp(5rem, 11vw, 10rem);
+  --radius: 14px;
+  --radius-lg: clamp(16px, 2vw, 28px);
+
+  /* Motion */
+  --ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-in-out: cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+/* ── Reset & base ─────────────────────────────────────────────────────────── */
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+  scroll-padding-top: calc(var(--header-h) + 1rem);
+}
+
+html.lenis,
+html.lenis body {
+  height: auto;
+}
+.lenis.lenis-smooth {
+  scroll-behavior: auto !important;
+}
+.lenis.lenis-stopped {
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  background: var(--paper);
+  color: var(--ink);
+  font-family: var(--f-body);
+  font-size: 1.0625rem;
+  line-height: 1.6;
+  font-optical-sizing: auto;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video {
+  display: block;
+  max-width: 100%;
+}
+img {
+  height: auto;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  margin: 0;
+  font-family: var(--f-display);
+  font-weight: 600;
+  letter-spacing: -0.035em;
+  line-height: 1;
+  text-wrap: balance;
+}
+
+p {
+  margin: 0 0 1em;
+  text-wrap: pretty;
+}
+
+a {
+  color: inherit;
+  text-underline-offset: 0.2em;
+  text-decoration-thickness: 1px;
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+  color: inherit;
+}
+
+::selection {
+  background: var(--sun);
+  color: var(--ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--sun-deep);
+  outline-offset: 3px;
+  border-radius: 4px;
+}
+.site-footer :focus-visible,
+.dark :focus-visible,
+.mobile-menu :focus-visible {
+  outline-color: var(--sun);
+}
+
+main:focus {
+  outline: none;
+}
+
+.skip-link {
+  position: fixed;
+  top: 0.75rem;
+  left: 0.75rem;
+  z-index: 100;
+  padding: 0.7rem 1rem;
+  border-radius: 8px;
+  background: var(--ink);
+  color: var(--paper);
+  font-weight: 600;
+  transform: translateY(-200%);
+  transition: transform 0.2s;
+}
+.skip-link:focus {
+  transform: none;
+}
+
+.sr-only {
+  position: absolute !important;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* ── Layout helpers ───────────────────────────────────────────────────────── */
+
+.wrap {
+  width: 100%;
+  max-width: var(--max);
+  margin-inline: auto;
+  padding-inline: var(--gutter);
+}
+
+.section {
+  padding-block: var(--section);
+}
+.section-tight {
+  padding-block: calc(var(--section) * 0.6);
+}
+
+.dark {
+  background: var(--night);
+  color: var(--on-night);
+  --line: var(--line-night);
+}
+
+.mono {
+  font-family: var(--f-mono);
+  font-size: 0.75rem;
+  font-weight: 400;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  line-height: 1.4;
+}
+
+.eyebrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin: 0 0 1.5rem;
+  color: var(--ink-3);
+}
+.dark .eyebrow {
+  color: var(--on-night-2);
+}
+.eyebrow::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--sun);
+  flex: none;
+}
+
+/* Section heading row: label on the left, heading on the right. */
+.sec-head {
+  display: grid;
+  grid-template-columns: minmax(10rem, 1fr) 3fr;
+  gap: 1.5rem var(--gutter);
+  align-items: start;
+  margin-bottom: clamp(2.5rem, 6vw, 5rem);
+}
+.sec-head .label {
+  padding-top: 0.6em;
+  color: var(--ink-3);
+}
+.dark .sec-head .label {
+  color: var(--on-night-2);
+}
+.sec-head .label b {
+  color: var(--sun-deep);
+  font-weight: 500;
+}
+.dark .sec-head .label b {
+  color: var(--sun);
+}
+.sec-head h2 {
+  font-size: var(--fs-h2);
+  font-stretch: 88%;
+  max-width: 16ch;
+}
+.sec-head .intro {
+  grid-column: 2;
+  max-width: 54ch;
+  margin: 0;
+  color: var(--ink-2);
+  font-size: var(--fs-lead);
+}
+.dark .sec-head .intro {
+  color: var(--on-night-2);
+}
+@media (max-width: 760px) {
+  .sec-head {
+    grid-template-columns: 1fr;
+  }
+  .sec-head .intro {
+    grid-column: 1;
+  }
+  .sec-head .label {
+    padding-top: 0;
+  }
+}
+
+.lead {
+  font-size: var(--fs-lead);
+  line-height: 1.55;
+  color: var(--ink-2);
+}
+.dark .lead {
+  color: var(--on-night-2);
+}
+
+.muted-text {
+  color: var(--ink-muted);
+}
+
+/* ── Buttons & links ──────────────────────────────────────────────────────── */
+
+.btn {
+  --bg: var(--ink);
+  --fg: var(--paper);
+  position: relative;
+  isolation: isolate;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.6rem;
+  min-height: 3.25rem;
+  padding: 0.85rem 1.5rem;
+  border: 1px solid var(--bg);
+  border-radius: 999px;
+  background: var(--bg);
+  color: var(--fg);
+  font-family: var(--f-body);
+  font-size: 1rem;
+  font-weight: 600;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  text-decoration: none;
+  white-space: nowrap;
+  cursor: pointer;
+  overflow: hidden;
+  transition:
+    color 0.35s var(--ease-out),
+    border-color 0.35s var(--ease-out),
+    transform 0.35s var(--ease-out);
+}
+/* A sun that rises from below to fill the button on hover. */
+.btn::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  left: 50%;
+  top: 100%;
+  width: 140%;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: var(--hover-bg, var(--sun));
+  transform: translate(-50%, 0) scale(0.4);
+  transition: transform 0.6s var(--ease-out);
+}
+.btn:hover::before,
+.btn:focus-visible::before {
+  transform: translate(-50%, -55%) scale(1);
+}
+.btn:hover,
+.btn:focus-visible {
+  color: var(--hover-fg, var(--ink));
+  border-color: var(--hover-bg, var(--sun));
+}
+.btn:active {
+  transform: scale(0.98);
+}
+.btn .icon {
+  flex: none;
+  transition: transform 0.4s var(--ease-out);
+}
+.btn:hover .icon {
+  transform: translateX(3px);
+}
+.btn-sm {
+  min-height: 2.6rem;
+  padding: 0.55rem 1.1rem;
+  font-size: 0.92rem;
+}
+.btn-ink {
+  --bg: var(--ink);
+  --fg: var(--paper);
+}
+.btn-sun {
+  --bg: var(--sun);
+  --fg: var(--ink);
+  --hover-bg: var(--paper);
+  --hover-fg: var(--ink);
+}
+.btn-ghost {
+  --bg: transparent;
+  --fg: var(--ink);
+  border-color: var(--line-strong);
+  --hover-bg: var(--ink);
+  --hover-fg: var(--paper);
+}
+.btn-ghost-light {
+  --bg: transparent;
+  --fg: var(--on-night);
+  border-color: rgb(242 239 232 / 0.3);
+  --hover-bg: var(--on-night);
+  --hover-fg: var(--ink);
+}
+.btn-wa {
+  --bg: #1f8f4e;
+  --fg: #fff;
+  --hover-bg: var(--ink);
+  --hover-fg: #fff;
+}
+.btn[disabled] {
+  opacity: 0.6;
+  cursor: progress;
+}
+
+.link-arrow {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-weight: 600;
+  text-decoration: none;
+  background: linear-gradient(currentColor, currentColor) 0 100% / 100% 1px no-repeat;
+  padding-bottom: 0.2rem;
+  transition: background-size 0.5s var(--ease-out);
+}
+.link-arrow:hover {
+  background-size: 0 1px;
+  background-position: 100% 100%;
+}
+.link-arrow .icon {
+  transition: transform 0.4s var(--ease-out);
+}
+.link-arrow:hover .icon {
+  transform: translateX(4px);
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.status {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+.status::before {
+  content: '';
+  width: 0.5rem;
+  height: 0.5rem;
+  border-radius: 50%;
+  background: currentColor;
+}
+.status[data-status='Live']::before {
+  background: #1f9d55;
+  box-shadow: 0 0 0 3px rgb(31 157 85 / 0.18);
+}
+.status[data-status='Preview']::before {
+  background: #d99a00;
+  box-shadow: 0 0 0 3px rgb(217 154 0 / 0.2);
+}
+.status[data-status='In development']::before {
+  background: transparent;
+  border: 1.5px solid currentColor;
+}
+
+/* Browser frame for screenshots */
+.browser {
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: var(--night-2);
+  box-shadow:
+    0 1px 0 rgb(255 255 255 / 0.06) inset,
+    0 30px 60px -30px rgb(18 18 17 / 0.45);
+}
+.browser-bar {
+  display: flex;
+  align-items: center;
+  gap: 0.9rem;
+  height: 2.1rem;
+  padding: 0 0.85rem;
+  background: #232321;
+  color: #a7a398;
+}
+.browser-bar .dots {
+  display: flex;
+  gap: 0.35rem;
+}
+.browser-bar .dots i {
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: #3d3d3a;
+}
+.browser-bar .url {
+  flex: 1;
+  max-width: 22rem;
+  margin-inline: auto;
+  padding: 0.15rem 0.75rem;
+  border-radius: 6px;
+  background: #1a1a18;
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  text-align: center;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.browser img {
+  width: 100%;
+}
+
+/* Phone frame */
+.phone {
+  padding: 0.55rem;
+  border-radius: 2.2rem;
+  background: var(--night);
+  box-shadow: 0 30px 60px -25px rgb(18 18 17 / 0.5);
+}
+.phone img {
+  border-radius: 1.7rem;
+  width: 100%;
+}
+
+/* Prose (case studies, privacy) */
+.prose {
+  max-width: 64ch;
+  color: var(--ink-2);
+  font-size: 1.1rem;
+  line-height: 1.7;
+}
+.prose h2 {
+  margin: 2.75rem 0 1rem;
+  color: var(--ink);
+  font-size: clamp(1.6rem, 2.6vw, 2.2rem);
+}
+.prose h2:first-child {
+  margin-top: 0;
+}
+.prose h3 {
+  margin: 2rem 0 0.75rem;
+  color: var(--ink);
+  font-size: 1.3rem;
+}
+.prose strong {
+  color: var(--ink);
+}
+.prose ul {
+  padding: 0;
+  margin: 0 0 1.25em;
+  list-style: none;
+}
+.prose li {
+  position: relative;
+  padding-left: 1.6rem;
+  margin-bottom: 0.65rem;
+}
+.prose li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 0.62em;
+  width: 0.7rem;
+  height: 2px;
+  background: var(--sun);
+}
+.prose a {
+  color: var(--ink);
+}
+
+/* ── Motion: scroll reveals ───────────────────────────────────────────────── */
+
+/* Content is only hidden when JS is running (html.js) and motion is welcome. */
+@media (prefers-reduced-motion: no-preference) {
+  .js [data-reveal] {
+    opacity: 0;
+    transform: translateY(28px);
+    transition:
+      opacity 0.9s ease,
+      transform 1.1s var(--ease-out);
+    transition-delay: var(--d, 0s);
+  }
+  .js [data-reveal='fade'] {
+    transform: none;
+  }
+  .js [data-reveal='scale'] {
+    transform: scale(0.96);
+  }
+  .js [data-reveal].is-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  /* Masked line reveal for big headings: <span class="line"><span>…</span></span>
+     data-lines="load" (page heroes) animates straight away in CSS, without waiting for JS. */
+  [data-lines] .line {
+    overflow: hidden;
+    padding-bottom: 0.08em;
+    margin-bottom: -0.08em;
+  }
+  [data-lines] .line > span {
+    display: inline-block;
+  }
+  .js [data-lines]:not([data-lines='load']) .line > span {
+    transform: translateY(105%);
+    transition: transform 1.1s var(--ease-out);
+    transition-delay: calc(var(--d, 0s) + var(--l, 0) * 0.09s);
+  }
+  .js [data-lines]:not([data-lines='load']).is-in .line > span {
+    transform: none;
+  }
+  [data-lines='load'] .line > span {
+    animation: line-up 1.1s var(--ease-out) both;
+    animation-delay: calc(0.05s + var(--l, 0) * 0.09s);
+  }
+}
+@keyframes line-up {
+  from {
+    transform: translateY(105%);
+  }
+}
+[data-lines] .line {
+  display: block;
+}
+
+/* ── Page transitions (View Transitions API) ──────────────────────────────── */
+
+@media (prefers-reduced-motion: no-preference) {
+  ::view-transition-old(root) {
+    animation: vt-out 0.45s var(--ease-in-out) both;
+  }
+  ::view-transition-new(root) {
+    animation: vt-in 0.75s var(--ease-out) both;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none !important;
+  }
+}
+@keyframes vt-out {
+  to {
+    opacity: 0.4;
+    transform: translateY(-3%);
+  }
+}
+@keyframes vt-in {
+  from {
+    clip-path: inset(100% 0 0 0);
+    transform: translateY(6%);
+  }
+  to {
+    clip-path: inset(0 0 0 0);
+    transform: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}

@@ -1,0 +1,294 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
+import SectionHead from '../components/SectionHead.astro'
+import Faq from '../components/Faq.astro'
+import CtaBand from '../components/CtaBand.astro'
+import { processSteps, faqs } from '../config/site'
+
+const promises = [
+  { t: 'One point of contact', d: 'You talk directly to the people designing and building your site — not an account manager passing messages along.' },
+  { t: 'Live previews, not PDFs', d: 'You review real pages on your own phone and laptop, on a private link, from the first design onwards.' },
+  { t: 'Fixed quotes', d: 'Scope and price are agreed in writing before work starts. If something new comes up, we talk about it first.' },
+  { t: 'Plain English', d: 'No jargon, no mystery. We explain choices clearly and make sure you know how your website works.' },
+]
+
+const processFaqs = faqs.filter((f) => /long|content|cost|meet/i.test(f.q))
+
+const jsonLd = {
+  '@type': 'HowTo',
+  name: 'How Tomorrow Web builds a website',
+  step: processSteps.map((s, i) => ({ '@type': 'HowToStep', position: i + 1, name: s.title, text: s.detail })),
+}
+---
+
+<Base
+  title="Process"
+  description="How Tomorrow Web works: a conversation, a fixed written proposal, design you review on a live link, a careful build, a planned launch and ongoing care."
+  jsonLd={jsonLd}
+>
+  <PageHero
+    label="Process"
+    lines={['From first chat', 'to launch —', 'and after.']}
+    accent={2}
+    intro="Six clear steps, a fixed price agreed up front, and a live preview you can open on your phone at every stage. Here’s exactly what happens, and what we’ll need from you."
+  />
+
+  <section class="steps-sec" aria-label="The six steps">
+    <div class="wrap">
+      <ol class="steps" data-progress>
+        {
+          processSteps.map((s, i) => (
+            <li class="step">
+              <div class="step-num-col" aria-hidden="true">
+                <span class="step-num">{String(i + 1).padStart(2, '0')}</span>
+              </div>
+              <div class="step-body">
+                <h2 class="step-title" data-reveal>
+                  <span class="sr-only">Step {i + 1}: </span>
+                  {s.title}
+                </h2>
+                <p class="step-summary" data-reveal style="--d:.06s">
+                  {s.summary}
+                </p>
+                <p class="step-detail" data-reveal style="--d:.1s">
+                  {s.detail}
+                </p>
+                <dl class="step-cells" data-reveal style="--d:.14s">
+                  <div>
+                    <dt class="mono">You get</dt>
+                    <dd>{s.youGet}</dd>
+                  </div>
+                  <div>
+                    <dt class="mono">Your part</dt>
+                    <dd>{s.yourPart}</dd>
+                  </div>
+                </dl>
+              </div>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section dark promises" aria-labelledby="promises-title">
+    <div class="wrap">
+      <SectionHead label="Working together" id="promises-title">
+        <span class="line"><span>What you can </span></span>
+        <span class="line" style="--l:1"><span>count on. </span></span>
+      </SectionHead>
+      <ul class="promise-grid">
+        {
+          promises.map((p, i) => (
+            <li data-reveal style={`--d:${i * 0.07}s`}>
+              <span class="promise-dot" aria-hidden="true" />
+              <h3>{p.t}</h3>
+              <p>{p.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pfaq-title">
+    <div class="wrap">
+      <SectionHead label="Questions" id="pfaq-title">
+        <span class="line"><span>Before you </span></span>
+        <span class="line" style="--l:1"><span>get started. </span></span>
+      </SectionHead>
+      <div class="faq-wrap">
+        <Faq items={processFaqs} />
+        <p class="faq-more"><a href="/services/#faq-title" class="link-arrow">More questions answered</a></p>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Ready for step one?" text="It starts with a conversation. Tell us a little about your business and what you need — we’ll take it from there." />
+</Base>
+
+<style>
+  .steps-sec {
+    padding-bottom: var(--section);
+  }
+  .steps {
+    --p: 0;
+    position: relative;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  /* Progress line down the left edge. */
+  .steps::before,
+  .steps::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 2px;
+    background: var(--line-strong);
+  }
+  .steps::after {
+    background: var(--sun);
+    transform-origin: 50% 0;
+    transform: scaleY(var(--p));
+  }
+  :global(html:not(.js)) .steps::after {
+    transform: none;
+  }
+  .step {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 2rem clamp(2rem, 6vw, 6rem);
+    padding: clamp(2.5rem, 6vw, 5rem) 0 clamp(2.5rem, 6vw, 5rem) clamp(1.5rem, 4vw, 3.5rem);
+    border-top: 1px solid var(--line);
+  }
+  .step:first-child {
+    border-top: 0;
+  }
+  .step-num-col {
+    position: relative;
+  }
+  .step-num {
+    position: sticky;
+    top: calc(var(--header-h) + 1.5rem);
+    display: block;
+    font-family: var(--f-display);
+    font-size: clamp(5rem, 14vw, 13rem);
+    font-weight: 700;
+    font-stretch: 75%;
+    letter-spacing: -0.034em;
+    line-height: 0.8;
+    color: transparent;
+    -webkit-text-stroke: 1.5px var(--ink);
+  }
+  .step:hover .step-num {
+    color: var(--sun);
+    -webkit-text-stroke-color: var(--sun);
+    transition: color 0.4s, -webkit-text-stroke-color 0.4s;
+  }
+  .step-title {
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    font-stretch: 84%;
+    letter-spacing: -0.03em;
+  }
+  .step-summary {
+    margin: 1rem 0 1.25rem;
+    font-family: var(--f-display);
+    font-size: clamp(1.2rem, 1.8vw, 1.55rem);
+    font-weight: 500;
+    letter-spacing: -0.025em;
+    line-height: 1.25;
+  }
+  .step-detail {
+    color: var(--ink-2);
+    max-width: 58ch;
+  }
+  .step-cells {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1px;
+    margin: 2rem 0 0;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: var(--line-strong);
+    overflow: hidden;
+  }
+  .step-cells > div {
+    padding: 1.1rem 1.25rem;
+    background: var(--paper);
+  }
+  .step-cells dt {
+    margin-bottom: 0.4rem;
+    color: var(--ink-3);
+  }
+  .step-cells dd {
+    margin: 0;
+    font-weight: 600;
+  }
+
+  .promise-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 0;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line-night);
+  }
+  .promise-grid li {
+    padding: 2rem 1.75rem 2.5rem 0;
+  }
+  .promise-grid li + li {
+    padding-left: 1.75rem;
+    border-left: 1px solid var(--line-night);
+  }
+  .promise-dot {
+    display: block;
+    width: 0.8rem;
+    height: 0.8rem;
+    margin-bottom: 2.5rem;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  .promise-grid h3 {
+    font-size: clamp(1.4rem, 2vw, 1.8rem);
+    letter-spacing: -0.035em;
+  }
+  .promise-grid p {
+    margin: 0.9rem 0 0;
+    color: var(--on-night-2);
+  }
+  .faq-wrap {
+    max-width: 62rem;
+    margin-left: auto;
+  }
+  .faq-more {
+    margin: 2rem 0 0;
+  }
+
+  @media (max-width: 1000px) {
+    .promise-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .promise-grid li:nth-child(3) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .promise-grid li:nth-child(n + 3) {
+      border-top: 1px solid var(--line-night);
+    }
+  }
+  @media (max-width: 760px) {
+    .step {
+      grid-template-columns: 1fr;
+      gap: 1rem;
+    }
+    .step-num {
+      position: static;
+      font-size: 4.5rem;
+    }
+    .step-cells {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 560px) {
+    .promise-grid {
+      grid-template-columns: 1fr;
+    }
+    .promise-grid li,
+    .promise-grid li + li {
+      padding: 1.75rem 0;
+      border-left: 0;
+    }
+    .promise-grid li + li {
+      border-top: 1px solid var(--line-night);
+    }
+    .promise-dot {
+      margin-bottom: 1.25rem;
+    }
+  }
+</style>

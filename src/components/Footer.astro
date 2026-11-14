@@ -1,0 +1,178 @@
+---
+import { business, nav, services, whatsappLink, whatsappDisplay } from '../config/site'
+import Icon from './Icon.astro'
+
+const year = new Date().getFullYear()
+const wa = whatsappLink()
+const socials = Object.entries(business.social).filter(([, url]) => url)
+---
+
+<footer class="site-footer">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-intro">
+        <p class="footer-lede">Websites for businesses, restaurants & independents — designed, built and cared for.</p>
+        <a href="/contact/" class="btn btn-sun">Start a project <Icon name="arrow-right" size={18} /></a>
+      </div>
+
+      <nav class="footer-col" aria-label="Footer">
+        <h2 class="mono footer-h">Studio</h2>
+        <ul>
+          <li><a href="/">Home</a></li>
+          {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+          <li><a href="/contact/">Contact</a></li>
+        </ul>
+      </nav>
+
+      <div class="footer-col">
+        <h2 class="mono footer-h">Services</h2>
+        <ul>
+          {services.map((s) => <li><a href={`/services/#${s.slug}`}>{s.title}</a></li>)}
+        </ul>
+      </div>
+
+      <div class="footer-col">
+        <h2 class="mono footer-h">Contact</h2>
+        <ul>
+          {business.email && (
+            <li>
+              <a href={`mailto:${business.email}`} class="footer-mail">
+                <Icon name="mail" size={16} /> Email us
+              </a>
+            </li>
+          )}
+          {wa && (
+            <li>
+              <a href={wa} target="_blank" rel="noopener noreferrer">
+                <Icon name="whatsapp" size={16} /> {whatsappDisplay()}<span class="sr-only"> on WhatsApp (opens in a new tab)</span>
+              </a>
+            </li>
+          )}
+          {socials.map(([key, url]) => (
+            <li>
+              <a href={url} target="_blank" rel="noopener noreferrer" class="cap">
+                {key}<span class="sr-only"> (opens in a new tab)</span>
+              </a>
+            </li>
+          ))}
+          {business.location && <li class="footer-loc">{business.location}</li>}
+        </ul>
+      </div>
+    </div>
+
+    <p class="footer-word" aria-hidden="true">Tomorrow<span>Web</span><i class="footer-sun"></i></p>
+
+    <div class="footer-base mono">
+      <span>© {year} {business.name}</span>
+      <span class="footer-day" data-tomorrow>See you tomorrow.</span>
+      <a href="/privacy/">Privacy</a>
+    </div>
+  </div>
+</footer>
+
+<style>
+  .site-footer {
+    background: var(--night);
+    color: var(--on-night);
+    padding-top: clamp(4rem, 9vw, 7rem);
+    overflow: hidden;
+  }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 1.4fr repeat(3, 1fr);
+    gap: 2.5rem;
+  }
+  .footer-lede {
+    max-width: 22ch;
+    margin: 0 0 1.75rem;
+    font-family: var(--f-display);
+    font-size: clamp(1.5rem, 2.4vw, 2rem);
+    font-weight: 500;
+    letter-spacing: -0.03em;
+    line-height: 1.15;
+  }
+  .footer-h {
+    margin: 0 0 1.1rem;
+    font-size: 0.72rem;
+    font-weight: 500;
+    color: var(--on-night-2);
+  }
+  .footer-col ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.6rem;
+  }
+  .footer-col a {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--on-night);
+    text-decoration: none;
+    background: linear-gradient(currentColor, currentColor) 0 100% / 0 1px no-repeat;
+    transition: background-size 0.4s var(--ease-out);
+  }
+  .footer-col a:hover {
+    background-size: 100% 1px;
+  }
+  .footer-loc {
+    color: var(--on-night-2);
+  }
+  .cap {
+    text-transform: capitalize;
+  }
+  .footer-word {
+    display: flex;
+    align-items: baseline;
+    margin: clamp(3.5rem, 8vw, 6rem) 0 0;
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-stretch: 78%;
+    font-size: min(19.4vw, 19rem);
+    letter-spacing: -0.03em;
+    line-height: 0.8;
+    white-space: nowrap;
+    color: var(--on-night);
+    user-select: none;
+  }
+  .footer-word span {
+    margin-left: 0.12em;
+    font-weight: 300;
+  }
+  .footer-sun {
+    flex: none;
+    width: 0.16em;
+    height: 0.16em;
+    margin-left: 0.04em;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  .footer-base {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem 2rem;
+    justify-content: space-between;
+    padding: 1.5rem 0 2rem;
+    margin-top: clamp(1.5rem, 3vw, 2.5rem);
+    border-top: 1px solid var(--line-night);
+    font-size: 0.72rem;
+    color: var(--on-night-2);
+  }
+  .footer-base a {
+    color: inherit;
+  }
+  @media (max-width: 900px) {
+    .footer-grid {
+      grid-template-columns: 1fr 1fr;
+    }
+    .footer-intro {
+      grid-column: 1 / -1;
+    }
+  }
+  @media (max-width: 520px) {
+    .footer-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

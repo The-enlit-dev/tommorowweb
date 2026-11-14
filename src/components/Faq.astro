@@ -1,0 +1,95 @@
+---
+import { faqs } from '../config/site'
+import Icon from './Icon.astro'
+
+interface Props {
+  items?: typeof faqs
+}
+const { items = faqs } = Astro.props
+---
+
+<div class="faq">
+  {
+    items.map((f, i) => (
+      <details class="faq-item" data-reveal style={`--d:${(i % 4) * 0.05}s`}>
+        <summary>
+          <span class="faq-q">{f.q}</span>
+          <span class="faq-icon" aria-hidden="true">
+            <Icon name="plus" size={20} />
+          </span>
+        </summary>
+        <div class="faq-a">
+          <p>{f.a}</p>
+        </div>
+      </details>
+    ))
+  }
+</div>
+
+<style>
+  .faq {
+    border-top: 1px solid var(--line-strong);
+  }
+  .faq-item {
+    border-bottom: 1px solid var(--line-strong);
+  }
+  summary {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding: 1.4rem 0;
+    cursor: pointer;
+    list-style: none;
+  }
+  summary::-webkit-details-marker {
+    display: none;
+  }
+  .faq-q {
+    font-family: var(--f-display);
+    font-size: clamp(1.2rem, 1.9vw, 1.6rem);
+    font-weight: 550;
+    letter-spacing: -0.03em;
+    line-height: 1.2;
+  }
+  .faq-icon {
+    display: grid;
+    place-items: center;
+    flex: none;
+    width: 2.5rem;
+    height: 2.5rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: transform 0.5s var(--ease-out), background 0.3s, border-color 0.3s;
+  }
+  summary:hover .faq-icon {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .faq-item[open] .faq-icon {
+    transform: rotate(45deg);
+    background: var(--sun);
+    border-color: var(--sun);
+    color: var(--ink);
+  }
+  .faq-a {
+    max-width: 62ch;
+    padding: 0 3.5rem 1.6rem 0;
+    color: var(--ink-2);
+  }
+  .faq-a p {
+    margin: 0;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .faq-item[open] .faq-a {
+      animation: faq-in 0.5s var(--ease-out);
+    }
+  }
+  @keyframes faq-in {
+    from {
+      opacity: 0;
+      transform: translateY(-6px);
+    }
+  }
+</style>

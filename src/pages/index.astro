@@ -1,0 +1,493 @@
+---
+import { getCollection } from 'astro:content'
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+import SectionHead from '../components/SectionHead.astro'
+import Scrub from '../components/Scrub.astro'
+import ServiceRows from '../components/ServiceRows.astro'
+import Compare from '../components/Compare.astro'
+import ProjectCard from '../components/ProjectCard.astro'
+import Standards from '../components/Standards.astro'
+import CtaBand from '../components/CtaBand.astro'
+import { business, services, processSteps } from '../config/site'
+
+const work = (await getCollection('work', ({ data }) => !data.draft && data.featured)).sort((a, b) => a.data.order - b.data.order)
+const site = Astro.site!.href.replace(/\/$/, '')
+
+const jsonLd = [
+  {
+    '@type': 'ProfessionalService',
+    '@id': `${site}/#studio`,
+    name: business.name,
+    description: business.description,
+    url: `${site}/`,
+    logo: `${site}/apple-touch-icon.png`,
+    image: `${site}/og.png`,
+    ...(business.email ? { email: business.email } : {}),
+    ...(business.whatsapp ? { telephone: `+${business.whatsapp}` } : {}),
+    ...(business.location ? { address: business.location } : {}),
+    founder: { '@type': 'Person', name: business.founder.name },
+    knowsAbout: ['Web design', 'Web development', 'Website redesign', 'Landing pages', 'Website maintenance'],
+    hasOfferCatalog: {
+      '@type': 'OfferCatalog',
+      name: 'Website services',
+      itemListElement: services.map((s) => ({ '@type': 'Offer', itemOffered: { '@type': 'Service', name: s.title, description: s.lead } })),
+    },
+  },
+  { '@type': 'WebSite', '@id': `${site}/#website`, name: business.name, url: `${site}/`, publisher: { '@id': `${site}/#studio` } },
+]
+
+const ticker = services.map((s) => s.title)
+---
+
+<Base
+  title={`${business.name} — Web design & development studio`}
+  fullTitle
+  description="Tomorrow Web designs and builds fast, clear websites for businesses, restaurants and cafés, and independent professionals — from new sites and landing pages to redesigns and ongoing care."
+  jsonLd={jsonLd}
+>
+  <!-- ── Hero ─────────────────────────────────────────────────────────── -->
+  <section class="hero" aria-labelledby="hero-title">
+    <div class="wrap hero-inner">
+      <div class="hero-top">
+        <p class="eyebrow mono">Independent web studio</p>
+        <p class="mono hero-meta">Design · Build · Care</p>
+      </div>
+
+      <h1 id="hero-title" class="hero-title" data-lines="load">
+        <span class="line"><span class="hero-today">Today’s business. </span></span>
+        <span class="line" style="--l:1"><span>Tomorrow’s website. </span></span>
+      </h1>
+
+      <div class="hero-foot">
+        <p class="lead hero-lead">
+          We design and build fast, clear websites for businesses, restaurants & cafés and independent professionals — and look
+          after them once they’re live.
+        </p>
+        <div class="hero-actions">
+          <a href="/contact/" class="btn btn-ink">Start a project <Icon name="arrow-right" size={18} /></a>
+          <a href="/work/" class="btn btn-ghost hero-ghost">See our work</a>
+        </div>
+      </div>
+    </div>
+
+    <div class="horizon" aria-hidden="true">
+      <div class="horizon-sky">
+        <div class="horizon-sun" data-sunrise></div>
+      </div>
+      <div class="horizon-ticker mono">
+        <div class="ticker-track">
+          {
+            [0, 1].map(() => (
+              <span class="ticker-set">
+                {ticker.map((t) => (
+                  <span>
+                    {t}
+                    <i />
+                  </span>
+                ))}
+              </span>
+            ))
+          }
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Statement ────────────────────────────────────────────────────── -->
+  <section class="section statement" aria-label="What we do">
+    <div class="wrap statement-grid">
+      <p class="mono statement-label" data-reveal><b>(01)</b> What we do</p>
+      <div>
+        <Scrub
+          text="Your website is often the first thing a customer sees. We make sure it’s clear, quick and trustworthy — and that getting in touch takes one tap, not five."
+        />
+        <div class="statement-cols">
+          <p data-reveal>
+            <strong>For established businesses,</strong> a website that finally matches the reputation you’ve built offline.
+          </p>
+          <p data-reveal style="--d:.08s">
+            <strong>For small businesses and independents,</strong> a site that looks established from day one — without the agency
+            price tag or the jargon.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Services ─────────────────────────────────────────────────────── -->
+  <section class="section services-home" aria-labelledby="services-title">
+    <div class="wrap">
+      <SectionHead num="02" label="Services" id="services-title" intro="Six ways we help — from a first website to a full redesign, and the care that keeps it working afterwards.">
+        <span class="line"><span>Websites, </span></span>
+        <span class="line" style="--l:1"><span>start to finish. </span></span>
+      </SectionHead>
+      <ServiceRows />
+      <p class="services-more" data-reveal>
+        <a href="/services/" class="link-arrow">All services in detail <Icon name="arrow-right" size={18} /></a>
+      </p>
+    </div>
+  </section>
+
+  <!-- ── Today / Tomorrow ─────────────────────────────────────────────── -->
+  <section class="section dark compare-sec" aria-labelledby="compare-title">
+    <div class="wrap">
+      <SectionHead num="03" label="The difference" id="compare-title" intro="Same café, same coffee. One website sends customers away; the other brings them in. Drag to see what changes.">
+        <span class="line"><span>Every website is </span></span>
+        <span class="line" style="--l:1"><span>today’s or tomorrow’s. </span></span>
+      </SectionHead>
+      <div data-reveal="scale">
+        <Compare />
+      </div>
+    </div>
+  </section>
+
+  <!-- ── Work ─────────────────────────────────────────────────────────── -->
+  <section class="section work-home" aria-labelledby="work-title">
+    <div class="wrap">
+      <SectionHead num="04" label="Selected work" id="work-title" intro="Real projects only — no stock mock-ups or invented clients. Each one has a case study explaining what we built and why.">
+        <span class="line"><span>Recent </span></span>
+        <span class="line" style="--l:1"><span>work. </span></span>
+      </SectionHead>
+      <div class="stack">
+        {work.map((p, i) => <ProjectCard project={p} index={i} variant="stack" />)}
+      </div>
+      <p class="work-more" data-reveal>
+        <a href="/work/" class="btn btn-ghost">View all work <Icon name="arrow-right" size={18} /></a>
+      </p>
+    </div>
+  </section>
+
+  <Standards num="05" />
+
+  <!-- ── Process teaser ───────────────────────────────────────────────── -->
+  <section class="section process-home" aria-labelledby="process-title">
+    <div class="wrap">
+      <SectionHead num="06" label="Process" id="process-title" intro="A clear process with fixed quotes, live previews and plain English at every step.">
+        <span class="line"><span>How a project </span></span>
+        <span class="line" style="--l:1"><span>comes together. </span></span>
+      </SectionHead>
+      <ol class="psteps" data-progress>
+        {
+          processSteps.map((s, i) => (
+            <li data-reveal style={`--d:${i * 0.06}s`}>
+              <span class="pstep-num mono">{String(i + 1).padStart(2, '0')}</span>
+              <h3>{s.title}</h3>
+              <p>{s.summary}</p>
+            </li>
+          ))
+        }
+      </ol>
+      <p class="process-more" data-reveal>
+        <a href="/process/" class="link-arrow">How we work, step by step <Icon name="arrow-right" size={18} /></a>
+      </p>
+    </div>
+  </section>
+
+  <CtaBand />
+</Base>
+
+<style>
+  /* ── Hero ── */
+  .hero {
+    position: relative;
+    min-height: 100svh;
+    display: flex;
+    flex-direction: column;
+    padding-top: calc(var(--header-h) + clamp(1.5rem, 4vw, 3rem));
+    overflow: hidden;
+  }
+  .hero-inner {
+    position: relative;
+    z-index: 2;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+  }
+  .hero-top {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+  .hero-meta {
+    color: var(--ink-3);
+  }
+  .hero-title {
+    margin-top: auto;
+    font-size: var(--fs-hero);
+    font-weight: 700;
+    font-stretch: 78%;
+    letter-spacing: -0.034em;
+    line-height: 0.88;
+  }
+  .hero-title .line {
+    display: block;
+  }
+  .hero-today {
+    color: var(--ink-muted);
+  }
+  .hero-foot {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 1.5rem 3rem;
+    align-items: end;
+    margin: clamp(1.75rem, 3.5vw, 3rem) 0 clamp(2rem, 5vw, 4rem);
+  }
+  .hero-lead {
+    max-width: 46ch;
+    margin: 0;
+  }
+  .hero-ghost {
+    --bg: var(--paper);
+    border-color: var(--paper);
+  }
+  .hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .horizon {
+    position: relative;
+    z-index: 1;
+  }
+  .horizon-sky {
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 100%;
+    height: 100svh;
+    overflow: hidden;
+    pointer-events: none;
+  }
+  .horizon-sun {
+    --rise: 0;
+    position: absolute;
+    right: 7vw;
+    bottom: 0;
+    width: min(44vw, 640px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sun);
+    translate: 0 58%;
+    transform: translateY(calc(var(--rise) * -40%));
+    will-change: transform;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .horizon-sun {
+      animation: sunrise 1.8s var(--ease-out) 0.3s both;
+    }
+  }
+  @keyframes sunrise {
+    from {
+      translate: 0 100%;
+    }
+  }
+  .horizon-ticker {
+    position: relative;
+    overflow: hidden;
+    border-top: 2px solid var(--ink);
+    background: var(--paper);
+    padding: 1.05rem 0;
+    color: var(--ink);
+  }
+  .ticker-track {
+    display: flex;
+    width: max-content;
+  }
+  .ticker-set {
+    display: flex;
+    flex: none;
+  }
+  .ticker-set span {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.25rem;
+    padding-right: 2.25rem;
+    white-space: nowrap;
+  }
+  .ticker-set i {
+    width: 0.45rem;
+    height: 0.45rem;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    .ticker-track {
+      animation: ticker 38s linear infinite;
+    }
+    .horizon-ticker:hover .ticker-track {
+      animation-play-state: paused;
+    }
+  }
+  @keyframes ticker {
+    to {
+      transform: translateX(-50%);
+    }
+  }
+
+  @media (max-width: 760px) {
+    .hero {
+      min-height: 0;
+    }
+    .hero-title {
+      margin-top: clamp(4.5rem, 24vw, 9rem);
+    }
+    .hero-foot {
+      grid-template-columns: 1fr;
+    }
+    .horizon-sun {
+      width: 62vw;
+      right: -8vw;
+      translate: 0 66%;
+      transform: translateY(calc(var(--rise) * -14%));
+    }
+    .hero-meta {
+      display: none;
+    }
+  }
+
+  /* ── Statement ── */
+  .statement-grid {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 3fr;
+    gap: 1.5rem var(--gutter);
+  }
+  .statement-label {
+    padding-top: 0.75rem;
+    color: var(--ink-3);
+  }
+  .statement-label b {
+    color: var(--sun-deep);
+    font-weight: 500;
+  }
+  .statement-cols {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+  .statement-cols strong {
+    color: var(--ink);
+  }
+  @media (max-width: 760px) {
+    .statement-grid,
+    .statement-cols {
+      grid-template-columns: 1fr;
+    }
+    .statement-label {
+      padding-top: 0;
+    }
+  }
+
+  .services-home {
+    padding-top: 0;
+  }
+  .services-more,
+  .process-more {
+    margin: 2.5rem 0 0;
+  }
+
+  /* ── Work stack ── */
+  .stack {
+    position: relative;
+  }
+  .work-more {
+    display: flex;
+    justify-content: center;
+    margin: 3rem 0 0;
+  }
+
+  /* ── Process teaser ── */
+  .psteps {
+    --p: 0;
+    position: relative;
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 2.5rem 0 0;
+  }
+  .psteps::before,
+  .psteps::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 0;
+    height: 2px;
+    background: var(--line-strong);
+  }
+  .psteps::after {
+    background: var(--sun);
+    transform-origin: 0 50%;
+    transform: scaleX(var(--p));
+  }
+  :global(html:not(.js)) .psteps::after {
+    transform: scaleX(1);
+  }
+  .psteps li {
+    position: relative;
+  }
+  .psteps li::before {
+    content: '';
+    position: absolute;
+    top: calc(-2.5rem - 5px);
+    left: 0;
+    width: 12px;
+    height: 12px;
+    border-radius: 50%;
+    background: var(--paper);
+    border: 2px solid var(--ink);
+  }
+  .pstep-num {
+    color: var(--sun-deep);
+  }
+  .psteps h3 {
+    margin: 0.75rem 0 0.6rem;
+    font-size: 1.45rem;
+    font-weight: 600;
+    letter-spacing: -0.03em;
+  }
+  .psteps p {
+    margin: 0;
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  @media (max-width: 1100px) {
+    .psteps {
+      grid-template-columns: repeat(3, 1fr);
+      row-gap: 2.5rem;
+    }
+  }
+  @media (max-width: 640px) {
+    .psteps {
+      grid-template-columns: 1fr;
+      padding: 0 0 0 2rem;
+      row-gap: 1.75rem;
+    }
+    .psteps::before,
+    .psteps::after {
+      right: auto;
+      bottom: 0;
+      left: 5px;
+      width: 2px;
+      height: auto;
+    }
+    .psteps::after {
+      transform-origin: 50% 0;
+      transform: scaleY(var(--p));
+    }
+    :global(html:not(.js)) .psteps::after {
+      transform: scaleY(1);
+    }
+    .psteps li::before {
+      top: 0.2rem;
+      left: calc(-2rem);
+    }
+  }
+</style>

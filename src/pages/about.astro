@@ -1,0 +1,413 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
+import SectionHead from '../components/SectionHead.astro'
+import Scrub from '../components/Scrub.astro'
+import CtaBand from '../components/CtaBand.astro'
+import Icon from '../components/Icon.astro'
+import { business } from '../config/site'
+
+const principles = [
+  {
+    t: 'Clarity over cleverness',
+    d: 'A visitor should understand what you do and what to do next within seconds. Every design decision serves that first.',
+  },
+  {
+    t: 'Speed is a feature',
+    d: 'Most of your customers are on a phone, often on a patchy connection. Fast pages aren’t a nice-to-have; they’re how you keep people.',
+  },
+  {
+    t: 'Built to be yours',
+    d: 'Your domain, your content, your code. We build on open, low-cost tools so you’re never locked into us or an expensive platform.',
+  },
+  {
+    t: 'Honest from day one',
+    d: 'No fake reviews, no invented numbers, no templates passed off as custom work. Our portfolio is small and real — and we’re fine with that.',
+  },
+  {
+    t: 'Small on purpose',
+    d: 'You work directly with the people making your website. Fewer hand-offs, faster answers, more care.',
+  },
+]
+
+const wont = [
+  'Sell you features you don’t need',
+  'Lock you into a platform or a contract',
+  'Write reviews, results or claims that aren’t true',
+  'Disappear after launch',
+]
+---
+
+<Base
+  title="About"
+  description="Tomorrow Web is a young, independent web studio that designs and builds fast, honest websites for businesses, restaurants and independent professionals."
+>
+  <PageHero
+    label="About"
+    lines={['A young studio', 'with grown-up', 'standards.']}
+    accent={0}
+    intro="Tomorrow Web is an independent web design and development studio. We’re new, we’re small, and we care a great deal about doing this properly."
+  />
+
+  <section class="section-tight story" aria-labelledby="story-title">
+    <div class="wrap story-grid">
+      <p class="mono story-label" data-reveal><b>(01)</b> Our story</p>
+      <div>
+        <h2 id="story-title" class="sr-only">Our story</h2>
+        <Scrub text="Tomorrow Web started the way a lot of good things do — by helping people close to us." />
+        <div class="story-body">
+          <p data-reveal>
+            The first sites were for people and places we knew: a karate academy that had outgrown its Wix website, a product that
+            needed a home before it even existed, a personal portfolio that had to be easy to keep up to date.
+          </p>
+          <p data-reveal style="--d:.06s">
+            Each one taught us the same thing. Most businesses don’t need <em>more</em> website. They need a clearer one — a site that
+            loads quickly on a phone, says plainly what they do, and makes it effortless to get in touch.
+          </p>
+          <p data-reveal style="--d:.12s">
+            So that’s what we build. Not bloated templates or flashy tricks, but considered, fast, well-made websites for businesses,
+            restaurants and cafés, and independent professionals — and the care to keep them that way.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="section dark vision" aria-labelledby="vision-title">
+    <div class="vision-sun" data-sunrise aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="eyebrow mono" data-reveal>Our vision</p>
+      <h2 id="vision-title" class="vision-quote" data-lines>
+        <span class="line"><span>Every business deserves </span></span>
+        <span class="line" style="--l:1"><span>a website as good </span></span>
+        <span class="line" style="--l:2"><span>as the work it does. </span></span>
+      </h2>
+      <p class="lead vision-text" data-reveal style="--d:.2s">
+        The corner café, the clinic, the coach, the consultant — they shouldn’t have to choose between an expensive agency and a
+        website that lets them down. We want to close that gap, one well-made site at a time.
+      </p>
+    </div>
+  </section>
+
+  <section class="section principles" aria-labelledby="principles-title">
+    <div class="wrap">
+      <SectionHead num="02" label="How we think" id="principles-title" intro="Five principles behind every project, whatever its size.">
+        <span class="line"><span>What we </span></span>
+        <span class="line" style="--l:1"><span>believe. </span></span>
+      </SectionHead>
+      <ol class="prin-list">
+        {
+          principles.map((p, i) => (
+            <li class="prin" data-reveal style={`--d:${(i % 2) * 0.06}s`}>
+              <span class="prin-num mono" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3>{p.t}</h3>
+              <p>{p.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section-tight young" aria-labelledby="young-title">
+    <div class="wrap young-grid">
+      <div class="young-copy">
+        <p class="eyebrow mono" data-reveal>Why young is good</p>
+        <h2 id="young-title" class="young-title" data-reveal>We grew up on the web your customers use.</h2>
+        <p data-reveal>
+          We know how people actually browse: on phones, in a hurry, deciding in seconds whether to stay. We use modern, lightweight
+          tools that make sites faster and cheaper to run — and we have every reason to go the extra mile, because every project we
+          take on is one we want to be proud to show.
+        </p>
+      </div>
+      <div class="wont" data-reveal style="--d:.1s">
+        <h3 class="mono">What we won’t do</h3>
+        <ul>
+          {
+            wont.map((w) => (
+              <li>
+                <Icon name="close" size={18} />
+                {w}
+              </li>
+            ))
+          }
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="section founder-sec" aria-labelledby="founder-title">
+    <div class="wrap">
+      <div class="founder" data-reveal>
+        <div class="founder-mark" aria-hidden="true">
+          <span>{business.founder.name.split(' ').map((n) => n[0]).join('')}</span>
+        </div>
+        <div class="founder-body">
+          <p class="mono founder-role">{business.founder.role}</p>
+          <h2 id="founder-title" class="founder-name">{business.founder.name}</h2>
+          <p>
+            Tomorrow Web is led by {business.founder.name.split(' ')[0]}, a developer who builds websites and digital products —
+            including the projects in our portfolio. When you work with Tomorrow Web, you work directly with the person designing and
+            building your site, from the first call to launch day and beyond.
+          </p>
+          <p class="founder-links">
+            {
+              business.founder.linkedin && (
+                <a href={business.founder.linkedin} target="_blank" rel="noopener noreferrer" class="link-arrow">
+                  LinkedIn <Icon name="arrow-up-right" size={16} />
+                  <span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              )
+            }
+            {
+              business.founder.github && (
+                <a href={business.founder.github} target="_blank" rel="noopener noreferrer" class="link-arrow">
+                  GitHub <Icon name="arrow-up-right" size={16} />
+                  <span class="sr-only"> (opens in a new tab)</span>
+                </a>
+              )
+            }
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Let’s make something good." />
+</Base>
+
+<style>
+  .story-grid {
+    display: grid;
+    grid-template-columns: minmax(10rem, 1fr) 3fr;
+    gap: 1.5rem var(--gutter);
+    padding-bottom: clamp(2rem, 6vw, 5rem);
+  }
+  .story-label {
+    padding-top: 0.75rem;
+    color: var(--ink-3);
+  }
+  .story-label b {
+    color: var(--sun-deep);
+    font-weight: 500;
+  }
+  .story-body {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2rem;
+    margin-top: clamp(2.5rem, 5vw, 4rem);
+    padding-top: 2rem;
+    border-top: 1px solid var(--line);
+    color: var(--ink-2);
+  }
+
+  .vision {
+    position: relative;
+    overflow: hidden;
+  }
+  .vision .wrap {
+    position: relative;
+    z-index: 1;
+  }
+  .vision-sun {
+    --rise: 0.5;
+    position: absolute;
+    left: 50%;
+    bottom: 0;
+    width: min(120vw, 1500px);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    border: 1px solid rgb(255 90 31 / 0.5);
+    box-shadow:
+      0 0 0 6vw rgb(255 90 31 / 0.04),
+      0 0 0 12vw rgb(255 90 31 / 0.03);
+    transform: translate(-50%, calc(88% - var(--rise) * 18%));
+  }
+  .vision-quote {
+    font-size: clamp(2.4rem, 7vw, 7rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.95;
+  }
+  .vision-quote .line {
+    display: block;
+  }
+  .vision-quote .line:last-child > span {
+    color: var(--sun);
+  }
+  .vision-text {
+    max-width: 52ch;
+    margin: clamp(2rem, 4vw, 3rem) 0 0 auto;
+  }
+
+  .prin-list {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 clamp(2rem, 5vw, 5rem);
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .prin {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0.5rem 1rem;
+    padding: 2rem 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .prin:last-child {
+    grid-column: 1 / -1;
+  }
+  .prin-num {
+    padding-top: 0.5rem;
+    color: var(--sun-deep);
+  }
+  .prin h3 {
+    font-size: clamp(1.6rem, 2.6vw, 2.4rem);
+    font-weight: 650;
+    font-stretch: 88%;
+    letter-spacing: -0.028em;
+  }
+  .prin p {
+    grid-column: 2;
+    max-width: 52ch;
+    margin: 0.4rem 0 0;
+    color: var(--ink-2);
+  }
+
+  .young {
+    background: var(--paper-2);
+    padding-block: var(--section);
+  }
+  .young-grid {
+    display: grid;
+    grid-template-columns: 1.4fr 1fr;
+    gap: 3rem clamp(2rem, 6vw, 6rem);
+    align-items: start;
+  }
+  .young-title {
+    margin-bottom: 1.5rem;
+    font-size: clamp(2rem, 4vw, 3.5rem);
+    font-weight: 700;
+    font-stretch: 84%;
+    letter-spacing: -0.03em;
+    max-width: 16ch;
+  }
+  .young-copy p:last-child {
+    max-width: 56ch;
+    color: var(--ink-2);
+  }
+  .wont {
+    padding: 2rem;
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+    border: 1px solid var(--line);
+  }
+  .wont h3 {
+    margin-bottom: 1.25rem;
+    color: var(--ink-3);
+    font-weight: 500;
+    letter-spacing: 0.06em;
+  }
+  .wont ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .wont li {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    font-weight: 500;
+  }
+  .wont :global(.icon) {
+    flex: none;
+    margin-top: 0.15rem;
+    color: var(--sun-deep);
+  }
+
+  .founder {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: clamp(1.5rem, 4vw, 4rem);
+    align-items: center;
+    max-width: 68rem;
+    margin-inline: auto;
+  }
+  .founder-mark {
+    position: relative;
+    display: grid;
+    place-items: center;
+    width: clamp(8rem, 18vw, 14rem);
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sun);
+    overflow: hidden;
+  }
+  .founder-mark::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    top: 62%;
+    height: 3px;
+    background: var(--ink);
+  }
+  .founder-mark span {
+    font-family: var(--f-display);
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.034em;
+    transform: translateY(-12%);
+  }
+  .founder-role {
+    margin: 0 0 0.75rem;
+    color: var(--ink-3);
+  }
+  .founder-name {
+    margin-bottom: 1.25rem;
+    font-size: clamp(2rem, 4vw, 3.25rem);
+    font-weight: 700;
+    font-stretch: 84%;
+    letter-spacing: -0.03em;
+  }
+  .founder-body > p:not([class]) {
+    max-width: 58ch;
+    color: var(--ink-2);
+  }
+  .founder-links {
+    display: flex;
+    gap: 1.5rem;
+  }
+
+  @media (max-width: 900px) {
+    .story-grid,
+    .young-grid {
+      grid-template-columns: 1fr;
+    }
+    .story-body {
+      grid-template-columns: 1fr;
+      gap: 0;
+    }
+    .story-label {
+      padding-top: 0;
+    }
+    .prin-list {
+      grid-template-columns: 1fr;
+    }
+  }
+  @media (max-width: 600px) {
+    .founder {
+      grid-template-columns: 1fr;
+    }
+    .prin {
+      grid-template-columns: 2.25rem 1fr;
+    }
+  }
+</style>

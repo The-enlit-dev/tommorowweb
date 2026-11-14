@@ -1,0 +1,97 @@
+---
+import { standards } from '../config/site'
+import SectionHead from './SectionHead.astro'
+interface Props {
+  num?: string
+}
+const { num } = Astro.props
+---
+
+<section class="section dark standards" aria-labelledby="standards-title">
+  <div class="wrap">
+    <SectionHead num={num} label="Every build" id="standards-title" intro="Whatever the size of the project, these come as standard. No upsells, no fine print.">
+      <span class="line"><span>The standard, </span></span>
+      <span class="line" style="--l:1"><span>not the extra. </span></span>
+    </SectionHead>
+
+    <dl class="spec">
+      {
+        standards.map((s, i) => (
+          <div class="spec-row" data-reveal style={`--d:${(i % 3) * 0.07}s`}>
+            <dt>
+              <span class="mono">{String(i + 1).padStart(2, '0')}</span>
+              {s.k}
+            </dt>
+            <dd>{s.v}</dd>
+          </div>
+        ))
+      }
+    </dl>
+  </div>
+</section>
+
+<style>
+  .spec {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 0;
+    border-top: 1px solid var(--line-night);
+  }
+  .spec-row {
+    padding: 2rem 2rem 2.5rem 0;
+    border-bottom: 1px solid var(--line-night);
+  }
+  .spec-row:not(:nth-child(3n + 1)) {
+    padding-left: 2rem;
+    border-left: 1px solid var(--line-night);
+  }
+  dt {
+    display: flex;
+    flex-direction: column;
+    gap: 1.75rem;
+    font-family: var(--f-display);
+    font-size: clamp(1.8rem, 3vw, 2.6rem);
+    font-weight: 600;
+    font-stretch: 86%;
+    letter-spacing: -0.028em;
+    line-height: 1;
+  }
+  dt .mono {
+    color: var(--sun);
+  }
+  dd {
+    margin: 1rem 0 0;
+    max-width: 32ch;
+    color: var(--on-night-2);
+  }
+  @media (max-width: 900px) {
+    .spec {
+      grid-template-columns: 1fr 1fr;
+    }
+    .spec-row:not(:nth-child(3n + 1)) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .spec-row:nth-child(even) {
+      padding-left: 1.5rem;
+      border-left: 1px solid var(--line-night);
+    }
+  }
+  @media (max-width: 560px) {
+    .spec {
+      grid-template-columns: 1fr;
+    }
+    .spec-row:nth-child(even) {
+      padding-left: 0;
+      border-left: 0;
+    }
+    .spec-row {
+      padding: 1.5rem 0 1.75rem;
+    }
+    dt {
+      flex-direction: row;
+      align-items: baseline;
+      gap: 1rem;
+    }
+  }
+</style>

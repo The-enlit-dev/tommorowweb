@@ -1,0 +1,206 @@
+---
+import type { CollectionEntry } from 'astro:content'
+import { Picture } from 'astro:assets'
+import Icon from './Icon.astro'
+
+interface Props {
+  project: CollectionEntry<'work'>
+  index: number
+  /** 'stack' = large sticky card on the home page, 'grid' = card on /work/. */
+  variant?: 'stack' | 'grid'
+  eager?: boolean
+  /** Heading level for the project title, to keep the page outline in order. */
+  level?: 2 | 3
+}
+const { project, index, variant = 'grid', eager = false, level = 3 } = Astro.props
+const Heading = level === 2 ? 'h2' : 'h3'
+const p = project.data
+const href = `/work/${project.id}/`
+const host = p.url ? new URL(p.url).host : 'preview'
+const titleId = `project-${project.id}-${variant}`
+---
+
+<article
+  class:list={['pcard', `pcard-${variant}`]}
+  style={`--accent:${p.color}; --i:${index}`}
+  aria-labelledby={titleId}
+  data-stack-card={variant === 'stack' ? '' : undefined}
+>
+  <div class="pcard-inner">
+    <div class="pcard-meta">
+      <p class="pcard-num mono" aria-hidden="true">{String(index + 1).padStart(2, '0')}</p>
+      <div class="pcard-text">
+        <p class="pcard-rel mono">{p.relationship}</p>
+        <Heading id={titleId} class="pcard-title">
+          <a href={href}>{p.title}</a>
+        </Heading>
+        <p class="pcard-summary">{p.summary}</p>
+        <ul class="pcard-tags" aria-label="Categories">
+          {p.categories.map((c) => <li class="chip">{c}</li>)}
+          <li class="chip status" data-status={p.status}>{p.status}</li>
+        </ul>
+      </div>
+      <span class="pcard-cta link-arrow" aria-hidden="true">View case study <Icon name="arrow-right" size={18} /></span>
+    </div>
+
+    <div class="pcard-visual">
+      <div class="browser">
+        <div class="browser-bar" aria-hidden="true">
+          <span class="dots"><i></i><i></i><i></i></span>
+          <span class="url">{host}</span>
+        </div>
+        <Picture
+          src={p.cover}
+          alt={p.coverAlt}
+          widths={[480, 800, 1200, 1600]}
+          sizes={variant === 'stack' ? '(max-width: 900px) 92vw, 60vw' : '(max-width: 760px) 92vw, 46vw'}
+          formats={['avif']}
+          fallbackFormat="webp"
+          loading={eager ? 'eager' : 'lazy'}
+          decoding="async"
+        />
+      </div>
+    </div>
+  </div>
+</article>
+
+<style>
+  .pcard {
+    position: relative;
+  }
+  .pcard-title a {
+    text-decoration: none;
+  }
+  /* The whole card is clickable via the title link's pseudo-element. */
+  .pcard-title a::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 2;
+    border-radius: inherit;
+  }
+  .pcard-title a:focus-visible {
+    outline: none;
+  }
+  .pcard:has(.pcard-title a:focus-visible) {
+    outline: 2px solid var(--sun-deep);
+    outline-offset: 4px;
+  }
+  .pcard-num {
+    margin: 0;
+    color: var(--ink-3);
+  }
+  .pcard-rel {
+    margin: 0 0 0.75rem;
+    color: var(--ink-3);
+  }
+  .pcard-title {
+    font-size: clamp(1.9rem, 3.4vw, 3.2rem);
+    font-stretch: 88%;
+    font-weight: 650;
+    letter-spacing: -0.028em;
+  }
+  .pcard-summary {
+    margin: 1rem 0 1.25rem;
+    color: var(--ink-2);
+    max-width: 44ch;
+  }
+  .pcard-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .pcard-visual {
+    overflow: hidden;
+    border-radius: var(--radius);
+  }
+  .pcard-visual :global(img) {
+    transition: transform 1.2s var(--ease-out);
+  }
+  .pcard:hover .pcard-visual :global(img) {
+    transform: scale(1.025);
+  }
+  .pcard-cta {
+    align-self: flex-start;
+    margin-top: 1.5rem;
+  }
+
+  /* ── Stack variant: big sticky cards on the home page ── */
+  .pcard-stack {
+    --cover: 0;
+    position: sticky;
+    top: calc(var(--header-h) + 1rem + var(--i) * 0.9rem);
+    margin-bottom: 2rem;
+  }
+  .pcard-stack .pcard-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
+    gap: clamp(1.5rem, 4vw, 4rem);
+    padding: clamp(1.25rem, 3vw, 2.75rem);
+    border-radius: var(--radius-lg);
+    background: var(--paper);
+    border: 1px solid var(--line);
+    box-shadow: 0 -20px 50px -30px rgb(18 18 17 / 0.25);
+    transform-origin: 50% 0;
+    transform: scale(calc(1 - var(--cover) * 0.05));
+    filter: brightness(calc(1 - var(--cover) * 0.08));
+  }
+  .pcard-stack .pcard-meta {
+    display: flex;
+    flex-direction: column;
+    gap: 2rem;
+  }
+  .pcard-stack .pcard-text {
+    margin-top: auto;
+  }
+  .pcard-stack .pcard-inner::before {
+    content: '';
+    position: absolute;
+    left: clamp(1.25rem, 3vw, 2.75rem);
+    top: 0;
+    width: 3rem;
+    height: 4px;
+    border-radius: 0 0 4px 4px;
+    background: var(--accent);
+  }
+
+  /* ── Grid variant: /work/ ── */
+  .pcard-grid .pcard-inner {
+    display: flex;
+    flex-direction: column-reverse;
+    gap: 1.5rem;
+  }
+  .pcard-grid .pcard-meta {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0 1.25rem;
+  }
+  .pcard-grid .pcard-num {
+    padding-top: 0.35rem;
+  }
+  .pcard-grid .pcard-cta {
+    grid-column: 2;
+    justify-self: start;
+  }
+  .pcard-grid .pcard-title {
+    font-size: clamp(1.7rem, 2.6vw, 2.5rem);
+  }
+
+  @media (max-width: 900px) {
+    .pcard-stack {
+      position: relative;
+      top: auto;
+    }
+    .pcard-stack .pcard-inner {
+      grid-template-columns: 1fr;
+      transform: none;
+      filter: none;
+    }
+    .pcard-stack .pcard-visual {
+      order: -1;
+    }
+  }
+</style>

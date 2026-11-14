@@ -1,0 +1,41 @@
+---
+/**
+ * Large statement text whose words light up as it scrolls into view.
+ * The full sentence is real text, so it reads normally for everyone.
+ */
+interface Props {
+  text: string
+  as?: 'p' | 'h2'
+  class?: string
+}
+const { text, as: Tag = 'p', class: className } = Astro.props
+const words = text.split(/\s+/)
+---
+
+<Tag class:list={['scrub', className]} data-scrub>
+  {words.map((w, i) => <><span class="w">{w}</span>{i < words.length - 1 ? ' ' : ''}</>)}
+</Tag>
+
+<style>
+  .scrub {
+    margin: 0;
+    font-family: var(--f-display);
+    font-size: var(--fs-statement);
+    font-weight: 500;
+    letter-spacing: -0.035em;
+    line-height: 1.12;
+    text-wrap: pretty;
+  }
+  @media (prefers-reduced-motion: no-preference) {
+    :global(.js) .scrub .w {
+      color: var(--ink-muted);
+      transition: color 0.4s ease;
+    }
+    :global(.js .dark) .scrub .w {
+      color: var(--ink-muted);
+    }
+    :global(.js) .scrub .w.is-lit {
+      color: inherit;
+    }
+  }
+</style>

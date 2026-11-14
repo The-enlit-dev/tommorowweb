@@ -1,0 +1,18 @@
+---
+/** Shared section heading: a small numbered label beside a large heading. */
+interface Props {
+  num?: string
+  label: string
+  id?: string
+  intro?: string
+}
+const { num, label, id, intro } = Astro.props
+---
+
+<div class="sec-head">
+  <p class="label mono" data-reveal>
+    {num && <b>({num})</b>} {label}
+  </p>
+  <h2 id={id} data-lines><slot /></h2>
+  {intro && <p class="intro" data-reveal style="--d:.15s">{intro}</p>}
+</div>

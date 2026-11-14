@@ -1,0 +1,510 @@
+---
+/**
+ * Project enquiry form — Netlify Forms.
+ * Netlify detects this form at deploy time because it is plain HTML in the
+ * built page (data-netlify="true"). Submissions appear in the Netlify
+ * dashboard under Forms → enquiry. See README → "Enquiry form".
+ */
+import { business, websiteTypes, budgets, contactMethods } from '../config/site'
+import Icon from './Icon.astro'
+
+const wa = business.whatsapp.replace(/\D/g, '')
+---
+
+<form
+  class="eform"
+  name={business.formName}
+  method="POST"
+  action="/thanks/"
+  data-netlify="true"
+  netlify-honeypot="bot-field"
+  data-enquiry
+  data-astro-reload
+  aria-describedby="eform-required"
+>
+  <input type="hidden" name="form-name" value={business.formName} />
+  <input type="hidden" name="subject" value="New website enquiry — Tomorrow Web" />
+  <p class="hp" aria-hidden="true">
+    <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+  </p>
+
+  <p id="eform-required" class="eform-req mono">Fields marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required</p>
+
+  <fieldset class="eset">
+    <legend><span class="mono">01</span> About you</legend>
+    <div class="row">
+      <div class="field">
+        <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
+        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" data-label="Your name" aria-describedby="err-f-name" />
+        <p class="err" id="err-f-name" data-error-for="f-name" hidden></p>
+      </div>
+      <div class="field">
+        <label for="f-business">Business or project name</label>
+        <input id="f-business" name="business" type="text" autocomplete="organization" maxlength="160" />
+        <p class="hint">Leave blank if it’s a personal site.</p>
+      </div>
+    </div>
+    <div class="row">
+      <div class="field">
+        <label for="f-email">Email <span class="req" aria-hidden="true">*</span></label>
+        <input id="f-email" name="email" type="email" autocomplete="email" required maxlength="200" data-label="Your email" aria-describedby="err-f-email" />
+        <p class="err" id="err-f-email" data-error-for="f-email" hidden></p>
+      </div>
+      <div class="field">
+        <label for="f-phone">Phone / WhatsApp</label>
+        <input
+          id="f-phone"
+          name="phone"
+          type="tel"
+          autocomplete="tel"
+          inputmode="tel"
+          maxlength="24"
+          pattern="[0-9\s\+\(\)\-]{7,24}"
+          data-label="Your phone number"
+          data-pattern-message="Please enter a phone number using digits — you can include the country code, like +91."
+          aria-describedby="hint-f-phone err-f-phone"
+        />
+        <p class="hint" id="hint-f-phone">Optional — include your country code if you’re outside India.</p>
+        <p class="err" id="err-f-phone" data-error-for="f-phone" hidden></p>
+      </div>
+    </div>
+  </fieldset>
+
+  <fieldset class="eset">
+    <legend><span class="mono">02</span> Your project</legend>
+
+    <fieldset class="choices" aria-describedby="err-website-type">
+      <legend>What kind of website do you need? <span class="req" aria-hidden="true">*</span></legend>
+      <div class="chips">
+        {
+          websiteTypes.map((t, i) => (
+            <label class="choice">
+              <input type="radio" name="website-type" value={t.value} data-slug={t.slug} required={i === 0} data-label="A type of website" />
+              <span>{t.value}</span>
+            </label>
+          ))
+        }
+      </div>
+      <p class="err" id="err-website-type" data-error-for="website-type" hidden></p>
+    </fieldset>
+
+    <fieldset class="choices" aria-describedby="hint-budget err-budget">
+      <legend>Budget range <span class="req" aria-hidden="true">*</span></legend>
+      <p class="hint" id="hint-budget">A rough range helps us suggest what fits. You’ll get a fixed quote before anything starts.</p>
+      <div class="chips">
+        {
+          budgets.map((b, i) => (
+            <label class="choice">
+              <input type="radio" name="budget" value={b} required={i === 0} data-label="A budget range" />
+              <span>{b}</span>
+            </label>
+          ))
+        }
+      </div>
+      <p class="err" id="err-budget" data-error-for="budget" hidden></p>
+    </fieldset>
+
+    <div class="field">
+      <label for="f-site">Current website, if you have one</label>
+      <input id="f-site" name="current-site" type="text" inputmode="url" autocomplete="url" maxlength="300" placeholder="e.g. yourbusiness.com" />
+    </div>
+  </fieldset>
+
+  <fieldset class="eset">
+    <legend><span class="mono">03</span> The details</legend>
+    <div class="field">
+      <label for="f-message">Tell us about your project <span class="req" aria-hidden="true">*</span></label>
+      <textarea
+        id="f-message"
+        name="message"
+        rows="6"
+        required
+        minlength="20"
+        maxlength="5000"
+        data-label="A few details about your project"
+        aria-describedby="hint-f-message err-f-message"
+        placeholder="What does your business do? What should the website help with? Any deadlines, examples you like, or features you need?"
+      ></textarea>
+      <p class="hint" id="hint-f-message">A few sentences is plenty.</p>
+      <p class="err" id="err-f-message" data-error-for="f-message" hidden></p>
+    </div>
+
+    <fieldset class="choices">
+      <legend>Best way to reach you</legend>
+      <div class="chips">
+        {
+          contactMethods.map((m, i) => (
+            <label class="choice">
+              <input type="radio" name="contact-method" value={m} checked={i === 0} />
+              <span>{m}</span>
+            </label>
+          ))
+        }
+      </div>
+    </fieldset>
+  </fieldset>
+
+  <div class="eform-status" data-form-status role="alert" hidden>
+    <Icon name="alert" size={20} />
+    <p>
+      <span data-status-text></span>
+      {business.email && <> Email: <a href={`mailto:${business.email}`}>{business.email}</a></>}
+    </p>
+  </div>
+
+  <div class="eform-foot">
+    <p class="eform-privacy">
+      We only use your details to reply to your enquiry. <a href="/privacy/">Privacy</a>
+    </p>
+    <div class="eform-actions">
+      {
+        wa && (
+          <button type="button" class="btn btn-ghost" data-wa-send data-number={wa}>
+            <Icon name="whatsapp" size={18} /> Send on WhatsApp
+          </button>
+        )
+      }
+      <button type="submit" class="btn btn-ink eform-submit">
+        <span data-label>Send enquiry</span>
+        <Icon name="arrow-right" size={18} />
+      </button>
+    </div>
+  </div>
+</form>
+
+<div class="eform-success dark" data-form-success hidden>
+  <span class="success-sun" aria-hidden="true"></span>
+  <h2 tabindex="-1">Thank you<span data-success-name></span>.</h2>
+  <p class="lead">Your enquiry is with us. We read every message personally and will reply using the details you gave us.</p>
+  <ol class="success-next">
+    <li><span class="mono">01</span> We read your enquiry and look at any links you shared.</li>
+    <li><span class="mono">02</span> We get back to you with questions, ideas or a time to talk.</li>
+    <li><span class="mono">03</span> If it’s a good fit, you get a written proposal with a fixed quote.</li>
+  </ol>
+  <div class="success-actions">
+    <a href="/work/" class="btn btn-ink">Browse our work</a>
+    <button type="button" class="btn btn-ghost" data-form-again>Send another enquiry</button>
+  </div>
+</div>
+
+<style>
+  .eform {
+    display: grid;
+    gap: clamp(2rem, 4vw, 3rem);
+  }
+  .eform[hidden] {
+    display: none;
+  }
+  .hp {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+  }
+  .eform-req {
+    margin: 0;
+    color: var(--ink-3);
+  }
+  .eset {
+    margin: 0;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .eset > legend {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    width: 100%;
+    padding: 0 0 1rem;
+    margin-bottom: 1.5rem;
+    border-bottom: 1px solid var(--line-strong);
+    font-family: var(--f-display);
+    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
+    font-weight: 600;
+    letter-spacing: -0.035em;
+  }
+  .eset > legend .mono {
+    color: var(--sun-deep);
+  }
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 1.5rem;
+  }
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.45rem;
+    margin-bottom: 1.5rem;
+  }
+  label,
+  .choices > legend {
+    font-weight: 600;
+    font-size: 0.98rem;
+  }
+  .req {
+    color: var(--sun-deep);
+  }
+  input[type='text'],
+  input[type='email'],
+  input[type='tel'],
+  textarea {
+    width: 100%;
+    min-height: 3.25rem;
+    padding: 0.8rem 1rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 10px;
+    background: rgb(255 255 255 / 0.55);
+    font-size: 1rem;
+    line-height: 1.4;
+    transition:
+      border-color 0.2s,
+      box-shadow 0.2s,
+      background 0.2s;
+  }
+  textarea {
+    resize: vertical;
+    min-height: 9rem;
+  }
+  input::placeholder,
+  textarea::placeholder {
+    color: var(--ink-3);
+    opacity: 1;
+  }
+  input:hover,
+  textarea:hover {
+    border-color: var(--ink-3);
+  }
+  input:focus-visible,
+  textarea:focus-visible {
+    outline: none;
+    border-color: var(--ink);
+    background: #fff;
+    box-shadow: 0 0 0 3px rgb(255 90 31 / 0.35);
+  }
+  [aria-invalid='true']:not([type='radio']) {
+    border-color: #b42318;
+    box-shadow: 0 0 0 3px rgb(180 35 24 / 0.12);
+  }
+  .hint {
+    margin: 0;
+    color: var(--ink-3);
+    font-size: 0.88rem;
+  }
+  .err {
+    display: flex;
+    gap: 0.4rem;
+    margin: 0;
+    color: #b42318;
+    font-size: 0.9rem;
+    font-weight: 500;
+  }
+  .err[hidden] {
+    display: none;
+  }
+
+  .choices {
+    margin: 0 0 1.75rem;
+    padding: 0;
+    border: 0;
+    min-width: 0;
+  }
+  .choices > legend {
+    padding: 0;
+    margin-bottom: 0.75rem;
+  }
+  .choices .hint {
+    margin: -0.35rem 0 0.85rem;
+  }
+  .chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  .choices .err {
+    margin-top: 0.6rem;
+  }
+  .choice {
+    position: relative;
+    font-weight: 500;
+  }
+  .choice input {
+    position: absolute;
+    opacity: 0;
+    inset: 0;
+    margin: 0;
+    cursor: pointer;
+  }
+  .choice span {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    min-height: 2.75rem;
+    padding: 0.55rem 1.05rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 999px;
+    background: rgb(255 255 255 / 0.35);
+    font-size: 0.95rem;
+    line-height: 1.25;
+    cursor: pointer;
+    transition:
+      background 0.2s,
+      color 0.2s,
+      border-color 0.2s;
+  }
+  .choice span::before {
+    content: '';
+    width: 0.55rem;
+    height: 0.55rem;
+    border-radius: 50%;
+    border: 1.5px solid currentColor;
+    flex: none;
+    transition: background 0.2s, border-color 0.2s;
+  }
+  .choice:hover span {
+    border-color: var(--ink);
+  }
+  .choice input:checked + span {
+    background: var(--ink);
+    border-color: var(--ink);
+    color: var(--paper);
+  }
+  .choice input:checked + span::before {
+    background: var(--sun);
+    border-color: var(--sun);
+  }
+  .choice input:focus-visible + span {
+    outline: 2px solid var(--sun-deep);
+    outline-offset: 2px;
+  }
+  .choice input[aria-invalid='true'] + span {
+    border-color: #b42318;
+  }
+
+  .eform-status {
+    display: flex;
+    gap: 0.75rem;
+    align-items: flex-start;
+    padding: 1rem 1.25rem;
+    border-radius: 10px;
+    background: #fdecea;
+    color: #7a1a12;
+  }
+  .eform-status[data-kind='info'] {
+    background: var(--paper-2);
+    color: var(--ink);
+  }
+  .eform-status[hidden] {
+    display: none;
+  }
+  .eform-status p {
+    margin: 0;
+  }
+  .eform-status :global(.icon) {
+    flex: none;
+    margin-top: 0.15rem;
+  }
+  .eform-foot {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1.25rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--line-strong);
+  }
+  .eform-privacy {
+    margin: 0;
+    max-width: 32ch;
+    color: var(--ink-3);
+    font-size: 0.9rem;
+  }
+  .eform-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .eform-submit {
+    min-width: 12rem;
+  }
+
+  .eform-success {
+    position: relative;
+    padding: clamp(2rem, 5vw, 3.5rem);
+    border-radius: var(--radius-lg);
+    background: var(--night);
+    color: var(--on-night);
+    overflow: hidden;
+  }
+  .eform-success[hidden] {
+    display: none;
+  }
+  .success-sun {
+    position: absolute;
+    right: -4rem;
+    top: -4rem;
+    width: 14rem;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  .eform-success h2 {
+    position: relative;
+    max-width: 12ch;
+    font-size: clamp(2.5rem, 6vw, 4.5rem);
+    font-weight: 700;
+    font-stretch: 82%;
+    letter-spacing: -0.03em;
+  }
+  .eform-success h2:focus {
+    outline: none;
+  }
+  .eform-success .lead {
+    margin: 1.25rem 0 2rem;
+    max-width: 44ch;
+  }
+  .success-next {
+    list-style: none;
+    margin: 0 0 2rem;
+    padding: 0;
+    display: grid;
+    gap: 0.9rem;
+  }
+  .success-next li {
+    display: flex;
+    gap: 1rem;
+    padding-top: 0.9rem;
+    border-top: 1px solid var(--line-night);
+  }
+  .success-next .mono {
+    color: var(--sun);
+    padding-top: 0.2rem;
+  }
+  .success-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  .success-actions .btn-ink {
+    --bg: var(--on-night);
+    --fg: var(--ink);
+  }
+  .success-actions .btn-ghost {
+    --fg: var(--on-night);
+    border-color: rgb(242 239 232 / 0.3);
+    --hover-bg: var(--on-night);
+    --hover-fg: var(--ink);
+  }
+
+  @media (max-width: 640px) {
+    .row {
+      grid-template-columns: 1fr;
+    }
+    .eform-actions,
+    .eform-actions .btn {
+      width: 100%;
+    }
+  }
+</style>

@@ -1,0 +1,62 @@
+---
+import Base from '../layouts/Base.astro'
+import Icon from '../components/Icon.astro'
+---
+
+<Base title="Thank you" description="Your enquiry has been sent to Tomorrow Web." noindex>
+  <section class="thanks">
+    <div class="thanks-sun" aria-hidden="true"></div>
+    <div class="wrap">
+      <p class="eyebrow mono">Enquiry sent</p>
+      <h1 class="thanks-title">Thank you.<br /><span>We’ll be in touch.</span></h1>
+      <p class="lead">Your enquiry is with us. We read every message personally and will reply using the details you gave us.</p>
+      <div class="thanks-actions">
+        <a href="/work/" class="btn btn-ink">Browse our work <Icon name="arrow-right" size={18} /></a>
+        <a href="/" class="btn btn-ghost">Back to home</a>
+      </div>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .thanks {
+    position: relative;
+    min-height: 88svh;
+    display: flex;
+    align-items: center;
+    padding-block: calc(var(--header-h) + 3rem) 5rem;
+    overflow: hidden;
+  }
+  .thanks .wrap {
+    position: relative;
+    z-index: 1;
+  }
+  .thanks-sun {
+    position: absolute;
+    right: -10vw;
+    bottom: -30vw;
+    width: 60vw;
+    aspect-ratio: 1;
+    border-radius: 50%;
+    background: var(--sun);
+  }
+  .thanks-title {
+    font-size: var(--fs-h1);
+    font-weight: 700;
+    font-stretch: 80%;
+    letter-spacing: -0.032em;
+    line-height: 0.92;
+  }
+  .thanks-title span {
+    color: var(--ink-muted);
+  }
+  .thanks .lead {
+    max-width: 44ch;
+    margin: 2rem 0;
+  }
+  .thanks-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+</style>

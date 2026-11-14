@@ -1,0 +1,596 @@
+---
+/**
+ * "Today / Tomorrow": an illustrative before-and-after of a café website.
+ * Built in HTML/CSS (no images) so it stays sharp and light. The café is a
+ * made-up example and is labelled as such.
+ */
+const fixes = [
+  { today: 'Menu hidden in an 8 MB PDF', tomorrow: 'A menu page that reads well on a phone' },
+  { today: 'Phone number in tiny text, not tappable', tomorrow: 'Book, call or WhatsApp in one tap' },
+  { today: 'Opening hours buried at the bottom', tomorrow: 'Today’s hours, right at the top' },
+]
+---
+
+<figure class="cmp-figure">
+  <div class="cmp" data-compare style="--pos:50%">
+    <!-- TODAY: the old site -->
+    <div class="cmp-pane cmp-today" aria-hidden="true">
+      <div class="old">
+        <div class="old-banner">
+          <span class="old-title">~*~ Welcome to Your Café!!! ~*~</span>
+          <span class="old-sub">The BEST coffee in town since forever</span>
+        </div>
+        <div class="old-nav">
+          <u>Home</u> | <u>About Us</u> | <u>Menu (PDF)</u> | <u>Gallery</u> | <u>Guestbook</u> | <u>Contact Us</u>
+        </div>
+        <div class="old-ticker">*** NEW ITEMS ADDED *** CALL US FOR ORDERS *** HAPPY HOLIDAYS ***</div>
+        <div class="old-body">
+          <div class="old-side">
+            <b>LINKS</b>
+            <u>Our Story</u><u>Specials</u><u>Photos</u><u>Awards</u><u>Jobs</u>
+            <span class="old-counter">You are visitor no. <code>004213</code></span>
+          </div>
+          <div class="old-main">
+            <p class="old-h">Welcome!!</p>
+            <p>
+              Welcome to our website. We are a café. We serve coffee, tea, snacks and more. Please browse our website to know more
+              about us and our menu and our services and our story.
+            </p>
+            <p class="old-pdf"><span class="pin">1</span><u>CLICK HERE</u> to download our menu (8 MB PDF)</p>
+            <div class="old-img">[ image not found ]</div>
+            <p class="old-small"><span class="pin">2</span>For orders call 98xxxxxxx0 &nbsp; email: yourcafe1987@mail.com</p>
+          </div>
+        </div>
+        <p class="old-foot"><span class="pin">3</span>Timings: Mon–Sat 8am–10pm, Sun closed (except holidays) · Best viewed in 1024×768</p>
+      </div>
+    </div>
+
+    <!-- TOMORROW: the new site -->
+    <div class="cmp-pane cmp-tomorrow" aria-hidden="true">
+      <div class="new">
+        <div class="new-nav">
+          <span class="new-logo">Your Café</span>
+          <span class="new-links"><span>Menu</span><span>Visit</span><span>Order</span></span>
+          <span class="new-book">Book a table</span>
+        </div>
+        <div class="new-hero">
+          <div class="new-copy">
+            <span class="new-open"><span class="pin ok">3</span><i></i> Open today · 8:00 – 22:00</span>
+            <span class="new-h">Slow mornings, good coffee.</span>
+            <span class="new-p">Single-origin coffee, fresh bakes and a quiet table — two minutes from the station.</span>
+            <span class="new-btns">
+              <span class="new-btn dark"><span class="pin ok">1</span>See the menu</span>
+              <span class="new-btn"><span class="pin ok">2</span>WhatsApp to order</span>
+            </span>
+          </div>
+          <div class="new-art"><i></i><i></i><i></i></div>
+        </div>
+        <div class="new-menu">
+          <span><b>Flat white</b><em>₹180</em></span>
+          <span><b>Cardamom bun</b><em>₹120</em></span>
+          <span><b>Masala chai</b><em>₹90</em></span>
+        </div>
+      </div>
+    </div>
+
+    <span class="cmp-tag cmp-tag-today mono" aria-hidden="true">Today</span>
+    <span class="cmp-tag cmp-tag-tomorrow mono" aria-hidden="true">Tomorrow</span>
+
+    <div class="cmp-handle" aria-hidden="true">
+      <span class="cmp-knob">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="m9 6-6 6 6 6M15 6l6 6-6 6"></path></svg>
+      </span>
+    </div>
+
+    <label class="sr-only" for="cmp-range">Compare the old and new café website designs</label>
+    <input id="cmp-range" class="cmp-range" type="range" min="0" max="100" value="50" step="1" />
+  </div>
+
+  <figcaption class="cmp-caption">
+    <p class="mono cmp-note">Illustrative example — “Your Café” is not a real client. Drag the handle to compare.</p>
+    <ol class="cmp-fixes">
+      {
+        fixes.map((f, i) => (
+          <li data-reveal style={`--d:${i * 0.08}s`}>
+            <span class="pin" aria-hidden="true">{i + 1}</span>
+            <span class="cmp-was"><span class="sr-only">Before: </span>{f.today}</span>
+            <span class="cmp-now"><span class="sr-only">After: </span>{f.tomorrow}</span>
+          </li>
+        ))
+      }
+    </ol>
+  </figcaption>
+</figure>
+
+<style>
+  .cmp-figure {
+    margin: 0;
+  }
+  .cmp {
+    --pos: 50%;
+    position: relative;
+    container-type: inline-size;
+    aspect-ratio: 16 / 10;
+    border-radius: var(--radius-lg);
+    overflow: hidden;
+    background: #fff;
+    border: 1px solid var(--line-night);
+    touch-action: pan-y;
+    cursor: ew-resize;
+    user-select: none;
+    -webkit-user-select: none;
+    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.6);
+  }
+  .cmp-pane {
+    position: absolute;
+    inset: 0;
+  }
+  .cmp-tomorrow {
+    clip-path: inset(0 0 0 var(--pos));
+  }
+  .cmp-handle {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: var(--pos);
+    width: 2px;
+    margin-left: -1px;
+    background: var(--sun);
+    pointer-events: none;
+  }
+  .cmp-knob {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    background: var(--sun);
+    color: var(--ink);
+    transform: translate(-50%, -50%);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    transition: transform 0.4s var(--ease-out);
+  }
+  .cmp.is-dragging .cmp-knob {
+    transform: translate(-50%, -50%) scale(1.12);
+  }
+  .cmp-range {
+    position: absolute;
+    inset: auto 0 0;
+    width: 100%;
+    height: 1px;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .cmp:has(.cmp-range:focus-visible) .cmp-knob {
+    outline: 3px solid var(--paper);
+    outline-offset: 3px;
+  }
+  .cmp-tag {
+    position: absolute;
+    top: 0.9rem;
+    padding: 0.3rem 0.65rem;
+    border-radius: 99px;
+    background: var(--ink);
+    color: var(--paper);
+    font-size: 0.68rem;
+    pointer-events: none;
+  }
+  .cmp-tag-today {
+    left: 0.9rem;
+  }
+  .cmp-tag-tomorrow {
+    right: 0.9rem;
+    background: var(--sun);
+    color: var(--ink);
+  }
+
+  .pin {
+    display: inline-grid;
+    place-items: center;
+    flex: none;
+    width: 1.4em;
+    height: 1.4em;
+    margin-right: 0.4em;
+    border-radius: 50%;
+    background: #d4202a;
+    color: #fff;
+    font: 700 0.8em/1 var(--f-body);
+    font-style: normal;
+    text-decoration: none;
+    vertical-align: middle;
+  }
+  .pin.ok {
+    background: #1f9d55;
+  }
+
+  /* ── The old site (deliberately dated) ── */
+  .old {
+    height: 100%;
+    background: #f0f0f0 repeating-linear-gradient(45deg, #e8e8e8 0 2px, #f0f0f0 2px 6px);
+    font-family: 'Times New Roman', Times, serif;
+    color: #333;
+    font-size: 1.55cqi;
+    line-height: 1.35;
+  }
+  .old-banner {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 2.2cqi 0 1.4cqi;
+    background: linear-gradient(#3b6fd4, #1c3f91);
+    color: #ffef5a;
+    text-align: center;
+  }
+  .old-title {
+    font-family: 'Comic Sans MS', 'Comic Sans', cursive;
+    font-size: 3.4cqi;
+    font-weight: bold;
+    text-shadow: 2px 2px 0 #a3201b;
+  }
+  .old-sub {
+    color: #fff;
+    font-style: italic;
+    font-size: 1.5cqi;
+  }
+  .old-nav {
+    padding: 0.8cqi;
+    background: #c0c0c0;
+    border-block: 2px outset #ddd;
+    color: #00e;
+    text-align: center;
+    font-size: 1.4cqi;
+  }
+  .old-ticker {
+    padding: 0.4cqi;
+    background: #000;
+    color: #0f0;
+    font-family: 'Courier New', monospace;
+    font-size: 1.3cqi;
+    white-space: nowrap;
+    overflow: hidden;
+  }
+  .old-body {
+    display: grid;
+    grid-template-columns: 18% 1fr;
+    gap: 1.6cqi;
+    padding: 1.6cqi;
+  }
+  .old-side {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5cqi;
+    padding: 1cqi;
+    background: #ffffe0;
+    border: 1px dashed #999;
+    color: #00e;
+    font-size: 1.3cqi;
+  }
+  .old-side b {
+    color: #c00;
+  }
+  .old-counter {
+    margin-top: 1cqi;
+    color: #555;
+    font-size: 1.1cqi;
+  }
+  .old-counter code {
+    background: #000;
+    color: #f00;
+    padding: 0 0.3em;
+  }
+  .old-main p {
+    margin: 0 0 1cqi;
+  }
+  .old-h {
+    color: #a3201b;
+    font-size: 2.6cqi;
+    font-weight: bold;
+  }
+  .old-pdf {
+    color: #00e;
+    font-weight: bold;
+  }
+  .old-img {
+    display: grid;
+    place-items: center;
+    height: 11cqi;
+    margin-bottom: 1cqi;
+    border: 1px solid #aaa;
+    background: #ddd;
+    color: #888;
+    font-size: 1.2cqi;
+  }
+  .old-small {
+    font-size: 1.05cqi;
+    color: #777;
+  }
+  .old-foot {
+    margin: 0;
+    padding: 0.8cqi 1.6cqi;
+    background: #ddd;
+    font-size: 1.05cqi;
+    color: #777;
+  }
+
+  /* ── The new site ── */
+  .new {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    background: #f6f0e6;
+    color: #2a1d14;
+    font-family: var(--f-body);
+    font-size: 1.4cqi;
+  }
+  .new-nav {
+    display: flex;
+    align-items: center;
+    gap: 2cqi;
+    padding: 2.4cqi 4cqi;
+  }
+  .new-logo {
+    margin-right: auto;
+    font-family: var(--f-display);
+    font-weight: 700;
+    font-size: 2.1cqi;
+    letter-spacing: -0.04em;
+  }
+  .new-links {
+    display: flex;
+    gap: 2.4cqi;
+    font-weight: 500;
+  }
+  .new-book {
+    padding: 0.9cqi 1.8cqi;
+    border-radius: 99px;
+    background: #2a1d14;
+    color: #f6f0e6;
+    font-weight: 600;
+  }
+  .new-hero {
+    flex: 1;
+    display: grid;
+    grid-template-columns: 1.1fr 0.9fr;
+    gap: 3cqi;
+    align-items: center;
+    padding: 0 4cqi;
+  }
+  .new-copy {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.6cqi;
+  }
+  .new-open {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.6cqi;
+    padding: 0.5cqi 1.2cqi 0.5cqi 0.6cqi;
+    border-radius: 99px;
+    background: #fff;
+    font-weight: 600;
+    font-size: 1.2cqi;
+  }
+  .new-open i {
+    width: 0.8cqi;
+    height: 0.8cqi;
+    border-radius: 50%;
+    background: #1f9d55;
+  }
+  .new-h {
+    font-family: var(--f-display);
+    font-size: 5.6cqi;
+    font-weight: 700;
+    font-stretch: 85%;
+    letter-spacing: -0.03em;
+    line-height: 0.95;
+  }
+  .new-p {
+    max-width: 34ch;
+    color: #6b5444;
+    font-size: 1.45cqi;
+    line-height: 1.5;
+  }
+  .new-btns {
+    display: flex;
+    gap: 1cqi;
+  }
+  .new-btn {
+    display: inline-flex;
+    align-items: center;
+    padding: 1cqi 1.8cqi 1cqi 1cqi;
+    border-radius: 99px;
+    border: 1px solid #2a1d14;
+    font-weight: 600;
+  }
+  .new-btn.dark {
+    background: #2a1d14;
+    color: #f6f0e6;
+  }
+  .new-art {
+    position: relative;
+    aspect-ratio: 1;
+    border-radius: 3cqi;
+    background: #c9733d;
+    overflow: hidden;
+  }
+  .new-art i {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+  }
+  .new-art i:nth-child(1) {
+    width: 70%;
+    height: 70%;
+    background: #f6f0e6;
+  }
+  .new-art i:nth-child(2) {
+    width: 56%;
+    height: 56%;
+    background: #6b3e22;
+  }
+  .new-art i:nth-child(3) {
+    width: 30%;
+    height: 30%;
+    background: radial-gradient(circle, #e9c39b 0 40%, #b07447 41% 60%, #e9c39b 61%);
+  }
+  .new-menu {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    margin: 2.4cqi 4cqi 3cqi;
+    border-top: 1px solid rgb(42 29 20 / 0.2);
+  }
+  .new-menu span {
+    display: flex;
+    justify-content: space-between;
+    padding: 1.4cqi 1.6cqi 0 0;
+  }
+  .new-menu em {
+    font-style: normal;
+    color: #6b5444;
+  }
+
+  /* Narrow screens: a taller frame and a stacked "tomorrow" layout. */
+  @container (max-width: 600px) {
+    .new-hero {
+      grid-template-columns: 1fr;
+      align-content: start;
+      padding-top: 2cqi;
+    }
+    .new-art {
+      display: none;
+    }
+    .new-links {
+      display: none;
+    }
+    .new {
+      font-size: 2.6cqi;
+    }
+    .new-nav {
+      padding: 4cqi 5cqi;
+    }
+    .new-logo {
+      font-size: 4.4cqi;
+    }
+    .new-book {
+      padding: 1.6cqi 3cqi;
+    }
+    .new-hero {
+      padding-inline: 5cqi;
+      gap: 3cqi;
+    }
+    .new-copy {
+      gap: 3.4cqi;
+    }
+    .new-open {
+      font-size: 2.6cqi;
+      padding: 1cqi 2.4cqi 1cqi 1cqi;
+    }
+    .new-open i {
+      width: 1.8cqi;
+      height: 1.8cqi;
+    }
+    .new-h {
+      font-size: 11.5cqi;
+    }
+    .new-p {
+      font-size: 3cqi;
+    }
+    .new-btns {
+      flex-direction: column;
+      gap: 2cqi;
+    }
+    .new-btn {
+      padding: 2.2cqi 4cqi 2.2cqi 2cqi;
+    }
+    .new-menu {
+      grid-template-columns: 1fr;
+      margin: 4cqi 5cqi;
+    }
+    .new-menu span {
+      padding: 2cqi 0;
+      border-bottom: 1px solid rgb(42 29 20 / 0.12);
+    }
+    .old {
+      font-size: 2.6cqi;
+    }
+    .old-title {
+      font-size: 5.4cqi;
+    }
+    .old-sub,
+    .old-nav,
+    .old-ticker {
+      font-size: 2.4cqi;
+    }
+    .old-body {
+      grid-template-columns: 1fr;
+    }
+    .old-side {
+      display: none;
+    }
+    .old-h {
+      font-size: 4.6cqi;
+    }
+    .old-img {
+      height: 24cqi;
+      font-size: 2.4cqi;
+    }
+    .old-small,
+    .old-foot {
+      font-size: 2.1cqi;
+    }
+  }
+  @media (max-width: 640px) {
+    .cmp {
+      aspect-ratio: 4 / 5.6;
+    }
+  }
+
+  .cmp-caption {
+    margin-top: 1.25rem;
+  }
+  .cmp-note {
+    margin: 0 0 2rem;
+    color: var(--on-night-2);
+  }
+  .cmp-fixes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  .cmp-fixes li {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: 0.35rem 0.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--line-night);
+  }
+  .cmp-fixes .pin {
+    grid-row: span 2;
+    background: var(--sun);
+    color: var(--ink);
+    font-size: 0.85rem;
+  }
+  .cmp-was {
+    color: var(--on-night-2);
+    text-decoration: line-through;
+    text-decoration-color: rgb(255 90 31 / 0.7);
+  }
+  .cmp-now {
+    color: var(--on-night);
+    font-weight: 600;
+  }
+  @media (max-width: 760px) {
+    .cmp-fixes {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

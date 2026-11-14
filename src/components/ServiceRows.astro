@@ -1,0 +1,122 @@
+---
+import { services } from '../config/site'
+import Icon from './Icon.astro'
+---
+
+<ol class="srows">
+  {
+    services.map((s, i) => (
+      <li class="srow" data-reveal style={`--d:${(i % 3) * 0.06}s`}>
+        <a href={`/services/#${s.slug}`} class="srow-link">
+          <span class="srow-num mono" aria-hidden="true">{String(i + 1).padStart(2, '0')}</span>
+          <span class="srow-title">{s.title}</span>
+          <span class="srow-short">{s.short}</span>
+          <span class="srow-go" aria-hidden="true">
+            <Icon name="arrow-right" size={22} />
+          </span>
+        </a>
+      </li>
+    ))
+  }
+</ol>
+
+<style>
+  .srows {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .srow {
+    border-bottom: 1px solid var(--line-strong);
+  }
+  .srow-link {
+    position: relative;
+    isolation: isolate;
+    display: grid;
+    grid-template-columns: 4rem minmax(0, 1.2fr) minmax(0, 1fr) 3.25rem;
+    align-items: center;
+    gap: 1.5rem;
+    padding: clamp(1.25rem, 2.6vw, 2.1rem) 0;
+    text-decoration: none;
+    color: var(--ink);
+    transition: color 0.45s var(--ease-out), padding 0.6s var(--ease-out);
+  }
+  /* Ink fills the row from the bottom on hover — the horizon rising. */
+  .srow-link::before {
+    content: '';
+    position: absolute;
+    inset: 0 calc(var(--gutter) * -1);
+    z-index: -1;
+    background: var(--ink);
+    clip-path: inset(100% 0 0 0);
+    transition: clip-path 0.6s var(--ease-out);
+  }
+  .srow-num {
+    color: var(--ink-3);
+    transition: color 0.45s;
+  }
+  .srow-title {
+    font-family: var(--f-display);
+    font-size: clamp(1.6rem, 3.6vw, 3.25rem);
+    font-weight: 600;
+    font-stretch: 86%;
+    letter-spacing: -0.028em;
+    line-height: 1;
+  }
+  .srow-short {
+    color: var(--ink-2);
+    transition: color 0.45s;
+  }
+  .srow-go {
+    justify-self: end;
+    display: grid;
+    place-items: center;
+    width: 3.25rem;
+    height: 3.25rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: background 0.45s, border-color 0.45s, transform 0.6s var(--ease-out);
+  }
+  @media (hover: hover) {
+    .srow-link:hover,
+    .srow-link:focus-visible {
+      color: var(--paper);
+      padding-inline: 1.25rem;
+    }
+    .srow-link:hover::before,
+    .srow-link:focus-visible::before {
+      clip-path: inset(0 0 0 0);
+    }
+    .srow-link:hover .srow-num,
+    .srow-link:hover .srow-short,
+    .srow-link:focus-visible .srow-num,
+    .srow-link:focus-visible .srow-short {
+      color: var(--on-night-2);
+    }
+    .srow-link:hover .srow-go,
+    .srow-link:focus-visible .srow-go {
+      background: var(--sun);
+      border-color: var(--sun);
+      color: var(--ink);
+      transform: rotate(-45deg);
+    }
+  }
+  @media (max-width: 760px) {
+    .srow-link {
+      grid-template-columns: 2.5rem 1fr 2.75rem;
+      gap: 0.25rem 0.75rem;
+    }
+    .srow-short {
+      grid-column: 2;
+      grid-row: 2;
+      font-size: 0.95rem;
+    }
+    .srow-go {
+      grid-column: 3;
+      grid-row: 1 / span 2;
+      width: 2.75rem;
+      height: 2.75rem;
+    }
+  }
+</style>
