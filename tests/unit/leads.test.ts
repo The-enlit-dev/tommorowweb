@@ -159,3 +159,27 @@ test('website state classification never confuses "unreachable" with "no website
   assert.equal(websiteState({ status: 200, requestedHost: 'cafex.in', finalHost: 'www.cafex.in' }), 'live')
   assert.equal(websiteState({ status: 200, requestedHost: 'cafex.in', finalHost: 'facebook.com' }), 'redirects_elsewhere')
 })
+
+test('ingest plan: updates matches, catches repeats within a batch, skips suppressed', async () => {
+  const { planIngest, suppressionKeys } = await import('../../supabase/functions/_shared/leads.ts')
+  const existing: ExistingLead[] = [{ id: 'A', name: 'Café X', locality: 'Baner', lat: 18.56, lon: 73.78, osm_ref: 'way/42', place_ref: null, domains: [], phones: [] }]
+  const mk = (name: string, extra: Partial<Candidate> = {}): Candidate => ({ source: 'csv', source_ref: null, name, industry: null, category: null, city: 'Pune', locality: 'Baner', address: null, lat: null, lon: null, contacts: [], ...extra })
+  const phone = (p: string) => [{ kind: 'phone' as const, value: p, value_norm: p }]
+  const steps = planIngest([
+    mk('Cafe X', { source: 'osm', source_ref: 'way/42', contacts: phone('+919822012345') }),
+    mk('Pizza Point', { contacts: phone('+919800000001') }),
+    mk('Pizza Point Baner', { contacts: phone('+919800000001') }),
+    mk('Gone Salon', { contacts: phone('+919800000002') }),
+    null,
+    mk('Brand New Bakery', { locality: 'Aundh' }),
+  ], existing, (c) => suppressionKeys(c).includes('phone:+919800000002'))
+  assert.deepEqual(steps.map((s) => [s.action, s.leadId ?? s.tempId ?? null, s.reason ?? null]), [
+    ['update', 'A', 'source_id'],
+    ['create', 'new:0', null],
+    ['update', 'new:0', 'phone'],
+    ['skip_suppressed', null, 'deleted on request'],
+    ['skip_invalid', null, 'missing name'],
+    ['create', 'new:1', null],
+  ])
+  assert.deepEqual(suppressionKeys(mk('x', { source: 'osm', source_ref: 'Node/1', contacts: [{ kind: 'website', value: 'https://A.in', value_norm: 'a.in' }] })), ['domain:a.in', 'osm:node/1'])
+})

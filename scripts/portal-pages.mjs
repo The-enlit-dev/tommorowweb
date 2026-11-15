@@ -24,6 +24,10 @@ export const ROUTES = [
   ['blog/edit', 'Content', 'BlogEdit', 'Edit post'],
   ['assistant', 'AI', 'Assistant', 'AI assistant'],
   ['admin/ai', 'AI', 'AdminAI', 'AI infrastructure'],
+  ['admin/leads', 'Leads', 'LeadsHome', 'Lead Finder'],
+  ['admin/leads/view', 'Leads', 'LeadView', 'Lead'],
+  ['admin/leads/report', 'Leads', 'LeadReport', 'Redesign report'],
+  ['admin/leads/opportunities', 'Leads', 'Opportunities', 'Top opportunities'],
 ]
 
 const root = new URL('..', import.meta.url).pathname

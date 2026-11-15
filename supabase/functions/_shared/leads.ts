@@ -427,3 +427,64 @@ export function scoreLead(i: ScoreInput): { score: number; reasons: ScoreReason[
   const score = Math.max(0, Math.min(100, r.reduce((a, x) => a + x.points, 0)))
   return { score, reasons: r }
 }
+
+// ── Ingest planning (pure) ───────────────────────────────────────────────
+export interface IngestStep {
+  candidate: Candidate
+  action: 'create' | 'update' | 'skip_suppressed' | 'skip_invalid'
+  /** For update: existing lead id. For create with a possible duplicate: the other lead. */
+  leadId?: string
+  reason?: string
+  possibleOf?: { id: string; similarity: number }
+  /** Temporary id for leads created in this batch (so later rows can match them). */
+  tempId?: string
+}
+
+/** Keys hashed into the suppression list (must match private.lead_key_hash in SQL). */
+export function suppressionKeys(c: Candidate): string[] {
+  const keys: string[] = []
+  for (const x of c.contacts) {
+    if (x.kind === 'phone' || x.kind === 'whatsapp') keys.push(`phone:${x.value_norm.toLowerCase()}`)
+    if (x.kind === 'website') keys.push(`domain:${x.value_norm.toLowerCase()}`)
+    if (x.kind === 'email') keys.push(`email:${x.value_norm.toLowerCase()}`)
+  }
+  if (c.source === 'osm' && c.source_ref) keys.push(`osm:${c.source_ref.toLowerCase()}`)
+  if (c.source === 'google_places' && c.source_ref) keys.push(`place:${c.source_ref.toLowerCase()}`)
+  return keys
+}
+
+/**
+ * Decides, row by row, whether each candidate creates a lead, updates an existing one (same
+ * business by source id, website, phone or name+location), or is skipped (deleted on request).
+ * Leads created earlier in the same batch are matched too, so a CSV with repeats stays clean.
+ */
+export function planIngest(candidates: (Candidate | null)[], existing: ExistingLead[], isSuppressed: (c: Candidate) => boolean): IngestStep[] {
+  const pool = [...existing]
+  const steps: IngestStep[] = []
+  let n = 0
+  for (const c of candidates) {
+    if (!c) { steps.push({ candidate: c as unknown as Candidate, action: 'skip_invalid', reason: 'missing name' }); continue }
+    if (isSuppressed(c)) { steps.push({ candidate: c, action: 'skip_suppressed', reason: 'deleted on request' }); continue }
+    const m = matchCandidate(c, pool)
+    if (m.type === 'same') {
+      steps.push({ candidate: c, action: 'update', leadId: m.id, reason: m.reason })
+      const e = pool.find((x) => x.id === m.id)!
+      for (const x of c.contacts) {
+        if (x.kind === 'website' && !e.domains.includes(x.value_norm)) e.domains.push(x.value_norm)
+        if ((x.kind === 'phone' || x.kind === 'whatsapp') && !e.phones.includes(x.value_norm)) e.phones.push(x.value_norm)
+      }
+      if (c.source === 'osm' && !e.osm_ref) e.osm_ref = c.source_ref
+      if (c.source === 'google_places' && !e.place_ref) e.place_ref = c.source_ref
+      continue
+    }
+    const tempId = `new:${n++}`
+    steps.push({ candidate: c, action: 'create', tempId, ...(m.type === 'possible' ? { possibleOf: { id: m.id, similarity: m.similarity }, reason: m.reason } : {}) })
+    pool.push({
+      id: tempId, name: c.name, locality: c.locality, lat: c.lat, lon: c.lon,
+      osm_ref: c.source === 'osm' ? c.source_ref : null, place_ref: c.source === 'google_places' ? c.source_ref : null,
+      domains: c.contacts.filter((x) => x.kind === 'website').map((x) => x.value_norm),
+      phones: c.contacts.filter((x) => x.kind === 'phone' || x.kind === 'whatsapp').map((x) => x.value_norm),
+    })
+  }
+  return steps
+}
