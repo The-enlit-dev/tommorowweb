@@ -565,3 +565,34 @@
     box-shadow: none !important;
   }
 }
+
+/* Clickable stat cards */
+.p-stat-btn {
+  text-align: left;
+  color: inherit;
+  font: inherit;
+  cursor: pointer;
+}
+.p-stat-btn:hover {
+  border-color: var(--ink-3);
+}
+
+/* Two-column editor (main + sidebar), single column on small screens */
+.p-grid-editor {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr);
+  align-items: start;
+}
+@media (min-width: 960px) {
+  .p-grid-editor { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}
+
+/* Rendered Markdown (preview) */
+.p-prose { line-height: 1.65; overflow-wrap: anywhere; }
+.p-prose h2, .p-prose h3, .p-prose h4 { font-family: var(--f-body); font-weight: 700; margin: 1.2em 0 0.4em; }
+.p-prose img { max-width: 100%; height: auto; border-radius: 10px; }
+.p-prose pre { overflow-x: auto; padding: 0.8rem; border-radius: 10px; background: rgba(255, 255, 255, 0.05); }
+.p-prose blockquote { margin: 1em 0; padding-left: 1em; border-left: 2px solid var(--line); color: var(--ink-3); }
+.p-prose table { border-collapse: collapse; }
+.p-prose th, .p-prose td { border: 1px solid var(--line); padding: 0.35rem 0.6rem; }

@@ -16,7 +16,12 @@ export const ROUTES = [
   ['admin/business', 'Admin', 'BusinessDetail', 'Business'],
   ['admin/audit', 'Admin', 'Audit', 'Audit log'],
   ['admin/infrastructure', 'Admin', 'Infrastructure', 'Infrastructure'],
-  ...(globalThis.EXTRA_ROUTES ?? []),
+  ['requests', 'Requests', 'Requests', 'Change requests'],
+  ['requests/view', 'Requests', 'RequestView', 'Change request'],
+  ['admin/requests', 'Requests', 'AdminRequests', 'Change requests'],
+  ['content', 'Content', 'Content', 'Website content'],
+  ['blog', 'Content', 'Blog', 'Blog'],
+  ['blog/edit', 'Content', 'BlogEdit', 'Edit post'],
 ]
 
 const root = new URL('..', import.meta.url).pathname

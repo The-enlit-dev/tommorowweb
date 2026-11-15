@@ -47,3 +47,15 @@ export async function fn(sb, name, body) {
 export const uid = () => Math.random().toString(36).slice(2, 8)
 export const qaEmail = (label) => `qa-${label}-${uid()}@tomorrowweb.test`
 export const strongPassword = () => `Qa-${crypto.randomUUID()}`
+
+/** Creates a client business + owner through the admin function and signs the owner in. */
+export async function makeClient(admin, { preset = 'website_only', name = 'QA Biz', siteUrl } = {}) {
+  const email = qaEmail('owner')
+  const r = await fn(admin, 'admin-users', {
+    action: 'create_client', email, full_name: `${name} Owner`,
+    business: { name: `${name} ${uid()}`, preset, city: 'Pune', site_url: siteUrl },
+  })
+  if (r.status !== 200) throw new Error(`create_client failed: ${JSON.stringify(r.data)}`)
+  const owner = await signIn(email, r.data.temp_password, strongPassword())
+  return { owner, email, biz: r.data.business_id, data: r.data }
+}

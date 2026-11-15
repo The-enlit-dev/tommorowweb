@@ -85,6 +85,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
       // Hide scroll-reveal content only once JS runs, so nothing is lost without it.
       document.documentElement.classList.add('js')
     </script>
+    <slot name="head" />
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>

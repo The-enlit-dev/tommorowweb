@@ -9,7 +9,7 @@ import { business } from '../config/site'
       <p class="eyebrow mono">Privacy</p>
       <h1 class="priv-title">Privacy, in plain English.</h1>
       <div class="prose">
-        <p>This website is run by {business.name}. We keep it simple: we collect as little as possible and only use it to reply to you.</p>
+        <p>This website is run by {business.name}. We keep it simple: we collect as little as possible and only use it to reply to you and, for clients, to run the services you use.</p>
 
         <h2>What we collect</h2>
         <p>
@@ -32,6 +32,21 @@ import { business } from '../config/site'
         <p>
           The enquiry form is handled by Netlify Forms, part of the hosting platform this website runs on. Submissions are stored in
           our Netlify account and may be forwarded to our email inbox.
+        </p>
+
+        <h2>Client portal</h2>
+        <p>
+          If you are a client (or a client’s staff member), we create a portal account for you with your name, email address and,
+          optionally, phone number. The portal stores what you and your team enter: change requests, messages, files you upload,
+          website content and blog posts, and — if your business uses them — products, orders, customers and payments records.
+        </p>
+        <p>
+          Portal data is stored with Supabase in its Mumbai (India) region and protected so that each business can only see its
+          own records. Important actions are recorded in an audit log for security. Your password is never visible to us. We keep
+          encrypted backups so your data can be recovered if something goes wrong.
+        </p>
+        <p>
+          Signing in stores a session token in your browser’s local storage so you stay signed in. It isn’t used for tracking.
         </p>
 
         <h2>Cookies and tracking</h2>

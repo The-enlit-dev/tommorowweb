@@ -24,6 +24,8 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
         <ul>
           <li><a href="/">Home</a></li>
           {nav.map((n) => <li><a href={n.href}>{n.label}</a></li>)}
+          <li><a href="/features/">Features</a></li>
+          <li><a href="/blog/">Blog</a></li>
           <li><a href="/contact/">Contact</a></li>
         </ul>
       </nav>

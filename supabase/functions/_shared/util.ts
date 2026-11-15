@@ -24,6 +24,16 @@ export function serviceClient(): SupabaseClient {
   })
 }
 
+/** Client acting as the caller (their JWT): every query and RPC is subject to RLS. */
+export function userClient(req: Request): SupabaseClient {
+  return createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+    auth: { persistSession: false, autoRefreshToken: false },
+    global: { headers: { Authorization: req.headers.get('Authorization') ?? '' } },
+  })
+}
+
+export const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i
+
 export interface Caller {
   user: User
   profile: { id: string; email: string; role: 'admin' | 'user'; must_change_password: boolean; disabled: boolean }

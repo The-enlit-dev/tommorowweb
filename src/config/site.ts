@@ -321,6 +321,12 @@ export const pricing = {
   /** Charge for each change requested after the website is delivered. */
   changeFee: '400',
   payment: 'UPI',
+  /**
+   * Your UPI ID (e.g. 'yourname@okicici'). When set, approved change-request quotes in the client
+   * portal show a UPI QR code for the exact amount. Payments are still confirmed by you by hand.
+   * TODO: add your UPI ID.
+   */
+  upiId: '',
 }
 
 /**

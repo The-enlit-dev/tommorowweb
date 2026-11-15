@@ -1,0 +1,81 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
+import CtaBand from '../components/CtaBand.astro'
+import { pricing } from '../config/site'
+import { featureGroups, thirdPartyCosts, type FeatureStatus } from '../config/features'
+
+const label: Record<FeatureStatus, string> = { available: 'Available', optional: 'Optional', building: 'Coming soon' }
+---
+
+<Base title="Features" description="What clients get after launch: a private login, change requests, content editing, a blog, and optional tools to run and sell online.">
+  <PageHero label="Features" lines={['More than', 'a website.']} accent={1} intro="Every site we build comes with a private client login. Add business tools only if you need them — here is exactly what exists today." />
+
+  {
+    featureGroups.map((g) => (
+      <section class="fgroup">
+        <div class="wrap">
+          <h2 class="fgroup-title" data-reveal="up">{g.title}</h2>
+          <p class="fgroup-intro">{g.intro}</p>
+          <ul class="fgrid">
+            {g.items.map((f) => (
+              <li class="fcard" data-reveal="up">
+                <span class:list={['fbadge mono', `is-${f.status}`]}>{label[f.status]}</span>
+                <h3>{f.name}</h3>
+                <p>{f.description}</p>
+                {f.note && <p class="fnote">{f.note}</p>}
+              </li>
+            ))}
+          </ul>
+        </div>
+      </section>
+    ))
+  }
+
+  <section class="fgroup">
+    <div class="wrap">
+      <h2 class="fgroup-title">What it costs</h2>
+      <div class="costs">
+        <div class="cost-col">
+          <h3>Paid to Tomorrow Web</h3>
+          <ul>
+            <li>Website: from ₹{pricing.from} to ₹{pricing.upTo}+, quoted in writing before we start.</li>
+            <li>Changes after delivery: ₹{pricing.changeFee} each, approved by you in the portal first.</li>
+            <li>Business tools (POS, store and so on): quoted per project.</li>
+            <li>Payment by {pricing.payment}.</li>
+          </ul>
+        </div>
+        <div class="cost-col">
+          <h3>Paid to other companies — only if you use them</h3>
+          <table class="ctable">
+            <thead><tr><th>Service</th><th>When</th><th>Cost</th></tr></thead>
+            <tbody>{thirdPartyCosts.map((c) => <tr><td>{c.service}</td><td>{c.when}</td><td>{c.cost}</td></tr>)}</tbody>
+          </table>
+          <p class="fnote">We never add these to our invoice, and nothing that costs money is switched on without your say-so.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+
+<style>
+  .fgroup { padding-bottom: clamp(3rem, 7vw, 6rem); }
+  .fgroup-title { font-size: clamp(1.9rem, 3.4vw, 3rem); font-weight: 800; line-height: 1; }
+  .fgroup-intro { max-width: 52ch; margin: 0.8rem 0 2rem; color: var(--ink-2); }
+  .fgrid { display: grid; gap: 1rem; grid-template-columns: repeat(auto-fill, minmax(min(100%, 280px), 1fr)); padding: 0; margin: 0; list-style: none; }
+  .fcard { display: grid; align-content: start; gap: 0.5rem; padding: 1.25rem; border: 1px solid var(--line-night); border-radius: 1.1rem; }
+  .fcard h3 { font-family: var(--f-body); font-size: 1.15rem; font-weight: 650; }
+  .fcard p { color: var(--ink-2); }
+  .fbadge { width: fit-content; padding: 0.2rem 0.55rem; border: 1px solid var(--line-night); border-radius: 99px; font-size: 0.7rem; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); }
+  .fbadge.is-available { border-color: var(--ink); color: var(--ink); }
+  .fnote { font-size: 0.9rem; color: var(--ink-3) !important; }
+  .costs { display: grid; gap: 2rem; margin-top: 2rem; grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr)); }
+  .cost-col h3 { margin-bottom: 1rem; font-family: var(--f-body); font-size: 1.15rem; font-weight: 650; }
+  .cost-col ul { display: grid; gap: 0.6rem; padding-left: 1.1rem; color: var(--ink-2); }
+  .ctable { width: 100%; border-collapse: collapse; font-size: 0.95rem; }
+  .ctable th, .ctable td { padding: 0.6rem 0.5rem; border-bottom: 1px solid var(--line-night); text-align: left; vertical-align: top; }
+  .ctable th { color: var(--ink-3); font-weight: 500; }
+  .ctable td { color: var(--ink-2); }
+  .ctable td:first-child { color: var(--ink); }
+</style>

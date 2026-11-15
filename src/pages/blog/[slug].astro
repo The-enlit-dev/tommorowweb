@@ -1,0 +1,56 @@
+---
+import Base from '../../layouts/Base.astro'
+import CtaBand from '../../components/CtaBand.astro'
+import { business } from '../../config/site'
+import { getPosts, mediaUrl, type Post } from '../../lib/cms-client'
+import { plainText, readingMinutes, renderMarkdown } from '../../lib/markdown'
+
+export async function getStaticPaths() {
+  const posts = await getPosts()
+  return posts.map((post) => ({ params: { slug: post.slug }, props: { post } }))
+}
+
+const { post } = Astro.props as { post: Post }
+const html = renderMarkdown(post.body_md ?? '')
+const description = post.seo_description || post.excerpt || plainText(post.body_md ?? '', 160)
+const date = (s: string) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'long' }).format(new Date(s))
+const cover = mediaUrl(post.cover_path)
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'BlogPosting',
+  headline: post.title,
+  description,
+  datePublished: post.published_at,
+  dateModified: post.updated_at,
+  author: { '@type': 'Person', name: business.founder.name },
+  publisher: { '@type': 'Organization', name: business.name },
+  ...(cover ? { image: cover } : {}),
+  mainEntityOfPage: new URL(`/blog/${post.slug}/`, Astro.site).href,
+}
+---
+
+<Base title={post.seo_title || post.title} description={description} type="article" image={cover || undefined} imageAlt={post.cover_alt} jsonLd={jsonLd}>
+  <article class="post">
+    <div class="wrap">
+      <p class="eyebrow mono"><a href="/blog/">Blog</a> · {date(post.published_at)} · {readingMinutes(post.body_md ?? '')} min read</p>
+      <h1 class="post-title">{post.title}</h1>
+      {post.excerpt && <p class="lead post-lead">{post.excerpt}</p>}
+      {cover && <img class="post-cover" src={cover} alt={post.cover_alt ?? ''} width="1600" height="900" />}
+      <div class="prose" set:html={html} />
+      {post.tags.length > 0 && <p class="post-tags mono">{post.tags.map((t) => `#${t}`).join('  ')}</p>}
+    </div>
+  </article>
+  <CtaBand />
+</Base>
+
+<style>
+  .post { padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 6rem)); padding-bottom: var(--section); }
+  .post .eyebrow a { color: inherit; }
+  .post-title { max-width: 18ch; margin: 0.5rem 0 1.25rem; font-size: clamp(2.4rem, 5.5vw, 4.8rem); font-weight: 800; line-height: 0.98; }
+  .post-lead { max-width: 56ch; margin-bottom: 2rem; color: var(--ink-2); }
+  .post-cover { width: 100%; max-width: 64rem; height: auto; margin-bottom: 2.5rem; border-radius: 1.25rem; }
+  .post :global(.prose img) { max-width: 100%; height: auto; border-radius: 0.8rem; }
+  .post :global(.prose pre) { overflow-x: auto; padding: 1rem; border-radius: 0.8rem; background: rgb(255 255 255 / 0.05); }
+  .post :global(.prose blockquote) { margin: 1.5em 0; padding-left: 1.2em; border-left: 2px solid var(--sun); }
+  .post-tags { margin-top: 2.5rem; color: var(--ink-3); }
+</style>

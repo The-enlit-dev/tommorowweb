@@ -31,6 +31,11 @@ const { title } = Astro.props
   </head>
   <body>
     <slot />
+    <!-- Netlify Forms: lets the portal email Tomorrow Web (e.g. new change requests). Never shown. -->
+    <form name="portal-alert" data-netlify="true" netlify-honeypot="bot-field" hidden>
+      <input name="kind" /><input name="business" /><input name="title" /><input name="link" /><input name="by" />
+      <input name="bot-field" />
+    </form>
     <noscript><p class="p-noscript">The portal needs JavaScript. Please enable it to sign in.</p></noscript>
   </body>
 </html>

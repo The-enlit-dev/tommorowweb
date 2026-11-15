@@ -1,0 +1,51 @@
+---
+import Base from '../../layouts/Base.astro'
+import PageHero from '../../components/PageHero.astro'
+import CtaBand from '../../components/CtaBand.astro'
+import { getPosts, mediaUrl } from '../../lib/cms-client'
+import { plainText } from '../../lib/markdown'
+
+const posts = await getPosts()
+const date = (s: string) => new Intl.DateTimeFormat('en-IN', { dateStyle: 'medium' }).format(new Date(s))
+---
+
+<Base title="Blog" description="Notes on websites for small businesses: what works, what it costs and how to keep a site useful.">
+  <link slot="head" rel="alternate" type="application/rss+xml" title="Tomorrow Web blog" href="/rss.xml" />
+  <PageHero label="Blog" lines={['Notes from', 'the studio.']} accent={1} intro="Practical writing about websites for small businesses — no fluff, no filler." />
+  <section class="blog-list">
+    <div class="wrap">
+      {
+        posts.length ? (
+          <ol class="posts">
+            {posts.map((p) => (
+              <li class="post-card" data-reveal="up">
+                <a href={`/blog/${p.slug}/`}>
+                  {p.cover_path && <img src={mediaUrl(p.cover_path)} alt={p.cover_alt ?? ''} loading="lazy" width="800" height="450" />}
+                  <span class="mono post-date">{date(p.published_at)}</span>
+                  <h2>{p.title}</h2>
+                  <p>{p.excerpt || plainText(p.body_md ?? '', 180)}</p>
+                </a>
+              </li>
+            ))}
+          </ol>
+        ) : (
+          <p class="blog-empty lead">No posts yet — the first one is on its way.</p>
+        )
+      }
+    </div>
+  </section>
+  <CtaBand />
+</Base>
+
+<style>
+  .blog-list { padding-bottom: var(--section); }
+  .posts { display: grid; gap: clamp(1.5rem, 3vw, 2.5rem); grid-template-columns: repeat(auto-fill, minmax(min(100%, 320px), 1fr)); padding: 0; margin: 0; list-style: none; }
+  .post-card a { display: grid; gap: 0.6rem; height: 100%; padding: 1.25rem; border: 1px solid var(--line-night); border-radius: 1.25rem; color: inherit; text-decoration: none; transition: border-color 0.3s, transform 0.3s; }
+  .post-card a:hover { border-color: var(--ink-3); transform: translateY(-2px); }
+  .post-card img { width: 100%; height: auto; aspect-ratio: 16 / 9; object-fit: cover; border-radius: 0.8rem; }
+  .post-card h2 { font-size: clamp(1.4rem, 2.2vw, 1.8rem); line-height: 1.1; }
+  .post-card p { color: var(--ink-2); }
+  .post-date { color: var(--ink-3); font-size: 0.8rem; }
+  .blog-empty { color: var(--ink-2); }
+  @media (prefers-reduced-motion: reduce) { .post-card a { transition: none; } }
+</style>

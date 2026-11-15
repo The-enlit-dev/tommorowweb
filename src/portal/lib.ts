@@ -119,6 +119,33 @@ export function hasModule(ctx: Ctx, bizId: string | null, mod: string) {
   return !!m && m.modules.includes(mod)
 }
 
+// ── Storage ──
+export const mediaUrl = (path: string | null | undefined) =>
+  path ? `${SUPABASE_URL}/storage/v1/object/public/media/${path.split('/').map(encodeURIComponent).join('/')}` : ''
+
+/** Safe file name for storage paths: keeps letters, digits, dot, dash, underscore. */
+export const safeName = (name: string) =>
+  name.normalize('NFKD').replace(/[^\w.\-]+/g, '-').replace(/-+/g, '-').slice(-80) || 'file'
+
+export async function upload(bucket: 'media' | 'attachments', path: string, file: File) {
+  const { error } = await sb().storage.from(bucket).upload(path, file, { upsert: false, contentType: file.type || undefined })
+  if (error) throw new Error(/mime|type/i.test(error.message) ? 'That file type isn’t allowed.' : /size|large/i.test(error.message) ? 'That file is too large.' : friendlyError(error.message))
+  return path
+}
+
+/**
+ * Sends an email alert to Tomorrow Web through the site's free Netlify Forms (form "portal-alert",
+ * declared in the portal layout). Best effort: it never blocks or fails the user's action.
+ */
+export function notifyAdmin(fields: Record<string, string>) {
+  try {
+    const body = new URLSearchParams({ 'form-name': 'portal-alert', ...fields })
+    fetch('/', { method: 'POST', headers: { 'content-type': 'application/x-www-form-urlencoded' }, body }).catch(() => {})
+  } catch {
+    /* ignore */
+  }
+}
+
 // ── Formatting ──
 const inrFmt = new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR', maximumFractionDigits: 2 })
 export const inr = (n: number | string | null | undefined) => inrFmt.format(Number(n ?? 0))
