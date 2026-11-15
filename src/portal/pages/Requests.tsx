@@ -4,6 +4,7 @@ import QRCode from 'qrcode'
 import { pricing } from '../../config/site'
 import { check, d, dt, inr, notifyAdmin, qs, safeName, sb, upload, bytes } from '../lib'
 import { Badge, Empty, ErrorNote, Field, Modal, PageHead, Portal, useAction, useApp, useLoad, formData } from '../ui'
+import { AiAssistButton } from './AI'
 
 export const CR_STATUS: Record<string, { label: string; tone?: 'ok' | 'warn' | 'bad' | 'ai' }> = {
   submitted: { label: 'Submitted', tone: 'warn' },
@@ -240,10 +241,19 @@ function RequestBody({ app, id }: { app: ReturnType<typeof useApp>; id: string }
             <p style={{ whiteSpace: 'pre-wrap' }}>{req.description || <span class="p-muted">No details given.</span>}</p>
             <Attachments req={req} attachments={attachments} onChange={data.reload} />
           </div>
-          {req.ai_spec && (
+          {(req.ai_spec || isAdmin) && (
             <div class="p-card">
-              <h2>Specification <Badge tone="ai">AI-generated · review before use</Badge></h2>
-              <p style={{ whiteSpace: 'pre-wrap' }}>{req.ai_spec}</p>
+              <div class="p-row">
+                <h2 style={{ margin: 0 }}>Specification</h2>
+                {req.ai_spec && <Badge tone="ai">AI-generated · review before use</Badge>}
+                <span class="p-spacer" />
+                {isAdmin && (
+                  <AiAssistButton label={req.ai_spec ? 'Redraft spec' : 'Draft spec with AI'} task="spec"
+                    input={() => `Title: ${req.title}\nPriority: ${req.priority}\nWebsite: ${req.sites?.name ?? 'main site'}\n\nClient's request:\n${req.description}`}
+                    onResult={async (text) => { check(await sb().from('change_requests').update({ ai_spec: text.slice(0, 12000) }).eq('id', req.id)); await data.reload() }} />
+                )}
+              </div>
+              {req.ai_spec ? <p style={{ whiteSpace: 'pre-wrap' }}>{req.ai_spec}</p> : <p class="p-small p-muted">Turn the client’s words into a clear task list (needs an AI provider; works offline without it).</p>}
             </div>
           )}
           <Comments id={id} comments={comments} who={who} isAdmin={isAdmin} closed={req.status === 'cancelled'} onChange={data.reload} />

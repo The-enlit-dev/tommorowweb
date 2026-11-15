@@ -85,6 +85,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
       // Hide scroll-reveal content only once JS runs, so nothing is lost without it.
       document.documentElement.classList.add('js')
     </script>
+    <!-- AI assistant: stays hidden until switched on for this site in the portal. -->
+    <script is:inline src="/widget.js" data-site="tw-site-7f3c9a2e5b1d" data-theme="dark" defer></script>
     <slot name="head" />
   </head>
   <body>

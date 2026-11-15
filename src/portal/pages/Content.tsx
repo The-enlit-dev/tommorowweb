@@ -4,6 +4,7 @@ import { renderMarkdown, slugify } from '../../lib/markdown'
 import { SUPABASE_URL } from '../../lib/supabase-config.js'
 import { ago, callFn, check, d, dt, mediaUrl, qs, safeName, sb, upload } from '../lib'
 import { Badge, Empty, ErrorNote, Field, Modal, PageHead, Portal, useAction, useApp, useLoad, formData } from '../ui'
+import { AiAssistButton } from './AI'
 
 const BUILD_MSG: Record<string, string> = {
   triggered: 'Your website is rebuilding — changes appear in a minute or two.',
@@ -295,7 +296,7 @@ function PostForm({ app, post, siteId, busy, run }: { app: ReturnType<typeof use
       site_id: siteId, title: p.title.trim(), slug: p.slug || slugify(p.title), excerpt: p.excerpt?.trim() || null, body_md: p.body_md ?? '',
       tags: (Array.isArray(p.tags) ? p.tags : String(p.tags).split(',')).map((t: string) => t.trim()).filter(Boolean).slice(0, 12),
       cover_path: p.cover_path || null, cover_alt: p.cover_alt?.trim() || null, seo_title: p.seo_title?.trim() || null,
-      seo_description: p.seo_description?.trim() || null, status: status ?? p.status,
+      seo_description: p.seo_description?.trim() || null, status: status ?? p.status, ai_assisted: !!p.ai_assisted,
     }
     if (!row.title) throw new Error('Give the post a title.')
     if (!row.slug) throw new Error('Add a web address (slug).')
@@ -323,6 +324,14 @@ function PostForm({ app, post, siteId, busy, run }: { app: ReturnType<typeof use
             <input value={p.slug} maxLength={80} pattern="[a-z0-9]+(-[a-z0-9]+)*" onInput={(e) => { setSlugTouched(true); set('slug', slugify((e.target as HTMLInputElement).value)) }} />
           </Field>
           <Field label="Short summary" hint="Shown in the blog list and Google results. Up to 300 characters."><textarea rows={2} maxLength={300} value={p.excerpt ?? ''} onInput={(e) => set('excerpt', (e.target as HTMLTextAreaElement).value)} /></Field>
+          <div class="p-row">
+            <AiAssistButton label="Draft with AI" task="blog_draft" siteId={siteId} disabled={!p.title}
+              input={() => `Business: ${app.biz?.business_name}\nPost title: ${p.title}\nSummary/notes: ${p.excerpt ?? ''}\n${p.body_md ? `\nExisting notes:\n${p.body_md}` : ''}`}
+              onResult={(text) => { set('body_md', text); set('ai_assisted', true) }} />
+            <AiAssistButton label="Polish wording" task="blog_polish" siteId={siteId} disabled={!p.body_md}
+              input={() => p.body_md} onResult={(text) => { set('body_md', text); set('ai_assisted', true) }} />
+            {p.ai_assisted && <Badge tone="ai">AI-assisted — review before publishing</Badge>}
+          </div>
           <MarkdownField label="Post" rows={18} max={100000} value={p.body_md ?? ''} onChange={(v) => set('body_md', v)} />
         </div>
         <div class="p-stack">

@@ -27,6 +27,12 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run test:unit
+      - uses: denoland/setup-deno@v2
+        with:
+          deno-version: v2.5.6
+      - name: Type-check Edge Functions
+        working-directory: supabase/functions
+        run: deno check */index.ts
       - name: Migrations apply cleanly (plain PostgreSQL + Supabase shim)
         env:
           DATABASE_URL: postgresql://postgres:ci@localhost:5432/postgres

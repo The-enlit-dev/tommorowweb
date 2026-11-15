@@ -31,8 +31,8 @@ export const featureGroups: FeatureGroup[] = [
     title: 'AI assistant',
     intro: 'A chat assistant for your visitors that answers from your own information.',
     items: [
-      { name: 'FAQ answers', description: 'Answers common questions from your FAQs instantly — works even with AI switched off.', status: 'building' },
-      { name: 'AI replies', description: 'Natural answers grounded in your business facts, with a hand-off to WhatsApp or your contact page.', status: 'building', note: 'Needs an AI server we run, or OpenRouter’s free models (limits can change).' },
+      { name: 'FAQ answers', description: 'Answers common questions from your FAQs instantly — works even with AI switched off.', status: 'available' },
+      { name: 'AI replies', description: 'Natural answers grounded in your business facts, with a hand-off to WhatsApp or your contact page.', status: 'optional', note: 'Needs an AI server we run, or OpenRouter’s free models (limits can change).' },
     ],
   },
   {

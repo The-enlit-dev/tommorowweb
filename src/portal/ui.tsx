@@ -237,6 +237,17 @@ export function OneTimeSecret({ label, value }: { label: string; value: string }
   )
 }
 
+/** Read-only text with a copy button (embed codes, keys that are not secret). */
+export function CopyBox({ value }: { value: string }) {
+  const [copied, setCopied] = useState(false)
+  return (
+    <div class="p-row" style={{ alignItems: 'stretch' }}>
+      <code class="p-secret" style={{ flex: 1, overflowWrap: 'anywhere' }}>{value}</code>
+      <button class="btn btn-ghost p-btn" type="button" onClick={() => { navigator.clipboard?.writeText(value); setCopied(true) }}>{copied ? 'Copied' : 'Copy'}</button>
+    </div>
+  )
+}
+
 /** Loads data with loading/error state and a reload function. */
 export function useLoad<T>(fn: () => Promise<T>, deps: unknown[] = []) {
   const [data, setData] = useState<T | undefined>(undefined)

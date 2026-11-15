@@ -22,6 +22,8 @@ export const ROUTES = [
   ['content', 'Content', 'Content', 'Website content'],
   ['blog', 'Content', 'Blog', 'Blog'],
   ['blog/edit', 'Content', 'BlogEdit', 'Edit post'],
+  ['assistant', 'AI', 'Assistant', 'AI assistant'],
+  ['admin/ai', 'AI', 'AdminAI', 'AI infrastructure'],
 ]
 
 const root = new URL('..', import.meta.url).pathname
