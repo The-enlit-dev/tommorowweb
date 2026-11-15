@@ -20,25 +20,33 @@ const mono = pathToFileURL(path.join(root, 'node_modules/@fontsource/jetbrains-m
 const svg = (k, attrs = '') =>
   `<svg viewBox="0 0 ${logo[k].w} ${logo[k].h}" ${attrs} fill="currentColor"><path fill-rule="evenodd" d="${logo[k].d}"/></svg>`
 
-// "tw" monogram: the t of "tommorow" and the w of "web", sharing a baseline.
+// "tw" monogram on the site's dot grid: the t of "tommorow" and the w of "web", sharing a baseline.
 const t = logo.t
 const w = logo.w
 const gap = 10
 const mw = t.w + gap + w.w
 const mh = Math.max(t.h, w.h)
+const dotGrid = (size, n = 8) => {
+  const step = size / n
+  const r = (size / 64) * 0.7
+  let d = ''
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) d += `<circle cx="${((x + 0.5) * step).toFixed(2)}" cy="${((y + 0.5) * step).toFixed(2)}" r="${r.toFixed(2)}"/>`
+  return `<g fill="#ffffff" fill-opacity="0.28">${d}</g>`
+}
 const monogram = (size, pad, radius) => {
   const s = (size - pad * 2) / mw
   const ox = pad
   const oy = (size - mh * s) / 2
   return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${size} ${size}">
   <rect width="${size}" height="${size}" rx="${radius}" fill="#050505"/>
+  ${dotGrid(size)}
   <g fill="#ffffff" transform="translate(${ox.toFixed(2)} ${oy.toFixed(2)}) scale(${s.toFixed(5)})">
     <path fill-rule="evenodd" d="${t.d}" transform="translate(0 ${mh - t.h})"/>
     <path fill-rule="evenodd" d="${w.d}" transform="translate(${t.w + gap} ${mh - w.h})"/>
   </g>
 </svg>`
 }
-writeFileSync(path.join(pub, 'favicon.svg'), monogram(64, 7, 14))
+writeFileSync(path.join(pub, 'favicon.svg'), monogram(64, 9, 14))
 
 const { chromium } = createRequire(import.meta.url)('playwright')
 const browser = await chromium.launch()
@@ -78,7 +86,7 @@ rmSync(ogFile)
 
 for (const [name, size] of [['favicon-32.png', 32], ['apple-touch-icon.png', 180], ['icon-192.png', 192], ['icon-512.png', 512]]) {
   const page = await browser.newPage({ viewport: { width: size, height: size } })
-  const pad = Math.round(size * (size <= 32 ? 0.1 : 0.16))
+  const pad = Math.round(size * (size <= 32 ? 0.13 : 0.18))
   await page.setContent(`<style>html,body{margin:0;background:#050505}svg{display:block;width:${size}px;height:${size}px}</style>${monogram(size, pad, size <= 32 ? 6 : 0)}`)
   await page.screenshot({ path: path.join(pub, name) })
   await page.close()

@@ -168,7 +168,7 @@ The social image (`public/og.png`), favicon (`public/favicon.svg`) and app icons
 node scripts/render-assets.mjs
 ```
 
-This needs Playwright with Chromium installed. The favicon is a "tw" monogram made from the logo's own letters.
+This needs Playwright with Chromium installed. The favicon is a "tw" monogram, made from the logo's own letters, on the site's dot grid.
 
 ## Project structure
 
