@@ -355,5 +355,5 @@ export const booking = {
   methods: ['Phone call', 'WhatsApp call', 'Google Meet'],
   formName: 'call-booking',
   /** Optional: a Cal.com or Calendly link. If set, /book/ also offers instant booking there. */
-  externalUrl: '',
+  externalUrl: 'https://cal.com/attharva-agarwal/demo-for-tommorow-web-websites',
 }
