@@ -28,6 +28,7 @@ export const ROUTES = [
   ['admin/leads/view', 'Leads', 'LeadView', 'Lead'],
   ['admin/leads/report', 'Leads', 'LeadReport', 'Redesign report'],
   ['admin/leads/opportunities', 'Leads', 'Opportunities', 'Top opportunities'],
+  ['admin/crm', 'Crm', 'CrmHome', 'Sales CRM'],
 ]
 
 const root = new URL('..', import.meta.url).pathname

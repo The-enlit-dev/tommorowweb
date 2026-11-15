@@ -5,6 +5,7 @@ import { classifyUrl, CSV_FIELDS, guessMapping, INDUSTRIES, industryByKey, norma
 import { ago, callFn, check, d, downloadCsv, dt, qs, sb } from '../lib'
 import { Badge, Empty, ErrorNote, Field, Modal, PageHead, Portal, Stat, useAction, useApp, useLoad, formData } from '../ui'
 import { AiAssistButton } from './AI'
+import { CrmPanel } from './Crm'
 
 export const WEBSITE_STATE: Record<string, { label: string; tone?: 'ok' | 'warn' | 'bad' | 'ai' }> = {
   none_listed: { label: 'No website listed', tone: 'bad' },
@@ -520,10 +521,13 @@ function LeadBody({ app, id }: { app: ReturnType<typeof useApp>; id: string }) {
         </div>
 
         <div class="p-stack">
+          <CrmPanel lead={lead} onChange={data.reload} />
+
           <div class="p-card">
             <h2>Opportunity score <ScoreBadge s={lead.score} /></h2>
             <ul class="p-small" style={{ paddingLeft: '1rem' }}>{(lead.score_reasons as any[]).map((r, i) => <li key={i}>{r.points > 0 ? `+${r.points}` : r.points} — {r.text}</li>)}</ul>
             <p class="p-small p-muted">{SCORE_DISCLAIMER}</p>
+            {!lead.do_not_contact && <OutreachDraft lead={lead} findings={latestFinds} />}
           </div>
 
           <form class="p-card p-form" onSubmit={(e) => {
@@ -725,6 +729,24 @@ function OpportunitiesBody() {
         </table></div>
       ) : !list.loading && <Empty>No scored leads yet.</Empty>}
       <p class="p-small p-muted" style={{ marginTop: '1rem' }}>{OSM_CREDIT}.</p>
+    </div>
+  )
+}
+
+function OutreachDraft({ lead, findings }: { lead: any; findings: any[] }) {
+  const [text, setText] = useState('')
+  return (
+    <div style={{ marginTop: '0.75rem' }}>
+      <AiAssistButton label="Draft first message" task="outreach"
+        input={() => `Business: ${lead.name}\nIndustry: ${industryByKey(lead.industry)?.label ?? lead.category ?? ''}\nLocality: ${lead.locality ?? ''}, ${lead.city ?? ''}\nWebsite state: ${WEBSITE_STATE[lead.website_state].label}\nVerified findings:\n${findings.filter((f) => f.source !== 'ai').map((f) => `- ${f.title}`).join('\n') || '- none'}`}
+        onResult={(t) => setText(t)} />
+      {text && (
+        <div class="p-card" style={{ marginTop: '0.5rem' }}>
+          <Badge tone="ai">AI-generated — review and edit before sending</Badge>
+          <textarea rows={6} value={text} onInput={(e) => setText((e.target as HTMLTextAreaElement).value)} style={{ marginTop: '0.4rem' }} />
+          <button class="btn btn-ghost p-btn" onClick={() => navigator.clipboard?.writeText(text)}>Copy</button>
+        </div>
+      )}
     </div>
   )
 }

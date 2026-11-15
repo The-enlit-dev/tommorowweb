@@ -36,6 +36,7 @@ function OverviewBody() {
         <Stat n={u ? bytes(u.storage_bytes) : '…'} label="File storage" />
       </div>
       <StatusWarnings usage={u} />
+      <FollowUpsDue />
       <div class="p-card" style={{ marginTop: '1rem' }}>
         <h2>Recent activity</h2>
         {stats.data?.logs.length ? (
@@ -46,6 +47,23 @@ function OverviewBody() {
         <a href="/portal/admin/audit/">Full audit log →</a>
       </div>
     </>
+  )
+}
+
+/** CRM follow-ups due today/overdue. Silent if the CRM isn't set up yet. */
+function FollowUpsDue() {
+  const due = useLoad(async () => {
+    const end = new Date(); end.setHours(23, 59, 59, 999)
+    const r = await sb().from('lead_tasks').select('id, due_at').is('done_at', null).lte('due_at', end.toISOString())
+    if (r.error) return null
+    const now = Date.now()
+    return { overdue: r.data.filter((t) => new Date(t.due_at).getTime() < now).length, today: r.data.filter((t) => new Date(t.due_at).getTime() >= now).length }
+  })
+  if (!due.data || (!due.data.overdue && !due.data.today)) return null
+  return (
+    <div class="p-notice" data-tone={due.data.overdue ? 'warn' : undefined} style={{ marginTop: '1rem' }}>
+      <span>Sales follow-ups: <strong>{due.data.overdue} overdue</strong>, {due.data.today} due later today. <a href="/portal/admin/crm/">Open the CRM →</a></span>
+    </div>
   )
 }
 
