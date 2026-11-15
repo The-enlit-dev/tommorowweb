@@ -9,4 +9,10 @@ for f in supabase/migrations/*.sql; do
   echo "applying $f"
   PGOPTIONS="-c client_min_messages=warning" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -1 -f "$f"
 done
+# Migrations written and tested but still awaiting the owner's confirmation on the live project.
+for f in supabase/pending/*.sql; do
+  [ -e "$f" ] || continue
+  echo "applying (pending) $f"
+  PGOPTIONS="-c client_min_messages=warning" psql "$DATABASE_URL" -v ON_ERROR_STOP=1 -q -1 -f "$f"
+done
 echo "all migrations applied"

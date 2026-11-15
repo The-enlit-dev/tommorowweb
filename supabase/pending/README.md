@@ -7,3 +7,4 @@ Once applied, move the file into `supabase/migrations/` renamed to the version t
 | File | Why it's waiting |
 | --- | --- |
 | `20261115120500_m2_vault_cleanup.sql` | Deletes two orphaned Vault secrets (fake test keys) and adds triggers that delete secrets with their owner rows. Awaiting approval. |
+| `20261115130000_m3_lead_finder.sql` | Lead Finder tables and functions (creates only; DELETE appears inside function bodies). Supabase asked for confirmation; awaiting approval. |
