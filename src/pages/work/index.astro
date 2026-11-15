@@ -5,6 +5,7 @@ import PageHero from '../../components/PageHero.astro'
 import ProjectCard from '../../components/ProjectCard.astro'
 import CtaBand from '../../components/CtaBand.astro'
 import Icon from '../../components/Icon.astro'
+import Orb from '../../components/Orb.astro'
 
 const work = (await getCollection('work', ({ data }) => !data.draft)).sort((a, b) => a.data.order - b.data.order)
 const categories = ['All', ...new Set(work.flatMap((p) => p.data.categories))]
@@ -41,7 +42,7 @@ const categories = ['All', ...new Set(work.flatMap((p) => p.data.categories))]
         }
         <div class="grid-item next" data-reveal>
           <a href="/contact/" class="next-card">
-            <span class="next-sun" aria-hidden="true"></span>
+            <span class="next-sun"><Orb rings={false} /></span>
             <span class="mono next-label">Next project</span>
             <span class="next-title" role="heading" aria-level="2">Yours?</span>
             <span class="next-text">We’re taking on new projects. Tell us about yours and we’ll reply personally.</span>
@@ -95,7 +96,7 @@ const categories = ['All', ...new Set(work.flatMap((p) => p.data.categories))]
   .filters .chip[aria-pressed='true'] {
     background: var(--ink);
     border-color: var(--ink);
-    color: var(--paper);
+    color: var(--on-accent);
   }
   .grid {
     display: grid;
@@ -132,9 +133,6 @@ const categories = ['All', ...new Set(work.flatMap((p) => p.data.categories))]
     top: -5rem;
     right: -5rem;
     width: 16rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--sun);
     transition: transform 0.9s var(--ease-out);
   }
   .next-card:hover .next-sun {
@@ -144,11 +142,8 @@ const categories = ['All', ...new Set(work.flatMap((p) => p.data.categories))]
     color: var(--ink-3);
   }
   .next-title {
-    font-family: var(--f-display);
     font-size: clamp(3rem, 6vw, 5.5rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.034em;
+    font-weight: 900;
     line-height: 0.9;
   }
   .next-text {

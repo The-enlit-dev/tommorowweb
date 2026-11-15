@@ -9,7 +9,8 @@ import Compare from '../components/Compare.astro'
 import ProjectCard from '../components/ProjectCard.astro'
 import Standards from '../components/Standards.astro'
 import CtaBand from '../components/CtaBand.astro'
-import { business, services, processSteps } from '../config/site'
+import Orb from '../components/Orb.astro'
+import { business, services, processSteps, pricing } from '../config/site'
 
 const work = (await getCollection('work', ({ data }) => !data.draft && data.featured)).sort((a, b) => a.data.order - b.data.order)
 const site = Astro.site!.href.replace(/\/$/, '')
@@ -27,6 +28,8 @@ const jsonLd = [
     ...(business.whatsapp ? { telephone: `+${business.whatsapp}` } : {}),
     ...(business.location ? { address: business.location } : {}),
     founder: { '@type': 'Person', name: business.founder.name },
+    priceRange: `₹${pricing.from} – ₹${pricing.upTo}+`,
+    paymentAccepted: pricing.payment,
     knowsAbout: ['Web design', 'Web development', 'Website redesign', 'Landing pages', 'Website maintenance'],
     hasOfferCatalog: {
       '@type': 'OfferCatalog',
@@ -48,15 +51,18 @@ const ticker = services.map((s) => s.title)
 >
   <!-- ── Hero ─────────────────────────────────────────────────────────── -->
   <section class="hero" aria-labelledby="hero-title">
+    <canvas class="hero-dots" data-dotfield aria-hidden="true"></canvas>
     <div class="wrap hero-inner">
       <div class="hero-top">
-        <p class="eyebrow mono">Independent web studio</p>
-        <p class="mono hero-meta">Design · Build · Care</p>
+        <p class="eyebrow mono" data-scramble>Independent web studio</p>
+        <a href="/pricing/" class="mono hero-price">
+          Websites from <span class="rs">₹</span>{pricing.from} <Icon name="arrow-up-right" size={14} />
+        </a>
       </div>
 
       <h1 id="hero-title" class="hero-title" data-lines="load">
         <span class="line"><span class="hero-today">Today’s business. </span></span>
-        <span class="line" style="--l:1"><span>Tomorrow’s website. </span></span>
+        <span class="line" style="--l:1"><span class="chrome">Tomorrow’s website. </span></span>
       </h1>
 
       <div class="hero-foot">
@@ -65,15 +71,15 @@ const ticker = services.map((s) => s.title)
           after them once they’re live.
         </p>
         <div class="hero-actions">
-          <a href="/contact/" class="btn btn-ink">Start a project <Icon name="arrow-right" size={18} /></a>
-          <a href="/work/" class="btn btn-ghost hero-ghost">See our work</a>
+          <a href="/contact/" class="btn btn-ink" data-magnetic>Start a project <Icon name="arrow-right" size={18} /></a>
+          <a href="/book/" class="btn btn-ghost" data-magnetic>Book a 20-min call</a>
         </div>
       </div>
     </div>
 
     <div class="horizon" aria-hidden="true">
       <div class="horizon-sky">
-        <div class="horizon-sun" data-sunrise></div>
+        <div class="horizon-sun" data-sunrise><Orb class="hero-orb" /></div>
       </div>
       <div class="horizon-ticker mono">
         <div class="ticker-track">
@@ -160,6 +166,29 @@ const ticker = services.map((s) => s.title)
 
   <Standards num="05" />
 
+  <!-- ── Pricing teaser ───────────────────────────────────────────────── -->
+  <section class="section-tight price-home" aria-labelledby="price-home-title">
+    <div class="wrap">
+      <div class="ph-card" data-reveal="scale" data-spotlight>
+        <div class="ph-copy">
+          <p class="eyebrow mono" data-scramble>Pricing</p>
+          <h2 id="price-home-title" class="ph-title">
+            Websites from <span class="chrome"><span class="rs">₹</span>{pricing.from}</span>
+          </h2>
+          <p class="ph-text">
+            Most projects fall between <span class="rs">₹</span>{pricing.from} and <span class="rs">₹</span>{pricing.upTo}; bigger ones can
+            cost more. Written quote first, payment by {pricing.payment}, and changes after delivery are
+            <span class="rs">₹</span>{pricing.changeFee} each.
+          </p>
+        </div>
+        <div class="ph-actions">
+          <a href="/pricing/" class="btn btn-ink" data-magnetic>See pricing <Icon name="arrow-right" size={18} /></a>
+          <a href="/book/" class="btn btn-ghost" data-magnetic>Book a 20-min call</a>
+        </div>
+      </div>
+    </div>
+  </section>
+
   <!-- ── Process teaser ───────────────────────────────────────────────── -->
   <section class="section process-home" aria-labelledby="process-title">
     <div class="wrap">
@@ -196,6 +225,15 @@ const ticker = services.map((s) => s.title)
     flex-direction: column;
     padding-top: calc(var(--header-h) + clamp(1.5rem, 4vw, 3rem));
     overflow: hidden;
+    /* opaque so the page's static dots don't double up with the animated field */
+    background: radial-gradient(ellipse 60% 50% at 70% 100%, rgb(255 255 255 / 0.07), transparent 70%), var(--paper);
+  }
+  .hero-dots {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
   }
   .hero-inner {
     position: relative;
@@ -209,16 +247,33 @@ const ticker = services.map((s) => s.title)
     justify-content: space-between;
     gap: 1rem;
   }
-  .hero-meta {
-    color: var(--ink-3);
+  .hero-price {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--line-strong);
+    border-radius: 99px;
+    color: var(--ink);
+    text-decoration: none;
+    background: rgb(5 5 5 / 0.6);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    transition: border-color 0.3s, box-shadow 0.3s;
+  }
+  .hero-price:hover {
+    border-color: var(--ink);
+    box-shadow: 0 0 24px -4px rgb(255 255 255 / 0.4);
+  }
+  .hero-price .rs {
+    font-weight: 500;
   }
   .hero-title {
     margin-top: auto;
     font-size: var(--fs-hero);
-    font-weight: 700;
-    font-stretch: 78%;
-    letter-spacing: -0.034em;
-    line-height: 0.88;
+    font-weight: 800;
+    letter-spacing: 0;
+    line-height: 1;
   }
   .hero-title .line {
     display: block;
@@ -236,10 +291,6 @@ const ticker = services.map((s) => s.title)
   .hero-lead {
     max-width: 46ch;
     margin: 0;
-  }
-  .hero-ghost {
-    --bg: var(--paper);
-    border-color: var(--paper);
   }
   .hero-actions {
     display: flex;
@@ -265,11 +316,8 @@ const ticker = services.map((s) => s.title)
     position: absolute;
     right: 7vw;
     bottom: 0;
-    width: min(44vw, 640px);
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--sun);
-    translate: 0 58%;
+    width: min(40vw, 600px);
+    translate: 0 64%;
     transform: translateY(calc(var(--rise) * -40%));
     will-change: transform;
   }
@@ -286,7 +334,8 @@ const ticker = services.map((s) => s.title)
   .horizon-ticker {
     position: relative;
     overflow: hidden;
-    border-top: 2px solid var(--ink);
+    border-top: 1px solid rgb(255 255 255 / 0.55);
+    box-shadow: 0 -1px 24px rgb(255 255 255 / 0.18);
     background: var(--paper);
     padding: 1.05rem 0;
     color: var(--ink);
@@ -307,10 +356,14 @@ const ticker = services.map((s) => s.title)
     white-space: nowrap;
   }
   .ticker-set i {
-    width: 0.45rem;
-    height: 0.45rem;
+    width: 0.4rem;
+    height: 0.4rem;
     border-radius: 50%;
     background: var(--sun);
+    box-shadow: 0 0 10px rgb(255 255 255 / 0.8);
+  }
+  .hero-orb {
+    width: 100%;
   }
   @media (prefers-reduced-motion: no-preference) {
     .ticker-track {
@@ -342,8 +395,9 @@ const ticker = services.map((s) => s.title)
       translate: 0 66%;
       transform: translateY(calc(var(--rise) * -14%));
     }
-    .hero-meta {
-      display: none;
+    .hero-top {
+      flex-direction: column;
+      align-items: flex-start;
     }
   }
 
@@ -401,6 +455,47 @@ const ticker = services.map((s) => s.title)
     margin: 3rem 0 0;
   }
 
+  /* ── Pricing teaser ── */
+  .ph-card {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 2rem 3rem;
+    align-items: end;
+    padding: clamp(1.75rem, 4vw, 3.5rem);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(ellipse 50% 90% at 100% 0%, rgb(255 255 255 / 0.09), transparent 60%),
+      linear-gradient(160deg, #111, #060606 70%);
+  }
+  .ph-title {
+    font-size: clamp(2rem, 4.6vw, 4.4rem);
+    font-weight: 800;
+    line-height: 1.05;
+  }
+  .ph-title .rs {
+    -webkit-text-fill-color: currentColor;
+    color: var(--ink);
+    font-size: 0.85em;
+  }
+  .ph-text {
+    max-width: 56ch;
+    margin: 1.25rem 0 0;
+    color: var(--ink-2);
+  }
+  .ph-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+  @media (max-width: 860px) {
+    .ph-card {
+      grid-template-columns: 1fr;
+    }
+  }
+
   /* ── Process teaser ── */
   .psteps {
     --p: 0;
@@ -424,6 +519,7 @@ const ticker = services.map((s) => s.title)
   }
   .psteps::after {
     background: var(--sun);
+    box-shadow: 0 0 12px rgb(255 255 255 / 0.7);
     transform-origin: 0 50%;
     transform: scaleX(var(--p));
   }
@@ -449,9 +545,8 @@ const ticker = services.map((s) => s.title)
   }
   .psteps h3 {
     margin: 0.75rem 0 0.6rem;
-    font-size: 1.45rem;
-    font-weight: 600;
-    letter-spacing: -0.03em;
+    font-size: 1.6rem;
+    font-weight: 900;
   }
   .psteps p {
     margin: 0;

@@ -59,6 +59,13 @@ const wa = whatsappLink()
             }
           </ul>
 
+          <a href="/book/" class="book-cta" data-reveal style="--d:.32s" data-spotlight>
+            <span class="mono">Rather talk first?</span>
+            <span class="book-cta-t">Book a 20-minute call</span>
+            <span class="book-cta-d">Usually on weekends. Pick a day and time that suits you.</span>
+            <span class="book-cta-go" aria-hidden="true"><Icon name="arrow-right" size={20} /></span>
+          </a>
+
           <div class="expect" data-reveal style="--d:.35s">
             <h2 class="mono">What happens next</h2>
             <ol>
@@ -93,9 +100,8 @@ const wa = whatsappLink()
   }
   .contact-title {
     font-size: clamp(2.9rem, 6.4vw, 6.25rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 0.92;
   }
   .contact-title .line {
@@ -153,12 +159,8 @@ const wa = whatsappLink()
   .direct-link:hover .direct-icon {
     background: var(--sun);
     border-color: var(--sun);
-  }
-  .direct-icon.is-wa {
-    color: #1f8f4e;
-  }
-  .direct-link:hover .direct-icon.is-wa {
-    color: var(--ink);
+    color: var(--on-accent);
+    box-shadow: 0 0 24px rgb(255 255 255 / 0.4);
   }
   .dev-note {
     padding: 0.75rem 1rem;
@@ -167,9 +169,59 @@ const wa = whatsappLink()
     color: var(--ink-3);
     text-transform: none;
   }
+  .book-cta {
+    position: relative;
+    overflow: hidden;
+    display: grid;
+    grid-template-columns: 1fr auto;
+    gap: 0.3rem 1rem;
+    margin-bottom: 1.25rem;
+    padding: 1.4rem 1.5rem;
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius);
+    background: linear-gradient(160deg, #141414, #070707 70%);
+    text-decoration: none;
+    transition: border-color 0.3s, box-shadow 0.4s;
+  }
+  .book-cta:hover {
+    border-color: var(--ink);
+    box-shadow: 0 0 40px -10px rgb(255 255 255 / 0.35);
+  }
+  .book-cta .mono {
+    color: var(--ink-3);
+  }
+  .book-cta-t {
+    font-family: var(--f-display);
+    font-variation-settings: 'ROND' 100;
+    font-weight: 900;
+    font-size: clamp(1.5rem, 2.4vw, 1.9rem);
+    line-height: 1.1;
+  }
+  .book-cta-d {
+    color: var(--ink-2);
+    font-size: 0.95rem;
+  }
+  .book-cta-go {
+    grid-column: 2;
+    grid-row: 1 / span 3;
+    align-self: center;
+    display: grid;
+    place-items: center;
+    width: 3rem;
+    height: 3rem;
+    border-radius: 50%;
+    border: 1px solid var(--line-strong);
+    transition: background 0.3s, color 0.3s, transform 0.5s var(--ease-out);
+  }
+  .book-cta:hover .book-cta-go {
+    background: var(--sun);
+    color: var(--on-accent);
+    transform: rotate(-45deg);
+  }
   .expect {
     padding: 1.5rem;
     border-radius: var(--radius);
+    border: 1px solid var(--line);
     background: var(--paper-2);
   }
   .expect h2 {

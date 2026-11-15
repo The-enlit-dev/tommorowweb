@@ -35,9 +35,8 @@ import Icon from '../components/Icon.astro'
   .nf-title {
     max-width: 12ch;
     font-size: var(--fs-h1);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 0.92;
   }
   .nf-title span {
@@ -59,7 +58,8 @@ import Icon from '../components/Icon.astro'
     position: relative;
     height: 8rem;
     margin-top: auto;
-    border-top: 2px solid var(--ink);
+    border-top: 1px solid rgb(255 255 255 / 0.6);
+    box-shadow: 0 -1px 24px rgb(255 255 255 / 0.2);
   }
   /* A sun that hasn't risen yet — just its top edge peeking over the horizon. */
   .nf-horizon::before {
@@ -70,7 +70,8 @@ import Icon from '../components/Icon.astro'
     width: min(18rem, 60vw);
     height: 2.25rem;
     border-radius: 18rem 18rem 0 0 / 2.25rem 2.25rem 0 0;
-    background: var(--sun);
+    background: radial-gradient(ellipse at 40% 20%, #fff, #8a8a8a 45%, #1c1c1c 100%);
+    box-shadow: 0 0 60px rgb(255 255 255 / 0.25);
     transform: translateX(-50%);
   }
 </style>

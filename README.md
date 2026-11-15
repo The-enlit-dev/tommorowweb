@@ -14,9 +14,11 @@ It deploys to Netlify's free tier, and enquiries go through Netlify Forms.
 | Work | `/work/` | Portfolio grid with category filters |
 | Case studies | `/work/<project>/` | One page per project, generated from Markdown |
 | Services | `/services/` | The six services in detail, plus FAQs |
+| Pricing | `/pricing/` | Typical price range, UPI payment, the change fee and friends & family codes |
 | Process | `/process/` | The six steps, from first conversation to ongoing care |
 | About | `/about/` | Story, vision, principles and the founder |
 | Contact | `/contact/` | The enquiry form, email and WhatsApp |
+| Book a call | `/book/` | Request a 20-minute call on an upcoming weekend |
 | Thanks, Privacy, 404 | `/thanks/`, `/privacy/`, `/404` | Form fallback, privacy notice, not-found page |
 
 ## Run it locally
@@ -54,6 +56,9 @@ Almost all copy lives in **[`src/config/site.ts`](src/config/site.ts)**. Search 
 | Process steps | `processSteps` |
 | FAQs (also used for search-engine FAQ data) | `faqs` |
 | Enquiry form options: website types, **budget ranges**, contact methods | `websiteTypes`, `budgets`, `contactMethods` |
+| Price range, payment method (UPI) and the fee per change after delivery | `pricing` |
+| Friends & family code | `friendsCode` |
+| Call booking: length, days, time windows, call methods, optional Cal.com/Calendly link | `booking` |
 
 The About story and principles are in `src/pages/about.astro`. Page titles and descriptions are set at the top of each page in `src/pages/`.
 
@@ -85,6 +90,27 @@ Projects are Markdown files in `src/content/work/`. Each one becomes a card on `
 
 Only add real projects. Never invent clients, testimonials or results.
 
+## Pricing
+
+`pricing` in `site.ts` drives the Pricing page, the home-page teaser, the FAQs and the search-engine data: projects from ₹2,000 to ₹15,000+, payment by UPI only, and ₹400 for each change after delivery. The budget options on the enquiry form are in `budgets`.
+
+## Friends & family code
+
+The enquiry form has an optional **"Have a code?"** field. Share the code privately with family, friends and people you know. It isn't written down anywhere in this repository, so keep a note of it. Codes are not case-sensitive.
+
+- Only a SHA-256 hash of the code is in the site, so it can't be read from the page source.
+- Someone who types the right code sees a confirmation. Their enquiry arrives with `discount-code` and `code-valid: yes`.
+- The website doesn't apply any discount itself. You decide what the code means (for example, a free website) when you reply.
+- To change the code, run the command below and paste the result into `friendsCode.hash` in `site.ts`:
+
+```bash
+node scripts/hash-code.mjs YOUR-NEW-CODE
+```
+
+## Booking a 20-minute call
+
+`/book/` is a request form, not a live calendar. Visitors pick one of the next four weekends' Saturdays or Sundays, a time window (IST) and how they'd like to be called. The request arrives in Netlify under **Forms → call-booking**, and you confirm the exact time by email or WhatsApp. Change the days, weeks, time windows and call methods in `booking` in `site.ts`. If you later set up a free Cal.com or Calendly page, put its link in `booking.externalUrl` and an "instant booking" button appears.
+
 ## Enquiry form (Netlify Forms)
 
 The form on `/contact/` collects name, business name, email, phone/WhatsApp, type of website, budget range, current website, project details and preferred contact method.
@@ -92,8 +118,8 @@ The form on `/contact/` collects name, business name, email, phone/WhatsApp, typ
 Netlify finds the form automatically when it deploys the site, because the form is plain HTML in the built page (`data-netlify="true"`). The free tier allows 100 submissions a month.
 
 1. After the first deploy, open **Forms** in your Netlify project. If form detection is off, enable it and redeploy.
-2. Submissions appear under **Forms → enquiry**.
-3. To get each enquiry by email: **Forms → Form notifications → Add notification → Email notification**.
+2. Submissions appear under **Forms → enquiry** (project enquiries) and **Forms → call-booking** (call requests).
+3. To get each enquiry by email: **Forms → Form notifications → Add notification → Email notification**. Add one for each form.
 
 How the form behaves:
 
@@ -121,22 +147,28 @@ No environment variables are required. Netlify's built-in `URL` variable is used
 
 ## Design and code notes
 
-- **Look:** warm paper and ink, with a single "sunrise" orange. The logo is a sun rising over a horizon, and the motif repeats in the hero, buttons and calls to action.
-- **Type:** Bricolage Grotesque (display), Inter (text) and JetBrains Mono (labels), self-hosted from `@fontsource` in `src/styles/fonts.css`. Only the Latin and Latin Extended subsets are loaded.
-- **Colours and spacing** are CSS variables at the top of `src/styles/global.css`. Text colours meet WCAG AA contrast.
-- **Motion:** smooth scrolling (Lenis), scroll reveals, a scroll-scrubbed statement, stacking work cards, page transitions (View Transitions) and the draggable "Today / Tomorrow" comparison. All of it is switched off for visitors who prefer reduced motion, and all content is visible without JavaScript.
-- **Scripts:** `src/scripts/` contains `main.ts` (site-wide behaviour), `compare.ts`, `filter.ts` and `enquiry.ts`.
+- **Look:** deep black (`#050505`) with a subtle white dot grid on every page, monochrome throughout, and a chrome gradient for accent words, the progress bar and the orb.
+- **Logo:** your wordmark, traced to vector paths in `src/components/logo-paths.ts` and shown with `Logo.astro`. `variant="hor"` is the one-line version in the header; `variant="stack"` is the two-line logo in the footer. Being vector, it stays sharp at any size.
+- **Headings:** a dot-matrix face. The site uses **Doto**, an open-source (SIL OFL) dot-matrix font with round dots that is close to Nothing's Ndot. Ndot itself isn't openly licensed for websites. If you have a licence, add its `@font-face` in `src/styles/fonts.css` under the family name `Ndot 57` and it's used automatically. Long reading text (statements, FAQs, forms) uses Inter, and labels use JetBrains Mono. Doto has no ₹ sign, so rupee amounts in headings wrap the ₹ in `<span class="rs">` to set it in Inter.
+- **Colours and spacing** are CSS variables at the top of `src/styles/global.css`. Text colours meet WCAG AA contrast on black.
+- **Motion** (desktop and mobile), all switched off for visitors who prefer reduced motion:
+  - **Hero dot field** (`motion.ts`): the dots shimmer, light up and part around the cursor, and ripple out from taps. On phones they ripple on their own.
+  - **Chrome orb** (`Orb.astro`), with a turning highlight and orbit rings. It rises over the horizon as you scroll.
+  - **Text scramble:** small labels decode into their real text. Screen readers get the real text straight away.
+  - Masked line reveals for headings, blur-in reveals for content, page transitions (View Transitions), smooth scrolling (Lenis) and a scroll progress line.
+  - Stacking work cards with parallax screenshots, spotlight cards, magnetic buttons, marquees and the draggable "Today / Tomorrow" comparison.
+- **Scripts:** `src/scripts/` contains `main.ts` (site-wide behaviour and scroll effects), `motion.ts`, `forms.ts` (both Netlify forms), `compare.ts` and `filter.ts`. Shared form styles are in `src/styles/forms.css`.
 - **Accessibility:** semantic landmarks, a skip link, keyboard-operable menu (focus trap and Esc), slider, filters and FAQs, labelled form fields with inline error messages, and visible focus styles.
 
 ## Regenerating the social image and icons
 
-Edit `scripts/og.html` or `scripts/icon.html`, then run:
+The social image (`public/og.png`), favicon (`public/favicon.svg`) and app icons are generated from the vector logo:
 
 ```bash
 node scripts/render-assets.mjs
 ```
 
-This needs Playwright with Chromium installed. It writes `public/og.png`, `favicon-32.png`, `apple-touch-icon.png`, `icon-192.png` and `icon-512.png`. The SVG favicon is `public/favicon.svg`.
+This needs Playwright with Chromium installed. The favicon is a "tw" monogram made from the logo's own letters.
 
 ## Project structure
 
@@ -146,12 +178,12 @@ src/
   content/work/*.md      ← portfolio projects (one file each)
   content.config.ts      ← the project fields
   assets/work/           ← project screenshots
-  components/            ← Header, Footer, ProjectCard, EnquiryForm, Compare, …
+  components/            ← Header, Footer, Logo, Orb, ProjectCard, EnquiryForm, Compare, …
   layouts/Base.astro     ← <head>, SEO tags, page shell
   pages/                 ← one file per page
   scripts/               ← interaction code
-  styles/                ← global.css (design system), fonts.css
+  styles/                ← global.css (design system), forms.css, fonts.css
 public/                  ← favicon, icons, og.png, web manifest
-scripts/                 ← social image and icon renderer
+scripts/                 ← social image/icon renderer, friends & family code hasher
 netlify.toml             ← build settings and security headers
 ```

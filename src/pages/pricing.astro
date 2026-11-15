@@ -1,0 +1,260 @@
+---
+import Base from '../layouts/Base.astro'
+import PageHero from '../components/PageHero.astro'
+import SectionHead from '../components/SectionHead.astro'
+import Faq from '../components/Faq.astro'
+import CtaBand from '../components/CtaBand.astro'
+import Icon from '../components/Icon.astro'
+import { pricing, faqs } from '../config/site'
+
+const factors = [
+  { t: 'Number of pages', d: 'A single landing page costs less than a multi-page business site.' },
+  { t: 'Content', d: 'Whether your text and photos are ready, or need shaping with our help.' },
+  { t: 'Features', d: 'Menus, galleries, enquiry or booking forms, blogs and other extras.' },
+  { t: 'New or redesign', d: 'Rebuilding an existing site can mean carrying content across and setting up redirects.' },
+]
+
+const terms = [
+  {
+    k: 'Payment',
+    t: `${pricing.payment} only`,
+    d: `We accept payment by ${pricing.payment} only.`,
+  },
+  {
+    k: 'Before we start',
+    t: 'Written quote',
+    d: 'You see and approve the price in writing before any work begins.',
+  },
+  {
+    k: 'After delivery',
+    t: `₹${pricing.changeFee} per change`,
+    d: `Additional changes after your website is delivered cost ₹${pricing.changeFee} each.`,
+  },
+  {
+    k: 'Friends & family',
+    t: 'Got a code?',
+    d: 'If we’ve given you a personal code, add it to your enquiry and we’ll take it from there.',
+  },
+]
+
+const pricingFaqs = faqs.filter((f) => /cost|pay|changes after|hosting/i.test(f.q))
+---
+
+<Base
+  title="Pricing"
+  description={`Tomorrow Web websites typically cost ₹${pricing.from} to ₹${pricing.upTo}, with larger projects quoted individually. Payment by UPI. Changes after delivery are ₹${pricing.changeFee} each.`}
+>
+  <PageHero
+    label="Pricing"
+    lines={['Honest prices.', 'No surprises.']}
+    accent={1}
+    intro={`Most websites we build cost between ₹${pricing.from} and ₹${pricing.upTo}. Bigger projects can cost more — and you always get a written quote before we start.`}
+  />
+
+  <section class="section-tight price-sec" aria-labelledby="range-title">
+    <div class="wrap">
+      <div class="price-card" data-reveal="scale" data-spotlight>
+        <p class="mono price-label" id="range-title">Typical project</p>
+        <p class="price-range">
+          <span class="chrome"><span class="rs">₹</span>{pricing.from}</span>
+          <span class="price-dash" aria-hidden="true"></span>
+          <span class="sr-only"> to </span>
+          <span class="chrome"><span class="rs">₹</span>{pricing.upTo}+</span>
+        </p>
+        <p class="price-note">The final price depends on your project. Larger projects are quoted individually.</p>
+        <div class="price-actions">
+          <a href="/contact/" class="btn btn-ink" data-magnetic>Get a quote <Icon name="arrow-right" size={18} /></a>
+          <a href="/book/" class="btn btn-ghost" data-magnetic>Book a 20-min call</a>
+        </div>
+      </div>
+
+      <ul class="terms">
+        {
+          terms.map((t, i) => (
+            <li class="term" data-reveal style={`--d:${i * 0.07}s`} data-spotlight>
+              <p class="mono term-k">{t.k}</p>
+              <h2 class="term-t">
+                {t.t.startsWith('₹') ? (
+                  <>
+                    <span class="rs">₹</span>
+                    {t.t.slice(1)}
+                  </>
+                ) : (
+                  t.t
+                )}
+              </h2>
+              <p class="term-d">{t.d}</p>
+            </li>
+          ))
+        }
+      </ul>
+    </div>
+  </section>
+
+  <section class="section factors-sec" aria-labelledby="factors-title">
+    <div class="wrap">
+      <SectionHead num="01" label="What affects the price" id="factors-title" intro="Tell us your budget in the enquiry form, and we’ll suggest what fits within it.">
+        <span class="line"><span>Every project </span></span>
+        <span class="line" style="--l:1"><span>is different. </span></span>
+      </SectionHead>
+      <ol class="factors">
+        {
+          factors.map((f, i) => (
+            <li data-reveal style={`--d:${(i % 2) * 0.07}s`}>
+              <span class="mono factor-n" aria-hidden="true">
+                {String(i + 1).padStart(2, '0')}
+              </span>
+              <h3>{f.t}</h3>
+              <p>{f.d}</p>
+            </li>
+          ))
+        }
+      </ol>
+    </div>
+  </section>
+
+  <section class="section" aria-labelledby="pfaq-title">
+    <div class="wrap">
+      <SectionHead label="Questions" id="pfaq-title">
+        <span class="line"><span>Money </span></span>
+        <span class="line" style="--l:1"><span>questions. </span></span>
+      </SectionHead>
+      <div class="faq-wrap">
+        <Faq items={pricingFaqs} />
+      </div>
+    </div>
+  </section>
+
+  <CtaBand title="Let’s talk about your budget." />
+</Base>
+
+<style>
+  .price-sec {
+    padding-top: 0;
+  }
+  .price-card {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(2rem, 5vw, 4rem);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background:
+      radial-gradient(ellipse 60% 80% at 80% 0%, rgb(255 255 255 / 0.1), transparent 60%),
+      linear-gradient(160deg, #121212, #060606 70%);
+  }
+  .price-label {
+    margin: 0 0 1.5rem;
+    color: var(--ink-3);
+  }
+  .price-range {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.2em 0.5em;
+    margin: 0;
+    font-family: var(--f-display);
+    font-variation-settings: 'ROND' 100;
+    font-weight: 800;
+    font-size: clamp(2.6rem, 8vw, 7.5rem);
+    line-height: 1;
+  }
+  .price-range .rs {
+    font-size: 0.82em;
+    margin-right: 0.04em;
+    -webkit-text-fill-color: currentColor;
+    color: var(--ink);
+  }
+  .price-dash {
+    width: 0.6em;
+    height: 0.06em;
+    min-height: 3px;
+    background: var(--ink-muted);
+  }
+  .price-note {
+    max-width: 48ch;
+    margin: 1.5rem 0 2rem;
+    color: var(--ink-2);
+  }
+  .price-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .terms {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
+    margin: 1rem 0 0;
+    padding: 0;
+    list-style: none;
+  }
+  .term {
+    position: relative;
+    overflow: hidden;
+    padding: 1.5rem;
+    border: 1px solid var(--line);
+    border-radius: var(--radius);
+    background: rgb(255 255 255 / 0.02);
+  }
+  .term-k {
+    margin: 0 0 1.25rem;
+    color: var(--ink-3);
+  }
+  .term-t {
+    font-size: clamp(1.7rem, 2.4vw, 2.1rem);
+    font-weight: 900;
+  }
+  .term-t .rs {
+    font-size: 0.85em;
+  }
+  .term-d {
+    margin: 0.75rem 0 0;
+    color: var(--ink-2);
+    font-size: 0.97rem;
+  }
+
+  .factors {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 0 clamp(2rem, 5vw, 5rem);
+    margin: 0;
+    padding: 0;
+    list-style: none;
+  }
+  .factors li {
+    display: grid;
+    grid-template-columns: 3rem 1fr;
+    gap: 0.4rem 1rem;
+    padding: 1.75rem 0;
+    border-top: 1px solid var(--line-strong);
+  }
+  .factor-n {
+    padding-top: 0.45rem;
+    color: var(--sun-deep);
+  }
+  .factors h3 {
+    font-size: clamp(1.6rem, 2.4vw, 2.1rem);
+    font-weight: 900;
+  }
+  .factors p {
+    grid-column: 2;
+    margin: 0.3rem 0 0;
+    color: var(--ink-2);
+  }
+  .faq-wrap {
+    max-width: 62rem;
+    margin-left: auto;
+  }
+  @media (max-width: 1000px) {
+    .terms {
+      grid-template-columns: 1fr 1fr;
+    }
+  }
+  @media (max-width: 640px) {
+    .terms,
+    .factors {
+      grid-template-columns: 1fr;
+    }
+  }
+</style>

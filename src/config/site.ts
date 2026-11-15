@@ -61,6 +61,7 @@ export function whatsappDisplay() {
 export const nav = [
   { label: 'Work', href: '/work/' },
   { label: 'Services', href: '/services/' },
+  { label: 'Pricing', href: '/pricing/' },
   { label: 'Process', href: '/process/' },
   { label: 'About', href: '/about/' },
 ]
@@ -242,7 +243,7 @@ export const processSteps = [
     title: 'Care',
     summary: 'Updates, fixes and improvements after launch — whenever you need them.',
     detail:
-      'Businesses change, and websites should keep up. We can handle updates and improvements as one-off requests or on an ongoing basis.',
+      'Businesses change, and websites should keep up. Once your site is delivered, additional changes are ₹400 each — just send us what you need.',
     youGet: 'A website that stays current',
     yourPart: 'Send us what’s changed',
   },
@@ -253,7 +254,15 @@ export const processSteps = [
 export const faqs = [
   {
     q: 'How much does a website cost?',
-    a: 'It depends on the number of pages, the content and any features you need. Share your budget range in the enquiry form and we’ll recommend what fits — then send a fixed, written quote before any work begins.',
+    a: 'Most websites we build cost between ₹2,000 and ₹15,000, depending on the number of pages, the content and the features you need. Larger projects can cost more. Share your budget in the enquiry form and we’ll send a written quote before any work begins.',
+  },
+  {
+    q: 'How do I pay?',
+    a: 'We accept payment by UPI only.',
+  },
+  {
+    q: 'What if I want changes after my website is finished?',
+    a: 'Additional changes after your website is delivered cost ₹400 each. Send us what you’d like changed and we’ll confirm before making it.',
   },
   {
     q: 'How long does it take?',
@@ -277,11 +286,11 @@ export const faqs = [
   },
   {
     q: 'Do you help after launch?',
-    a: 'Yes. We offer maintenance and improvements — content updates, new pages, fixes and performance work — as one-off requests or an ongoing arrangement.',
+    a: 'Yes. We handle content updates, new pages, fixes and performance work after launch. Changes after delivery are ₹400 each.',
   },
   {
     q: 'Do we need to meet in person?',
-    a: 'No. We work over calls, video, WhatsApp and email, and share progress on live preview links you can open anywhere.',
+    a: 'No. We work over calls, video, WhatsApp and email, and share progress on live preview links you can open anywhere. You can book a 20-minute call, usually on a weekend.',
   },
 ]
 
@@ -299,13 +308,46 @@ export const websiteTypes = [
 ]
 
 /** Budget ranges shown on the enquiry form. Edit freely — they're just options. */
-export const budgets = [
-  'Under ₹15,000',
-  '₹15,000 – ₹35,000',
-  '₹35,000 – ₹75,000',
-  '₹75,000 – ₹1,50,000',
-  'Above ₹1,50,000',
-  'Not sure yet',
-]
+export const budgets = ['₹2,000 – ₹5,000', '₹5,000 – ₹10,000', '₹10,000 – ₹15,000', 'Above ₹15,000', 'Not sure yet']
 
 export const contactMethods = ['Email', 'WhatsApp', 'Phone call']
+
+/* ── Pricing ──────────────────────────────────────────────────────────────── */
+
+/** Shown on /pricing/, the home page and in the FAQs. Amounts are in rupees. */
+export const pricing = {
+  from: '2,000',
+  upTo: '15,000',
+  /** Charge for each change requested after the website is delivered. */
+  changeFee: '400',
+  payment: 'UPI',
+}
+
+/**
+ * Friends & family code.
+ * The code itself is never stored in the site — only its SHA-256 hash, so it
+ * can't be read from the page source. Visitors who type the right code see a
+ * confirmation, and the code arrives with their enquiry so you can check it.
+ * To change it, run `node scripts/hash-code.mjs YOUR-NEW-CODE` and paste the result here.
+ */
+export const friendsCode = {
+  hash: '1ddca8db80dd205257f964bfd186a748076fe79217a5419b4641b569a6146413',
+  message: 'Friends & family code applied — we’ll be in touch about your website.',
+}
+
+/* ── Book a call ──────────────────────────────────────────────────────────── */
+
+/** /book/ — a request for a 20-minute call. You confirm the exact time by reply. */
+export const booking = {
+  minutes: 20,
+  /** Days offered: 0 = Sunday … 6 = Saturday. Weekends by default. */
+  days: [6, 0],
+  /** How many upcoming weeks to show. */
+  weeks: 4,
+  /** Preferred time windows (Indian Standard Time). */
+  slots: ['Morning · 10am – 12pm', 'Afternoon · 12 – 4pm', 'Evening · 4 – 7pm'],
+  methods: ['Phone call', 'WhatsApp call', 'Google Meet'],
+  formName: 'call-booking',
+  /** Optional: a Cal.com or Calendly link. If set, /book/ also offers instant booking there. */
+  externalUrl: '',
+}

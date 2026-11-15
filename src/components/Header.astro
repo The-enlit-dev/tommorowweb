@@ -28,9 +28,14 @@ const wa = whatsappLink()
       </ul>
     </nav>
 
-    <a href="/contact/" class="btn btn-ink btn-sm header-cta" aria-current={isActive('/contact/') ? 'page' : undefined}>
-      Start a project <Icon name="arrow-up-right" size={16} />
-    </a>
+    <div class="header-ctas">
+      <a href="/book/" class="btn btn-ghost btn-sm header-book" aria-current={isActive('/book/') ? 'page' : undefined}>
+        Book a call
+      </a>
+      <a href="/contact/" class="btn btn-ink btn-sm" aria-current={isActive('/contact/') ? 'page' : undefined}>
+        Start a project <Icon name="arrow-up-right" size={16} />
+      </a>
+    </div>
 
     <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="mobile-menu" data-menu-toggle>
       <span class="menu-toggle-label">Menu</span>
@@ -57,6 +62,7 @@ const wa = whatsappLink()
       <a href="/contact/" class="btn btn-sun">
         Start a project <Icon name="arrow-right" size={18} />
       </a>
+      <a href="/book/" class="btn btn-ghost-light">Book a 20-min call</a>
       {
         wa && (
           <a href={wa} class="btn btn-ghost-light" target="_blank" rel="noopener noreferrer">
@@ -82,7 +88,9 @@ const wa = whatsappLink()
       box-shadow 0.3s ease;
   }
   .site-header.is-scrolled {
-    background: var(--paper);
+    background: rgb(5 5 5 / 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
     box-shadow: 0 1px 0 var(--line);
   }
   .site-header.is-hidden {
@@ -104,6 +112,14 @@ const wa = whatsappLink()
     margin-right: auto;
     text-decoration: none;
     color: inherit;
+    transition: opacity 0.3s;
+  }
+  .header-logo:hover {
+    opacity: 0.75;
+  }
+  .header-ctas {
+    display: flex;
+    gap: 0.5rem;
   }
   .header-nav ul {
     display: flex;
@@ -132,6 +148,7 @@ const wa = whatsappLink()
     margin-left: -2.5px;
     border-radius: 50%;
     background: var(--sun);
+    box-shadow: 0 0 8px rgb(255 255 255 / 0.8);
     transform: scale(0);
     transition: transform 0.4s var(--ease-out);
   }
@@ -182,7 +199,8 @@ const wa = whatsappLink()
     position: fixed;
     inset: 0;
     z-index: 40;
-    background: var(--night);
+    background: var(--night) var(--dots);
+    background-size: var(--dot-gap) var(--dot-gap);
     color: var(--on-night);
     padding-top: var(--header-h);
     overflow-y: auto;
@@ -230,9 +248,8 @@ const wa = whatsappLink()
     padding: 0.65rem 0;
     font-family: var(--f-display);
     font-size: clamp(2.25rem, 10vw, 3.5rem);
-    font-weight: 600;
-    font-stretch: 85%;
-    letter-spacing: -0.04em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 1.05;
     color: inherit;
     text-decoration: none;
@@ -243,8 +260,14 @@ const wa = whatsappLink()
     letter-spacing: 0.05em;
     min-width: 1.75rem;
   }
+  .mobile-menu-links a {
+    color: var(--ink-2);
+    transition: color 0.3s;
+  }
+  .mobile-menu-links a:hover,
   .mobile-menu-links a[aria-current='page'] {
     color: var(--sun);
+    text-shadow: 0 0 24px rgb(255 255 255 / 0.45);
   }
   .mobile-menu-foot {
     display: flex;
@@ -259,9 +282,17 @@ const wa = whatsappLink()
     font-size: 0.95rem;
   }
 
+  @media (max-width: 1080px) {
+    .header-book {
+      display: none;
+    }
+    .header-inner {
+      gap: 1.25rem;
+    }
+  }
   @media (max-width: 860px) {
     .header-nav,
-    .header-cta {
+    .header-ctas {
       display: none;
     }
     .menu-toggle {

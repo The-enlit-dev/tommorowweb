@@ -5,7 +5,8 @@
  */
 import Lenis from 'lenis'
 import { initCompare } from './compare'
-import { initEnquiryForm } from './enquiry'
+import { initForms } from './forms'
+import { initDotField, initMagnetic, initScramble, initSpotlight } from './motion'
 import { initWorkFilter } from './filter'
 
 const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)')
@@ -60,8 +61,25 @@ function initScrollFx() {
     })
   }
 
+  // Thin progress line at the top of the page.
+  const bar = document.querySelector<HTMLElement>('[data-scroll-progress]')
+  if (bar) {
+    scrollFx.push(() => {
+      const max = document.documentElement.scrollHeight - window.innerHeight
+      bar.style.transform = `scaleX(${max > 0 ? Math.min(1, window.scrollY / max).toFixed(4) : 0})`
+    })
+  }
+
   if (!reducedMotion.matches) {
-    // Hero sun rises as you scroll away from it.
+    // Screenshots drift slightly within their frames as they pass (parallax).
+    document.querySelectorAll<HTMLElement>('[data-parallax]').forEach((el) => {
+      scrollFx.push(() => {
+        const p = progress(el, 1, 0)
+        el.style.translate = `0 ${((0.5 - p) * 7).toFixed(2)}%`
+      })
+    })
+
+    // Hero orb rises as you scroll away from it.
     document.querySelectorAll<HTMLElement>('[data-sunrise]').forEach((el) => {
       const host = el.closest('section') ?? el
       scrollFx.push(() => {
@@ -238,7 +256,11 @@ function init() {
   initScrollFx()
   initMenu()
   initTomorrow()
-  cleanups.push(...[initCompare(), initWorkFilter(), initEnquiryForm()].filter((fn): fn is () => void => !!fn))
+  cleanups.push(
+    ...[initCompare(), initWorkFilter(), initForms(), initDotField(), initScramble(), initSpotlight(), initMagnetic()].filter(
+      (fn): fn is () => void => !!fn,
+    ),
+  )
 }
 
 document.addEventListener('astro:page-load', init)

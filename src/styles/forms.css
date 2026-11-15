@@ -1,0 +1,357 @@
+/* Form styles shared by the enquiry form (/contact/) and call booking (/book/). */
+.eform {
+  display: grid;
+  gap: clamp(2rem, 4vw, 3rem);
+}
+.eform[hidden] {
+  display: none;
+}
+.eform .hp {
+  position: absolute;
+  left: -9999px;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+}
+.eform-req {
+  margin: 0;
+  color: var(--ink-3);
+}
+.eform .eset {
+  margin: 0;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.eform .eset > legend {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  padding: 0 0 1rem;
+  margin-bottom: 1.5rem;
+  border-bottom: 1px solid var(--line-strong);
+  font-family: var(--f-display);
+  font-variation-settings: 'ROND' 100;
+  font-size: clamp(1.6rem, 2.4vw, 2rem);
+  font-weight: 900;
+  letter-spacing: 0;
+}
+.eform .eset > legend .mono {
+  color: var(--sun-deep);
+}
+.eform .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0 1.5rem;
+}
+.eform .field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+  margin-bottom: 1.5rem;
+}
+.eform label,
+.eform .choices > legend {
+  font-weight: 600;
+  font-size: 0.98rem;
+}
+.eform .req {
+  color: var(--sun-deep);
+}
+.eform input[type='text'],
+.eform input[type='email'],
+.eform input[type='tel'],
+.eform input[type='date'],
+.eform textarea {
+  width: 100%;
+  min-height: 3.25rem;
+  padding: 0.8rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.03);
+  font-size: 1rem;
+  line-height: 1.4;
+  transition:
+    border-color 0.2s,
+    box-shadow 0.2s,
+    background 0.2s;
+}
+.eform textarea {
+  resize: vertical;
+  min-height: 9rem;
+}
+.eform input::placeholder,
+.eform textarea::placeholder {
+  color: var(--ink-3);
+  opacity: 1;
+}
+.eform input:hover,
+.eform textarea:hover {
+  border-color: var(--ink-3);
+}
+.eform input:focus-visible,
+.eform textarea:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  background: rgb(255 255 255 / 0.06);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.18), 0 0 30px -6px rgb(255 255 255 / 0.25);
+}
+.eform [aria-invalid='true']:not([type='radio']) {
+  border-color: var(--danger);
+  box-shadow: 0 0 0 3px rgb(255 122 107 / 0.15);
+}
+.eform .hint {
+  margin: 0;
+  color: var(--ink-3);
+  font-size: 0.88rem;
+}
+.eform .err {
+  display: flex;
+  gap: 0.4rem;
+  margin: 0;
+  color: var(--danger);
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.eform .err[hidden] {
+  display: none;
+}
+
+.eform .opt {
+  margin-left: 0.35rem;
+  color: var(--ink-3);
+  font-weight: 400;
+  font-size: 0.85rem;
+}
+.eform .code-field {
+  max-width: 22rem;
+  margin-top: 0.5rem;
+}
+.eform .code-field input {
+  font-family: var(--f-mono);
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+.eform .code-status {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0;
+  font-size: 0.9rem;
+  font-weight: 500;
+}
+.eform .code-status[hidden] {
+  display: none;
+}
+.eform .code-status[data-state='ok'] {
+  color: var(--ink);
+}
+.eform .code-status[data-state='ok']::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  background: var(--ink);
+  box-shadow: 0 0 10px rgb(255 255 255 / 0.8);
+}
+.eform .code-status[data-state='miss'] {
+  color: var(--ink-3);
+}
+.eform .choices {
+  margin: 0 0 1.75rem;
+  padding: 0;
+  border: 0;
+  min-width: 0;
+}
+.eform .choices > legend {
+  padding: 0;
+  margin-bottom: 0.75rem;
+}
+.eform .choices .hint {
+  margin: -0.35rem 0 0.85rem;
+}
+.eform .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+.eform .choices .err {
+  margin-top: 0.6rem;
+}
+.eform .choice {
+  position: relative;
+  font-weight: 500;
+}
+.eform .choice input {
+  position: absolute;
+  opacity: 0;
+  inset: 0;
+  margin: 0;
+  cursor: pointer;
+}
+.eform .choice span {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  min-height: 2.75rem;
+  padding: 0.55rem 1.05rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 999px;
+  background: rgb(255 255 255 / 0.03);
+  font-size: 0.95rem;
+  line-height: 1.25;
+  cursor: pointer;
+  transition:
+    background 0.2s,
+    color 0.2s,
+    border-color 0.2s;
+}
+.eform .choice span::before {
+  content: '';
+  width: 0.55rem;
+  height: 0.55rem;
+  border-radius: 50%;
+  border: 1.5px solid currentColor;
+  flex: none;
+  transition: background 0.2s, border-color 0.2s;
+}
+.eform .choice:hover span {
+  border-color: var(--ink);
+}
+.eform .choice input:checked + span {
+  background: var(--ink);
+  border-color: var(--ink);
+  color: var(--paper);
+}
+.eform .choice input:checked + span::before {
+  background: var(--on-accent);
+  border-color: var(--on-accent);
+}
+.eform .choice input:focus-visible + span {
+  outline: 2px solid var(--sun-deep);
+  outline-offset: 2px;
+}
+.eform .choice input[aria-invalid='true'] + span {
+  border-color: var(--danger);
+}
+
+.eform-status {
+  display: flex;
+  gap: 0.75rem;
+  align-items: flex-start;
+  padding: 1rem 1.25rem;
+  border-radius: 10px;
+  background: rgb(255 122 107 / 0.1);
+  border: 1px solid rgb(255 122 107 / 0.35);
+  color: #ffc2b9;
+}
+.eform-status[data-kind='info'] {
+  background: var(--paper-3);
+  border-color: var(--line-strong);
+  color: var(--ink);
+}
+.eform-status[hidden] {
+  display: none;
+}
+.eform-status p {
+  margin: 0;
+}
+.eform-status .icon {
+  flex: none;
+  margin-top: 0.15rem;
+}
+.eform-foot {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1.25rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--line-strong);
+}
+.eform-privacy {
+  margin: 0;
+  max-width: 32ch;
+  color: var(--ink-3);
+  font-size: 0.9rem;
+}
+.eform-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.eform-submit {
+  min-width: 12rem;
+}
+
+.eform-success {
+  position: relative;
+  padding: clamp(2rem, 5vw, 3.5rem);
+  border-radius: var(--radius-lg);
+  background: var(--paper-2);
+  border: 1px solid var(--line-strong);
+  color: var(--on-night);
+  overflow: hidden;
+}
+.eform-success[hidden] {
+  display: none;
+}
+.eform-success .orb.success-orb {
+  position: absolute;
+  right: -4rem;
+  top: -4rem;
+  width: 15rem;
+}
+.eform-success h2 {
+  position: relative;
+  max-width: 18ch;
+  font-size: clamp(2.2rem, 4.4vw, 3.6rem);
+  font-weight: 800;
+}
+.eform-success h2:focus {
+  outline: none;
+}
+.eform-success .lead {
+  margin: 1.25rem 0 2rem;
+  max-width: 44ch;
+}
+.eform-success .success-next {
+  list-style: none;
+  margin: 0 0 2rem;
+  padding: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+.eform-success .success-next li {
+  display: flex;
+  gap: 1rem;
+  padding-top: 0.9rem;
+  border-top: 1px solid var(--line-night);
+}
+.eform-success .success-next .mono {
+  color: var(--sun);
+  padding-top: 0.2rem;
+}
+.eform-success .success-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+}
+.eform-success .success-actions .btn-ink {
+  --bg: var(--ink);
+  --fg: var(--on-accent);
+}
+
+@media (max-width: 640px) {
+  .eform .row {
+    grid-template-columns: 1fr;
+  }
+  .eform-actions,
+  .eform-actions .btn {
+    width: 100%;
+  }
+}
+.eform .choices .hint-after {
+  margin: 0.65rem 0 0;
+}

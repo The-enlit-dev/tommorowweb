@@ -1,9 +1,10 @@
 ---
 import { ClientRouter } from 'astro:transitions'
 import '../styles/fonts.css'
-import displayFont from '@fontsource-variable/bricolage-grotesque/files/bricolage-grotesque-latin-standard-normal.woff2?url'
+import displayFont from '@fontsource-variable/doto/files/doto-latin-full-normal.woff2?url'
 import bodyFont from '@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url'
 import '../styles/global.css'
+import '../styles/forms.css'
 import Header from '../components/Header.astro'
 import Footer from '../components/Footer.astro'
 import { business } from '../config/site'
@@ -48,8 +49,8 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
     <meta name="description" content={description} />
     <link rel="canonical" href={canonical} />
     {noindex && <meta name="robots" content="noindex" />}
-    <meta name="theme-color" content="#f2efe8" />
-    <meta name="color-scheme" content="light" />
+    <meta name="theme-color" content="#050505" />
+    <meta name="color-scheme" content="dark" />
     <meta name="generator" content={Astro.generator} />
 
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
@@ -87,6 +88,7 @@ const ld = jsonLd ? (Array.isArray(jsonLd) ? jsonLd : [jsonLd]) : []
   </head>
   <body>
     <a class="skip-link" href="#main">Skip to content</a>
+    <div class="scroll-progress" data-scroll-progress aria-hidden="true" transition:persist></div>
     <Header />
     <main id="main" tabindex="-1">
       <slot />

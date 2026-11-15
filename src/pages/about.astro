@@ -80,7 +80,7 @@ const wont = [
       <h2 id="vision-title" class="vision-quote" data-lines>
         <span class="line"><span>Every business deserves </span></span>
         <span class="line" style="--l:1"><span>a website as good </span></span>
-        <span class="line" style="--l:2"><span>as the work it does. </span></span>
+        <span class="line" style="--l:2"><span class="chrome">as the work it does. </span></span>
       </h2>
       <p class="lead vision-text" data-reveal style="--d:.2s">
         The corner café, the clinic, the coach, the consultant — they shouldn’t have to choose between an expensive agency and a
@@ -219,25 +219,22 @@ const wont = [
     width: min(120vw, 1500px);
     aspect-ratio: 1;
     border-radius: 50%;
-    border: 1px solid rgb(255 90 31 / 0.5);
+    border: 1px solid rgb(255 255 255 / 0.35);
     box-shadow:
-      0 0 0 6vw rgb(255 90 31 / 0.04),
-      0 0 0 12vw rgb(255 90 31 / 0.03);
+      0 0 0 6vw rgb(255 255 255 / 0.025),
+      0 0 0 12vw rgb(255 255 255 / 0.018),
+      0 -20px 120px rgb(255 255 255 / 0.08);
     transform: translate(-50%, calc(88% - var(--rise) * 18%));
   }
   .vision-quote {
     font-size: clamp(2.4rem, 7vw, 7rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
-    line-height: 0.95;
+    font-weight: 800;
+    line-height: 1.02;
   }
   .vision-quote .line {
     display: block;
   }
-  .vision-quote .line:last-child > span {
-    color: var(--sun);
-  }
+
   .vision-text {
     max-width: 52ch;
     margin: clamp(2rem, 4vw, 3rem) 0 0 auto;
@@ -267,9 +264,8 @@ const wont = [
   }
   .prin h3 {
     font-size: clamp(1.6rem, 2.6vw, 2.4rem);
-    font-weight: 650;
-    font-stretch: 88%;
-    letter-spacing: -0.028em;
+    font-weight: 900;
+    letter-spacing: -0.01em;
   }
   .prin p {
     grid-column: 2;
@@ -291,9 +287,8 @@ const wont = [
   .young-title {
     margin-bottom: 1.5rem;
     font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 700;
-    font-stretch: 84%;
-    letter-spacing: -0.03em;
+    font-weight: 900;
+    letter-spacing: -0.01em;
     max-width: 16ch;
   }
   .young-copy p:last-child {
@@ -303,8 +298,8 @@ const wont = [
   .wont {
     padding: 2rem;
     border-radius: var(--radius-lg);
-    background: var(--paper);
-    border: 1px solid var(--line);
+    background: linear-gradient(160deg, #121212, #070707 70%);
+    border: 1px solid var(--line-strong);
   }
   .wont h3 {
     margin-bottom: 1.25rem;
@@ -346,7 +341,8 @@ const wont = [
     width: clamp(8rem, 18vw, 14rem);
     aspect-ratio: 1;
     border-radius: 50%;
-    background: var(--sun);
+    background: var(--orb);
+    box-shadow: inset -1.5rem -2rem 3rem rgb(0 0 0 / 0.7), 0 0 60px rgb(255 255 255 / 0.12);
     overflow: hidden;
   }
   .founder-mark::after {
@@ -355,15 +351,16 @@ const wont = [
     left: 0;
     right: 0;
     top: 62%;
-    height: 3px;
-    background: var(--ink);
+    height: 1px;
+    background: rgb(255 255 255 / 0.5);
   }
   .founder-mark span {
     font-family: var(--f-display);
+    font-variation-settings: 'ROND' 100;
     font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.034em;
+    font-weight: 900;
+    color: #fff;
+    text-shadow: 0 2px 12px rgb(0 0 0 / 0.6);
     transform: translateY(-12%);
   }
   .founder-role {
@@ -373,9 +370,8 @@ const wont = [
   .founder-name {
     margin-bottom: 1.25rem;
     font-size: clamp(2rem, 4vw, 3.25rem);
-    font-weight: 700;
-    font-stretch: 84%;
-    letter-spacing: -0.03em;
+    font-weight: 900;
+    letter-spacing: -0.01em;
   }
   .founder-body > p:not([class]) {
     max-width: 58ch;

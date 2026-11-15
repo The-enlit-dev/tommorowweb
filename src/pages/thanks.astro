@@ -1,11 +1,12 @@
 ---
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
+import Orb from '../components/Orb.astro'
 ---
 
 <Base title="Thank you" description="Your enquiry has been sent to Tomorrow Web." noindex>
   <section class="thanks">
-    <div class="thanks-sun" aria-hidden="true"></div>
+    <div class="thanks-sun"><Orb /></div>
     <div class="wrap">
       <p class="eyebrow mono">Enquiry sent</p>
       <h1 class="thanks-title">Thank you.<br /><span>We’ll be in touch.</span></h1>
@@ -36,15 +37,11 @@ import Icon from '../components/Icon.astro'
     right: -10vw;
     bottom: -30vw;
     width: 60vw;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--sun);
   }
   .thanks-title {
     font-size: var(--fs-h1);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 0.92;
   }
   .thanks-title span {

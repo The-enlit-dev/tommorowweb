@@ -26,7 +26,7 @@ const titleId = `project-${project.id}-${variant}`
   aria-labelledby={titleId}
   data-stack-card={variant === 'stack' ? '' : undefined}
 >
-  <div class="pcard-inner">
+  <div class="pcard-inner" data-spotlight={variant === 'stack' ? '' : undefined}>
     <div class="pcard-meta">
       <p class="pcard-num mono" aria-hidden="true">{String(index + 1).padStart(2, '0')}</p>
       <div class="pcard-text">
@@ -49,7 +49,7 @@ const titleId = `project-${project.id}-${variant}`
           <span class="dots"><i></i><i></i><i></i></span>
           <span class="url">{host}</span>
         </div>
-        <Picture
+        <div class="browser-screen"><div class="parallax-inner" data-parallax><Picture
           src={p.cover}
           alt={p.coverAlt}
           widths={[480, 800, 1200, 1600]}
@@ -58,7 +58,7 @@ const titleId = `project-${project.id}-${variant}`
           fallbackFormat="webp"
           loading={eager ? 'eager' : 'lazy'}
           decoding="async"
-        />
+        /></div></div>
       </div>
     </div>
   </div>
@@ -96,9 +96,8 @@ const titleId = `project-${project.id}-${variant}`
   }
   .pcard-title {
     font-size: clamp(1.9rem, 3.4vw, 3.2rem);
-    font-stretch: 88%;
-    font-weight: 650;
-    letter-spacing: -0.028em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
   }
   .pcard-summary {
     margin: 1rem 0 1.25rem;
@@ -136,14 +135,15 @@ const titleId = `project-${project.id}-${variant}`
     margin-bottom: 2rem;
   }
   .pcard-stack .pcard-inner {
+    position: relative;
     display: grid;
     grid-template-columns: minmax(0, 0.85fr) minmax(0, 1.5fr);
     gap: clamp(1.5rem, 4vw, 4rem);
     padding: clamp(1.25rem, 3vw, 2.75rem);
     border-radius: var(--radius-lg);
-    background: var(--paper);
+    background: linear-gradient(160deg, #111 0%, #080808 60%);
     border: 1px solid var(--line);
-    box-shadow: 0 -20px 50px -30px rgb(18 18 17 / 0.25);
+    box-shadow: 0 -30px 60px -40px rgb(255 255 255 / 0.12);
     transform-origin: 50% 0;
     transform: scale(calc(1 - var(--cover) * 0.05));
     filter: brightness(calc(1 - var(--cover) * 0.08));
@@ -164,11 +164,12 @@ const titleId = `project-${project.id}-${variant}`
     width: 3rem;
     height: 4px;
     border-radius: 0 0 4px 4px;
-    background: var(--accent);
+    background: var(--sun);
   }
 
   /* ── Grid variant: /work/ ── */
   .pcard-grid .pcard-inner {
+    position: relative;
     display: flex;
     flex-direction: column-reverse;
     gap: 1.5rem;

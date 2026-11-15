@@ -1,49 +1,44 @@
 ---
 /**
- * The Tomorrow Web mark: a sun rising over the horizon line.
+ * The Tomorrow Web wordmark, as vector paths traced from the logo artwork.
+ * `variant="hor"` is the one-line version (header), `"stack"` the two-line logo.
  */
+import { logoPaths } from './logo-paths'
+
 interface Props {
+  variant?: 'hor' | 'stack'
   class?: string
-  showText?: boolean
+  /** Accessible name. Pass '' when the logo is purely decorative. */
+  label?: string
 }
-const { class: className, showText = true } = Astro.props
+const { variant = 'hor', class: className, label = 'Tomorrow Web' } = Astro.props
+const p = logoPaths[variant]
+const a11y = label ? { role: 'img' as const, 'aria-label': label } : { 'aria-hidden': 'true' as const }
 ---
 
-<span class:list={['logo', className]}>
-  <svg class="logo-mark" viewBox="0 0 32 32" width="32" height="32" aria-hidden="true" focusable="false">
-    <path class="logo-sun" d="M6 21a10 10 0 0 1 20 0Z" fill="var(--sun)" />
-    <rect x="2" y="21" width="28" height="2.5" rx="1.25" fill="currentColor" />
-  </svg>
-  {showText && <span class="logo-text">Tomorrow <span>Web</span></span>}
-</span>
+<svg
+  class:list={['logo', `logo-${variant}`, className]}
+  viewBox={`0 0 ${p.w} ${p.h}`}
+  width={p.w}
+  height={p.h}
+  fill="currentColor"
+  focusable="false"
+  {...a11y}
+>
+  <path d={p.d} fill-rule={p.rule}></path>
+</svg>
 
 <style>
   .logo {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.55rem;
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-size: 1.15rem;
-    letter-spacing: -0.035em;
-    line-height: 1;
-    white-space: nowrap;
+    display: block;
+    width: auto;
+    max-width: 100%;
   }
-  .logo-mark {
-    flex: none;
-    width: 1.9em;
-    height: 1.9em;
-    overflow: visible;
+  .logo-hor {
+    height: 1.15rem;
   }
-  .logo-sun {
-    transform-origin: 50% 100%;
-    transition: transform 0.6s var(--ease-out);
-  }
-  :global(a:hover) > .logo .logo-sun,
-  :global(a:focus-visible) > .logo .logo-sun {
-    transform: translateY(-2px);
-  }
-  .logo-text span {
-    font-weight: 400;
+  .logo-stack {
+    height: auto;
+    width: 100%;
   }
 </style>

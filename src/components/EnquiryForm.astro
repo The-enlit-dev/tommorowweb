@@ -5,8 +5,9 @@
  * built page (data-netlify="true"). Submissions appear in the Netlify
  * dashboard under Forms → enquiry. See README → "Enquiry form".
  */
-import { business, websiteTypes, budgets, contactMethods } from '../config/site'
+import { business, websiteTypes, budgets, contactMethods, friendsCode } from '../config/site'
 import Icon from './Icon.astro'
+import Orb from './Orb.astro'
 
 const wa = business.whatsapp.replace(/\D/g, '')
 ---
@@ -20,10 +21,12 @@ const wa = business.whatsapp.replace(/\D/g, '')
   netlify-honeypot="bot-field"
   data-enquiry
   data-astro-reload
+  data-wa-intro="Hi Tomorrow Web, I’d like to talk about a website."
   aria-describedby="eform-required"
 >
   <input type="hidden" name="form-name" value={business.formName} />
   <input type="hidden" name="subject" value="New website enquiry — Tomorrow Web" />
+  <input type="hidden" name="code-valid" value="" />
   <p class="hp" aria-hidden="true">
     <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
   </p>
@@ -35,12 +38,12 @@ const wa = business.whatsapp.replace(/\D/g, '')
     <div class="row">
       <div class="field">
         <label for="f-name">Your name <span class="req" aria-hidden="true">*</span></label>
-        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" data-label="Your name" aria-describedby="err-f-name" />
+        <input id="f-name" name="name" type="text" autocomplete="name" required maxlength="120" data-label="Your name" data-wa="Name" aria-describedby="err-f-name" />
         <p class="err" id="err-f-name" data-error-for="f-name" hidden></p>
       </div>
       <div class="field">
         <label for="f-business">Business or project name</label>
-        <input id="f-business" name="business" type="text" autocomplete="organization" maxlength="160" />
+        <input id="f-business" name="business" type="text" autocomplete="organization" maxlength="160" data-wa="Business" />
         <p class="hint">Leave blank if it’s a personal site.</p>
       </div>
     </div>
@@ -79,7 +82,7 @@ const wa = business.whatsapp.replace(/\D/g, '')
         {
           websiteTypes.map((t, i) => (
             <label class="choice">
-              <input type="radio" name="website-type" value={t.value} data-slug={t.slug} required={i === 0} data-label="A type of website" />
+              <input type="radio" name="website-type" value={t.value} data-slug={t.slug} required={i === 0} data-label="A type of website" data-wa="Looking for" />
               <span>{t.value}</span>
             </label>
           ))
@@ -95,7 +98,7 @@ const wa = business.whatsapp.replace(/\D/g, '')
         {
           budgets.map((b, i) => (
             <label class="choice">
-              <input type="radio" name="budget" value={b} required={i === 0} data-label="A budget range" />
+              <input type="radio" name="budget" value={b} required={i === 0} data-label="A budget range" data-wa="Budget" />
               <span>{b}</span>
             </label>
           ))
@@ -106,7 +109,7 @@ const wa = business.whatsapp.replace(/\D/g, '')
 
     <div class="field">
       <label for="f-site">Current website, if you have one</label>
-      <input id="f-site" name="current-site" type="text" inputmode="url" autocomplete="url" maxlength="300" placeholder="e.g. yourbusiness.com" />
+      <input id="f-site" name="current-site" type="text" inputmode="url" autocomplete="url" maxlength="300" placeholder="e.g. yourbusiness.com" data-wa="Current site" />
     </div>
   </fieldset>
 
@@ -122,6 +125,7 @@ const wa = business.whatsapp.replace(/\D/g, '')
         minlength="20"
         maxlength="5000"
         data-label="A few details about your project"
+        data-wa="Details"
         aria-describedby="hint-f-message err-f-message"
         placeholder="What does your business do? What should the website help with? Any deadlines, examples you like, or features you need?"
       ></textarea>
@@ -142,6 +146,25 @@ const wa = business.whatsapp.replace(/\D/g, '')
         }
       </div>
     </fieldset>
+
+    <div class="field code-field">
+      <label for="f-code">Have a code? <span class="opt">Optional</span></label>
+      <input
+        id="f-code"
+        name="discount-code"
+        type="text"
+        maxlength="40"
+        autocomplete="off"
+        autocapitalize="characters"
+        spellcheck="false"
+        data-code-input
+        data-hash={friendsCode.hash}
+        data-ok-message={friendsCode.message}
+        data-wa="Code"
+        aria-describedby="code-status"
+      />
+      <p class="code-status" id="code-status" data-code-status role="status" aria-live="polite" hidden></p>
+    </div>
   </fieldset>
 
   <div class="eform-status" data-form-status role="alert" hidden>
@@ -173,7 +196,7 @@ const wa = business.whatsapp.replace(/\D/g, '')
 </form>
 
 <div class="eform-success dark" data-form-success hidden>
-  <span class="success-sun" aria-hidden="true"></span>
+  <Orb class="success-orb" rings={false} />
   <h2 tabindex="-1">Thank you<span data-success-name></span>.</h2>
   <p class="lead">Your enquiry is with us. We read every message personally and will reply using the details you gave us.</p>
   <ol class="success-next">
@@ -186,325 +209,3 @@ const wa = business.whatsapp.replace(/\D/g, '')
     <button type="button" class="btn btn-ghost" data-form-again>Send another enquiry</button>
   </div>
 </div>
-
-<style>
-  .eform {
-    display: grid;
-    gap: clamp(2rem, 4vw, 3rem);
-  }
-  .eform[hidden] {
-    display: none;
-  }
-  .hp {
-    position: absolute;
-    left: -9999px;
-    width: 1px;
-    height: 1px;
-    overflow: hidden;
-  }
-  .eform-req {
-    margin: 0;
-    color: var(--ink-3);
-  }
-  .eset {
-    margin: 0;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-  }
-  .eset > legend {
-    display: flex;
-    align-items: center;
-    gap: 0.75rem;
-    width: 100%;
-    padding: 0 0 1rem;
-    margin-bottom: 1.5rem;
-    border-bottom: 1px solid var(--line-strong);
-    font-family: var(--f-display);
-    font-size: clamp(1.4rem, 2.2vw, 1.8rem);
-    font-weight: 600;
-    letter-spacing: -0.035em;
-  }
-  .eset > legend .mono {
-    color: var(--sun-deep);
-  }
-  .row {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 0 1.5rem;
-  }
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.45rem;
-    margin-bottom: 1.5rem;
-  }
-  label,
-  .choices > legend {
-    font-weight: 600;
-    font-size: 0.98rem;
-  }
-  .req {
-    color: var(--sun-deep);
-  }
-  input[type='text'],
-  input[type='email'],
-  input[type='tel'],
-  textarea {
-    width: 100%;
-    min-height: 3.25rem;
-    padding: 0.8rem 1rem;
-    border: 1px solid var(--line-strong);
-    border-radius: 10px;
-    background: rgb(255 255 255 / 0.55);
-    font-size: 1rem;
-    line-height: 1.4;
-    transition:
-      border-color 0.2s,
-      box-shadow 0.2s,
-      background 0.2s;
-  }
-  textarea {
-    resize: vertical;
-    min-height: 9rem;
-  }
-  input::placeholder,
-  textarea::placeholder {
-    color: var(--ink-3);
-    opacity: 1;
-  }
-  input:hover,
-  textarea:hover {
-    border-color: var(--ink-3);
-  }
-  input:focus-visible,
-  textarea:focus-visible {
-    outline: none;
-    border-color: var(--ink);
-    background: #fff;
-    box-shadow: 0 0 0 3px rgb(255 90 31 / 0.35);
-  }
-  [aria-invalid='true']:not([type='radio']) {
-    border-color: #b42318;
-    box-shadow: 0 0 0 3px rgb(180 35 24 / 0.12);
-  }
-  .hint {
-    margin: 0;
-    color: var(--ink-3);
-    font-size: 0.88rem;
-  }
-  .err {
-    display: flex;
-    gap: 0.4rem;
-    margin: 0;
-    color: #b42318;
-    font-size: 0.9rem;
-    font-weight: 500;
-  }
-  .err[hidden] {
-    display: none;
-  }
-
-  .choices {
-    margin: 0 0 1.75rem;
-    padding: 0;
-    border: 0;
-    min-width: 0;
-  }
-  .choices > legend {
-    padding: 0;
-    margin-bottom: 0.75rem;
-  }
-  .choices .hint {
-    margin: -0.35rem 0 0.85rem;
-  }
-  .chips {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.5rem;
-  }
-  .choices .err {
-    margin-top: 0.6rem;
-  }
-  .choice {
-    position: relative;
-    font-weight: 500;
-  }
-  .choice input {
-    position: absolute;
-    opacity: 0;
-    inset: 0;
-    margin: 0;
-    cursor: pointer;
-  }
-  .choice span {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.5rem;
-    min-height: 2.75rem;
-    padding: 0.55rem 1.05rem;
-    border: 1px solid var(--line-strong);
-    border-radius: 999px;
-    background: rgb(255 255 255 / 0.35);
-    font-size: 0.95rem;
-    line-height: 1.25;
-    cursor: pointer;
-    transition:
-      background 0.2s,
-      color 0.2s,
-      border-color 0.2s;
-  }
-  .choice span::before {
-    content: '';
-    width: 0.55rem;
-    height: 0.55rem;
-    border-radius: 50%;
-    border: 1.5px solid currentColor;
-    flex: none;
-    transition: background 0.2s, border-color 0.2s;
-  }
-  .choice:hover span {
-    border-color: var(--ink);
-  }
-  .choice input:checked + span {
-    background: var(--ink);
-    border-color: var(--ink);
-    color: var(--paper);
-  }
-  .choice input:checked + span::before {
-    background: var(--sun);
-    border-color: var(--sun);
-  }
-  .choice input:focus-visible + span {
-    outline: 2px solid var(--sun-deep);
-    outline-offset: 2px;
-  }
-  .choice input[aria-invalid='true'] + span {
-    border-color: #b42318;
-  }
-
-  .eform-status {
-    display: flex;
-    gap: 0.75rem;
-    align-items: flex-start;
-    padding: 1rem 1.25rem;
-    border-radius: 10px;
-    background: #fdecea;
-    color: #7a1a12;
-  }
-  .eform-status[data-kind='info'] {
-    background: var(--paper-2);
-    color: var(--ink);
-  }
-  .eform-status[hidden] {
-    display: none;
-  }
-  .eform-status p {
-    margin: 0;
-  }
-  .eform-status :global(.icon) {
-    flex: none;
-    margin-top: 0.15rem;
-  }
-  .eform-foot {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-between;
-    align-items: center;
-    gap: 1.25rem;
-    padding-top: 1.5rem;
-    border-top: 1px solid var(--line-strong);
-  }
-  .eform-privacy {
-    margin: 0;
-    max-width: 32ch;
-    color: var(--ink-3);
-    font-size: 0.9rem;
-  }
-  .eform-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  .eform-submit {
-    min-width: 12rem;
-  }
-
-  .eform-success {
-    position: relative;
-    padding: clamp(2rem, 5vw, 3.5rem);
-    border-radius: var(--radius-lg);
-    background: var(--night);
-    color: var(--on-night);
-    overflow: hidden;
-  }
-  .eform-success[hidden] {
-    display: none;
-  }
-  .success-sun {
-    position: absolute;
-    right: -4rem;
-    top: -4rem;
-    width: 14rem;
-    aspect-ratio: 1;
-    border-radius: 50%;
-    background: var(--sun);
-  }
-  .eform-success h2 {
-    position: relative;
-    max-width: 12ch;
-    font-size: clamp(2.5rem, 6vw, 4.5rem);
-    font-weight: 700;
-    font-stretch: 82%;
-    letter-spacing: -0.03em;
-  }
-  .eform-success h2:focus {
-    outline: none;
-  }
-  .eform-success .lead {
-    margin: 1.25rem 0 2rem;
-    max-width: 44ch;
-  }
-  .success-next {
-    list-style: none;
-    margin: 0 0 2rem;
-    padding: 0;
-    display: grid;
-    gap: 0.9rem;
-  }
-  .success-next li {
-    display: flex;
-    gap: 1rem;
-    padding-top: 0.9rem;
-    border-top: 1px solid var(--line-night);
-  }
-  .success-next .mono {
-    color: var(--sun);
-    padding-top: 0.2rem;
-  }
-  .success-actions {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 0.75rem;
-  }
-  .success-actions .btn-ink {
-    --bg: var(--on-night);
-    --fg: var(--ink);
-  }
-  .success-actions .btn-ghost {
-    --fg: var(--on-night);
-    border-color: rgb(242 239 232 / 0.3);
-    --hover-bg: var(--on-night);
-    --hover-fg: var(--ink);
-  }
-
-  @media (max-width: 640px) {
-    .row {
-      grid-template-columns: 1fr;
-    }
-    .eform-actions,
-    .eform-actions .btn {
-      width: 100%;
-    }
-  }
-</style>

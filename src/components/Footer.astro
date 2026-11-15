@@ -1,6 +1,7 @@
 ---
 import { business, nav, services, whatsappLink, whatsappDisplay } from '../config/site'
 import Icon from './Icon.astro'
+import Logo from './Logo.astro'
 
 const year = new Date().getFullYear()
 const wa = whatsappLink()
@@ -12,7 +13,10 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
     <div class="footer-grid">
       <div class="footer-intro">
         <p class="footer-lede">Websites for businesses, restaurants & independents — designed, built and cared for.</p>
-        <a href="/contact/" class="btn btn-sun">Start a project <Icon name="arrow-right" size={18} /></a>
+        <div class="footer-actions">
+          <a href="/contact/" class="btn btn-sun">Start a project <Icon name="arrow-right" size={18} /></a>
+          <a href="/book/" class="btn btn-ghost">Book a call</a>
+        </div>
       </div>
 
       <nav class="footer-col" aria-label="Footer">
@@ -34,6 +38,9 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
       <div class="footer-col">
         <h2 class="mono footer-h">Contact</h2>
         <ul>
+          <li>
+            <a href="/book/">Book a 20-minute call</a>
+          </li>
           {business.email && (
             <li>
               <a href={`mailto:${business.email}`} class="footer-mail">
@@ -60,11 +67,14 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
       </div>
     </div>
 
-    <p class="footer-word" aria-hidden="true">Tomorrow<span>Web</span><i class="footer-sun"></i></p>
+    <div class="footer-word" data-reveal="fade">
+      <Logo variant="stack" label="" />
+    </div>
 
     <div class="footer-base mono">
       <span>© {year} {business.name}</span>
       <span class="footer-day" data-tomorrow>See you tomorrow.</span>
+      <span>Payments by UPI</span>
       <a href="/privacy/">Privacy</a>
     </div>
   </div>
@@ -72,7 +82,8 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
 
 <style>
   .site-footer {
-    background: var(--night);
+    border-top: 1px solid var(--line-night);
+    background: radial-gradient(ellipse 80% 60% at 50% 100%, rgb(255 255 255 / 0.06), transparent 70%);
     color: var(--on-night);
     padding-top: clamp(4rem, 9vw, 7rem);
     overflow: hidden;
@@ -82,14 +93,18 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
     grid-template-columns: 1.4fr repeat(3, 1fr);
     gap: 2.5rem;
   }
+  .footer-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.6rem;
+  }
   .footer-lede {
     max-width: 22ch;
     margin: 0 0 1.75rem;
-    font-family: var(--f-display);
-    font-size: clamp(1.5rem, 2.4vw, 2rem);
-    font-weight: 500;
-    letter-spacing: -0.03em;
-    line-height: 1.15;
+    font-size: clamp(1.35rem, 2.1vw, 1.75rem);
+    font-weight: 550;
+    letter-spacing: -0.02em;
+    line-height: 1.2;
   }
   .footer-h {
     margin: 0 0 1.1rem;
@@ -123,30 +138,14 @@ const socials = Object.entries(business.social).filter(([, url]) => url)
     text-transform: capitalize;
   }
   .footer-word {
-    display: flex;
-    align-items: baseline;
     margin: clamp(3.5rem, 8vw, 6rem) 0 0;
-    font-family: var(--f-display);
-    font-weight: 700;
-    font-stretch: 78%;
-    font-size: min(19.4vw, 19rem);
-    letter-spacing: -0.03em;
-    line-height: 0.8;
-    white-space: nowrap;
     color: var(--on-night);
-    user-select: none;
+    max-width: 1100px;
   }
-  .footer-word span {
-    margin-left: 0.12em;
-    font-weight: 300;
-  }
-  .footer-sun {
-    flex: none;
-    width: 0.16em;
-    height: 0.16em;
-    margin-left: 0.04em;
-    border-radius: 50%;
-    background: var(--sun);
+  .footer-word :global(svg) {
+    width: 100%;
+    height: auto;
+    filter: drop-shadow(0 0 40px rgb(255 255 255 / 0.12));
   }
   .footer-base {
     display: flex;

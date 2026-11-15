@@ -1,6 +1,7 @@
 ---
 import { business, whatsappLink, whatsappDisplay } from '../config/site'
 import Icon from './Icon.astro'
+import Orb from './Orb.astro'
 
 interface Props {
   title?: string
@@ -8,29 +9,33 @@ interface Props {
 }
 const {
   title = 'Let’s build your tomorrow.',
-  text = 'Tell us what you have in mind. We’ll reply personally with honest advice, ideas and a clear next step — no obligation.',
+  text = 'Tell us what you have in mind, or book a 20-minute call. We’ll reply personally with honest advice, ideas and a clear next step — no obligation.',
 } = Astro.props
 const wa = whatsappLink()
 const words = title.split(' ')
 const last = words.pop()
+const marquee = ['Business websites', 'Restaurants & cafés', 'Portfolios', 'Landing pages', 'Redesigns', 'Care']
 ---
 
 <section class="cta dark" aria-labelledby="cta-title">
-  <div class="cta-sun" data-sunrise aria-hidden="true"><i></i></div>
+  <div class="cta-orb-wrap" data-sunrise aria-hidden="true">
+    <Orb class="cta-orb" />
+  </div>
   <div class="wrap cta-inner">
-    <p class="eyebrow mono" data-reveal>Start a project</p>
+    <p class="eyebrow mono" data-reveal data-scramble>Start a project</p>
     <h2 id="cta-title" class="cta-title" data-lines>
       <span class="line"><span>{words.join(' ')} </span></span>
-      <span class="line" style="--l:1"><span>{last}</span></span>
+      <span class="line" style="--l:1"><span class="chrome">{last}</span></span>
     </h2>
     <div class="cta-foot">
       <p class="lead" data-reveal>{text}</p>
       <div class="cta-actions" data-reveal style="--d:.1s">
-        <a href="/contact/" class="btn btn-sun">Start a project <Icon name="arrow-right" size={18} /></a>
+        <a href="/contact/" class="btn btn-sun" data-magnetic>Start a project <Icon name="arrow-right" size={18} /></a>
+        <a href="/book/" class="btn btn-ghost-light" data-magnetic>Book a 20-min call</a>
         {
           wa ? (
             <a href={wa} class="btn btn-ghost-light" target="_blank" rel="noopener noreferrer">
-              <Icon name="whatsapp" size={18} /> Chat on WhatsApp<span class="sr-only"> ({whatsappDisplay()}, opens in a new tab)</span>
+              <Icon name="whatsapp" size={18} /> WhatsApp<span class="sr-only"> ({whatsappDisplay()}, opens in a new tab)</span>
             </a>
           ) : (
             business.email && (
@@ -43,29 +48,38 @@ const last = words.pop()
       </div>
     </div>
   </div>
+
+  <div class="cta-marquee" aria-hidden="true">
+    <div class="cta-track">
+      {
+        [0, 1].map(() => (
+          <span class="cta-set">
+            {marquee.map((m) => (
+              <span>
+                {m}
+                <i />
+              </span>
+            ))}
+          </span>
+        ))
+      }
+    </div>
+  </div>
 </section>
 
 <style>
   .cta {
-    position: relative;
     overflow: hidden;
-    padding-block: clamp(6rem, 14vw, 12rem) clamp(4rem, 8vw, 7rem);
-    border-bottom: 1px solid var(--line-night);
+    padding-block: clamp(6rem, 14vw, 12rem) 0;
   }
   .cta-inner {
     position: relative;
     z-index: 1;
   }
   .cta-title {
-    font-size: var(--fs-hero);
-    font-stretch: 80%;
-    font-weight: 700;
-    letter-spacing: -0.032em;
-    line-height: 0.9;
-    max-width: 12ch;
-  }
-  .cta-title .line:last-child > span {
-    color: var(--sun);
+    font-size: clamp(2.3rem, 5.4vw, 5.2rem);
+    font-weight: 800;
+    line-height: 1.04;
   }
   .cta-foot {
     display: grid;
@@ -74,7 +88,7 @@ const last = words.pop()
     margin-top: clamp(2.5rem, 5vw, 4rem);
   }
   .cta-foot .lead {
-    max-width: 44ch;
+    max-width: 46ch;
     margin: 0;
   }
   .cta-actions {
@@ -82,45 +96,76 @@ const last = words.pop()
     flex-wrap: wrap;
     gap: 0.75rem;
   }
-  /* The sun sits behind the heading and rises as the section scrolls up. */
-  .cta-sun {
+  /* The orb sits to the right and rises as the section scrolls up. */
+  .cta-orb-wrap {
     --rise: 0.5;
     position: absolute;
-    right: -12vw;
+    right: -8vw;
     top: 0;
-    width: min(62vw, 900px);
-    aspect-ratio: 1;
+    width: min(46vw, 680px);
     pointer-events: none;
-    transform: translateY(calc(70% - var(--rise) * 55%));
+    transform: translateY(calc(40% - var(--rise) * 45%));
     will-change: transform;
   }
-  .cta-sun i {
-    position: absolute;
-    inset: 0;
+  .cta-orb {
+    width: 100%;
+  }
+
+  .cta-marquee {
+    position: relative;
+    z-index: 1;
+    margin-top: clamp(4rem, 8vw, 7rem);
+    padding: 1.4rem 0;
+    border-top: 1px solid var(--line);
+    overflow: hidden;
+    -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+    mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  }
+  .cta-track {
+    display: flex;
+    width: max-content;
+  }
+  .cta-set {
+    display: flex;
+    flex: none;
+  }
+  .cta-set span {
+    display: inline-flex;
+    align-items: center;
+    gap: 2.5rem;
+    padding-right: 2.5rem;
+    font-family: var(--f-display);
+    font-variation-settings: 'ROND' 100;
+    font-weight: 800;
+    font-size: clamp(1.8rem, 4vw, 3.4rem);
+    color: var(--ink-muted);
+    white-space: nowrap;
+  }
+  .cta-set i {
+    width: 0.6rem;
+    height: 0.6rem;
     border-radius: 50%;
     background: var(--sun);
-    opacity: 0.95;
+    box-shadow: 0 0 14px rgb(255 255 255 / 0.8);
   }
-  .cta-sun::after {
-    content: '';
-    position: absolute;
-    inset: -14%;
-    border-radius: 50%;
-    border: 1px solid rgb(255 90 31 / 0.35);
+  @media (prefers-reduced-motion: no-preference) {
+    .cta-track {
+      animation: cta-marquee 40s linear infinite;
+    }
+  }
+  @keyframes cta-marquee {
+    to {
+      transform: translateX(-50%);
+    }
   }
   @media (max-width: 760px) {
-    .cta-foot {
-      grid-template-columns: 1fr;
-    }
     .cta {
-      padding-bottom: calc(clamp(4rem, 8vw, 7rem) + 34vw);
+      padding-top: calc(clamp(6rem, 14vw, 12rem) + 30vw);
     }
-    .cta-sun {
-      top: auto;
-      bottom: 0;
-      right: -18vw;
-      width: 92vw;
-      transform: translateY(calc(72% - var(--rise) * 14%));
+    .cta-orb-wrap {
+      right: -14vw;
+      width: 64vw;
+      transform: translateY(calc(10% - var(--rise) * 25%));
     }
   }
 </style>

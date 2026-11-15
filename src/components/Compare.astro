@@ -114,12 +114,12 @@ const fixes = [
     border-radius: var(--radius-lg);
     overflow: hidden;
     background: #fff;
-    border: 1px solid var(--line-night);
+    border: 1px solid var(--line-strong);
     touch-action: pan-y;
     cursor: ew-resize;
     user-select: none;
     -webkit-user-select: none;
-    box-shadow: 0 40px 80px -40px rgb(0 0 0 / 0.6);
+    box-shadow: 0 40px 100px -40px rgb(255 255 255 / 0.18);
   }
   .cmp-pane {
     position: absolute;
@@ -136,6 +136,7 @@ const fixes = [
     width: 2px;
     margin-left: -1px;
     background: var(--sun);
+    box-shadow: 0 0 16px rgb(255 255 255 / 0.8);
     pointer-events: none;
   }
   .cmp-knob {
@@ -148,9 +149,9 @@ const fixes = [
     height: 3rem;
     border-radius: 50%;
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-accent);
     transform: translate(-50%, -50%);
-    box-shadow: 0 8px 24px rgb(0 0 0 / 0.3);
+    box-shadow: 0 0 0 6px rgb(255 255 255 / 0.15), 0 8px 30px rgb(0 0 0 / 0.5);
     transition: transform 0.4s var(--ease-out);
   }
   .cmp.is-dragging .cmp-knob {
@@ -165,7 +166,7 @@ const fixes = [
     pointer-events: none;
   }
   .cmp:has(.cmp-range:focus-visible) .cmp-knob {
-    outline: 3px solid var(--paper);
+    outline: 3px solid var(--ink);
     outline-offset: 3px;
   }
   .cmp-tag {
@@ -173,8 +174,8 @@ const fixes = [
     top: 0.9rem;
     padding: 0.3rem 0.65rem;
     border-radius: 99px;
-    background: var(--ink);
-    color: var(--paper);
+    background: rgb(5 5 5 / 0.85);
+    color: #fff;
     font-size: 0.68rem;
     pointer-events: none;
   }
@@ -184,7 +185,7 @@ const fixes = [
   .cmp-tag-tomorrow {
     right: 0.9rem;
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-accent);
   }
 
   .pin {
@@ -333,7 +334,7 @@ const fixes = [
   }
   .new-logo {
     margin-right: auto;
-    font-family: var(--f-display);
+    font-family: var(--f-body);
     font-weight: 700;
     font-size: 2.1cqi;
     letter-spacing: -0.04em;
@@ -381,7 +382,7 @@ const fixes = [
     background: #1f9d55;
   }
   .new-h {
-    font-family: var(--f-display);
+    font-family: var(--f-body);
     font-size: 5.6cqi;
     font-weight: 700;
     font-stretch: 85%;
@@ -576,13 +577,13 @@ const fixes = [
   .cmp-fixes .pin {
     grid-row: span 2;
     background: var(--sun);
-    color: var(--ink);
+    color: var(--on-accent);
     font-size: 0.85rem;
   }
   .cmp-was {
     color: var(--on-night-2);
     text-decoration: line-through;
-    text-decoration-color: rgb(255 90 31 / 0.7);
+    text-decoration-color: rgb(255 255 255 / 0.5);
   }
   .cmp-now {
     color: var(--on-night);

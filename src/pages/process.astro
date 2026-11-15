@@ -156,31 +156,27 @@ const jsonLd = {
     top: calc(var(--header-h) + 1.5rem);
     display: block;
     font-family: var(--f-display);
-    font-size: clamp(5rem, 14vw, 13rem);
-    font-weight: 700;
-    font-stretch: 75%;
-    letter-spacing: -0.034em;
-    line-height: 0.8;
-    color: transparent;
-    -webkit-text-stroke: 1.5px var(--ink);
+    font-variation-settings: 'ROND' 100;
+    font-size: clamp(5rem, 13vw, 12rem);
+    font-weight: 900;
+    line-height: 0.85;
+    color: var(--ink-muted);
+    transition: color 0.5s, text-shadow 0.5s;
   }
-  .step:hover .step-num {
+  .step:hover .step-num,
+  .step:focus-within .step-num {
     color: var(--sun);
-    -webkit-text-stroke-color: var(--sun);
-    transition: color 0.4s, -webkit-text-stroke-color 0.4s;
+    text-shadow: 0 0 40px rgb(255 255 255 / 0.45);
   }
   .step-title {
     font-size: clamp(2rem, 4vw, 3.5rem);
-    font-weight: 700;
-    font-stretch: 84%;
-    letter-spacing: -0.03em;
+    font-weight: 800;
   }
   .step-summary {
     margin: 1rem 0 1.25rem;
-    font-family: var(--f-display);
     font-size: clamp(1.2rem, 1.8vw, 1.55rem);
-    font-weight: 500;
-    letter-spacing: -0.025em;
+    font-weight: 550;
+    letter-spacing: -0.02em;
     line-height: 1.25;
   }
   .step-detail {
@@ -199,7 +195,7 @@ const jsonLd = {
   }
   .step-cells > div {
     padding: 1.1rem 1.25rem;
-    background: var(--paper);
+    background: var(--paper-2);
   }
   .step-cells dt {
     margin-bottom: 0.4rem;
@@ -236,7 +232,7 @@ const jsonLd = {
   }
   .promise-grid h3 {
     font-size: clamp(1.4rem, 2vw, 1.8rem);
-    letter-spacing: -0.035em;
+    letter-spacing: -0.01em;
   }
   .promise-grid p {
     margin: 0.9rem 0 0;

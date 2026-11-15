@@ -206,9 +206,8 @@ const jsonLd = [
   }
   .cs-title {
     font-size: clamp(2.75rem, 8.5vw, 8.5rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 0.92;
     max-width: 14ch;
   }
@@ -257,7 +256,7 @@ const jsonLd = [
     font-weight: 500;
   }
   .cs-cover .browser {
-    border-top: 4px solid var(--accent);
+    border-top: 4px solid var(--sun);
   }
   .cs-body-grid {
     display: grid;
@@ -277,7 +276,7 @@ const jsonLd = [
     width: 0.6rem;
     height: 0.6rem;
     border-radius: 50%;
-    background: var(--accent);
+    background: var(--sun);
   }
   .cs-gallery {
     padding-bottom: var(--section);
@@ -324,9 +323,8 @@ const jsonLd = [
   .next-title {
     font-family: var(--f-display);
     font-size: clamp(2.5rem, 7vw, 6.5rem);
-    font-weight: 700;
-    font-stretch: 80%;
-    letter-spacing: -0.032em;
+    font-weight: 800;
+    letter-spacing: -0.01em;
     line-height: 0.95;
     transition: color 0.3s;
   }
@@ -348,6 +346,7 @@ const jsonLd = [
   .next-link:hover .next-arrow {
     background: var(--sun);
     border-color: var(--sun);
+    color: var(--on-accent);
     transform: rotate(-45deg);
   }
   .next-link:hover .next-title {
