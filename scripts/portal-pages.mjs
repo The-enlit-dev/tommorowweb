@@ -29,6 +29,15 @@ export const ROUTES = [
   ['admin/leads/report', 'Leads', 'LeadReport', 'Redesign report'],
   ['admin/leads/opportunities', 'Leads', 'Opportunities', 'Top opportunities'],
   ['admin/crm', 'Crm', 'CrmHome', 'Sales CRM'],
+  ['pos', 'Pos', 'PosScreen', 'Point of sale'],
+  ['orders', 'Pos', 'OrdersBoard', 'Orders'],
+  ['orders/view', 'Pos', 'OrderView', 'Order'],
+  ['orders/receipt', 'Pos', 'Receipt', 'Receipt'],
+  ['products', 'Catalog', 'Products', 'Products & menu'],
+  ['inventory', 'Catalog', 'Inventory', 'Inventory'],
+  ['customers', 'Catalog', 'Customers', 'Customers'],
+  ['discounts', 'Catalog', 'Discounts', 'Discounts'],
+  ['reports', 'Catalog', 'Reports', 'Reports'],
 ]
 
 const root = new URL('..', import.meta.url).pathname

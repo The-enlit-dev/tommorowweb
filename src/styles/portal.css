@@ -608,3 +608,36 @@
 .crm-bar { display: flex; align-items: center; gap: 0.6rem; }
 .crm-bar-fill { display: block; height: 0.9rem; min-width: 2px; border-radius: 4px; background: var(--chrome, #fff); }
 @media (max-width: 720px) { .crm-board { grid-auto-columns: 82%; scroll-snap-type: x mandatory; } .crm-col { scroll-snap-align: start; } }
+
+/* POS */
+.pos { display: grid; gap: 1rem; grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 900px) { .pos { grid-template-columns: minmax(0, 1.6fr) minmax(320px, 1fr); align-items: start; } .pos-cart { position: sticky; top: 1rem; } }
+.pos-grid { display: grid; gap: 0.5rem; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); }
+.pos-item { display: grid; gap: 0.25rem; min-height: 88px; padding: 0.75rem; text-align: left; border: 1px solid var(--line); border-radius: 14px; background: rgba(255, 255, 255, 0.03); color: var(--ink); font: inherit; cursor: pointer; touch-action: manipulation; }
+.pos-item:hover:not(:disabled) { border-color: var(--ink-3); }
+.pos-item:active:not(:disabled) { transform: scale(0.98); }
+.pos-item:disabled { opacity: 0.45; cursor: not-allowed; }
+.pos-item-name { font-weight: 600; line-height: 1.2; }
+.pos-item-price { font-family: var(--f-mono); }
+.pos-low { color: #f0d26b; }
+.pos-lines { list-style: none; padding: 0; margin: 0.75rem 0; display: grid; gap: 0.4rem; max-height: 40vh; overflow: auto; }
+.pos-lines li { display: grid; grid-template-columns: 1fr auto auto; gap: 0.6rem; align-items: center; }
+.pos-qty { display: inline-flex; align-items: center; gap: 0.4rem; }
+.pos-qty button { width: 2rem; height: 2rem; border-radius: 50%; border: 1px solid var(--line); background: none; color: var(--ink); font-size: 1.1rem; cursor: pointer; }
+.pos-totals { display: grid; gap: 0.25rem; margin: 0.75rem 0; }
+.pos-totals > div { display: flex; justify-content: space-between; }
+.pos-totals dt { color: var(--ink-3); }
+.pos-totals dd { margin: 0; font-family: var(--f-mono); }
+.pos-total { padding-top: 0.4rem; border-top: 1px solid var(--line); font-size: 1.2rem; }
+.pos-total dt { color: var(--ink); }
+.pos-charge { min-height: 3rem; font-size: 1.05rem; }
+.upi-qr { width: min(240px, 70vw); margin: 0 auto; padding: 10px; background: #fff; border-radius: 14px; }
+.variant-row { display: flex; flex-wrap: wrap; gap: 0.4rem; align-items: center; }
+.variant-row input { width: auto; flex: 1 1 7rem; }
+.thermal { font: 12px/1.35 'JetBrains Mono', ui-monospace, monospace; white-space: pre; color: var(--ink); }
+@media print {
+  .thermal { color: #000; }
+  .thermal-58 { width: 58mm; font-size: 9.5px; }
+  .thermal-80 { width: 80mm; font-size: 10px; }
+  .invoice, .invoice * { color: #000 !important; background: #fff !important; border-color: #999 !important; }
+}

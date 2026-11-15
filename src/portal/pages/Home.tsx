@@ -3,6 +3,7 @@ import { useState } from 'preact/hooks'
 import { businessNav } from '../nav'
 import { callFn, check, d, sb } from '../lib'
 import { Badge, Empty, ErrorNote, Field, Modal, OneTimeSecret, PageHead, Portal, useAction, useApp, useLoad, formData } from '../ui'
+import { CommerceSettings } from './Catalog'
 
 export function Dashboard() {
   return (
@@ -258,6 +259,7 @@ function SettingsBody({ app }: { app: ReturnType<typeof useApp> }) {
           )}
         </div>
       </div>
+      {app.biz?.modules.includes('orders') && <CommerceSettings bizId={bizId} />}
     </>
   )
 }
