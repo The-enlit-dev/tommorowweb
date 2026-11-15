@@ -2,13 +2,13 @@
 import Base from '../layouts/Base.astro'
 import Icon from '../components/Icon.astro'
 import Orb from '../components/Orb.astro'
-import { business, booking, whatsappLink } from '../config/site'
+import { booking, whatsappLink } from '../config/site'
 
-const wa = business.whatsapp.replace(/\D/g, '')
 const waChat = whatsappLink('Hi Tomorrow Web — I’d like to book a 20-minute call.')
 const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
 const daysText = booking.days.map((d) => dayNames[d]).join(' and ')
-const daysPlural = booking.days.map((d) => `${dayNames[d]}s`).join(' and ')
+const calLink = booking.externalUrl.replace(/^https?:\/\/(app\.)?cal\.com\//, '')
+const calNamespace = calLink.split('/').pop() ?? 'booking'
 const cover = [
   'What your business does and who it’s for',
   'What the website needs to do for you',
@@ -19,7 +19,7 @@ const cover = [
 
 <Base
   title="Book a 20-minute call"
-  description={`Book a ${booking.minutes}-minute call with Tomorrow Web, usually on weekends. Pick a day and a time that suits you, and we’ll confirm.`}
+  description={`Book a ${booking.minutes}-minute call with Tomorrow Web. Pick a free slot in the calendar and get an instant confirmation.`}
 >
   <section class="book" aria-labelledby="book-title">
     <div class="wrap book-grid">
@@ -31,15 +31,24 @@ const cover = [
             <span class="line" style="--l:1"><span class="chrome">{booking.minutes} minutes. </span></span>
           </h1>
           <p class="lead book-intro">
-            Pick a day and a time that suits you. Calls usually happen on {daysPlural}.
-            We’ll confirm the exact time by email or WhatsApp.
+            Pick a free slot in the calendar — you’ll get an instant confirmation by email,
+            with the meeting details.
           </p>
+          <button
+            type="button"
+            class="btn btn-sun book-now-inline"
+            data-cal-link={calLink}
+            data-cal-namespace={calNamespace}
+            data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+          >
+            Book now <Icon name="arrow-right" size={18} />
+          </button>
 
           <div class="book-card">
             <Orb class="book-orb" rings={false} />
             <dl class="book-facts">
               <div><dt class="mono">Length</dt><dd>{booking.minutes} minutes</dd></div>
-              <div><dt class="mono">Days</dt><dd>{daysText}</dd></div>
+              <div><dt class="mono">Usually</dt><dd>{daysText}</dd></div>
               <div><dt class="mono">How</dt><dd>{booking.methods.join(', ')}</dd></div>
             </dl>
             <h2 class="mono book-cover-h">What we’ll cover</h2>
@@ -48,155 +57,28 @@ const cover = [
             </ul>
           </div>
 
-          {
-            booking.externalUrl && (
-              <a href={booking.externalUrl} class="btn btn-sun book-ext" target="_blank" rel="noopener noreferrer">
-                Pick a time now on Cal.com <Icon name="arrow-up-right" size={16} />
-                <span class="sr-only"> (opens in a new tab)</span>
-              </a>
-            )
-          }
         </div>
       </div>
 
-      <div class="book-form" data-reveal style="--d:.15s">
-        <form
-          class="eform"
-          name={booking.formName}
-          method="POST"
-          action="/thanks/"
-          data-netlify="true"
-          netlify-honeypot="bot-field"
-          data-enquiry
-          data-astro-reload
-          data-wa-intro={`Hi Tomorrow Web, I’d like to book a ${booking.minutes}-minute call.`}
-          aria-describedby="book-required"
-        >
-          <input type="hidden" name="form-name" value={booking.formName} />
-          <input type="hidden" name="subject" value={`New ${booking.minutes}-minute call request — Tomorrow Web`} />
-          <p class="hp" aria-hidden="true">
-            <label>Leave this empty: <input name="bot-field" tabindex="-1" autocomplete="off" /></label>
+      <div class="book-panel" data-reveal style="--d:.15s">
+        <div class="book-now dark">
+          <Orb class="book-now-orb" rings={false} />
+          <p class="eyebrow mono">Free · {booking.minutes} minutes</p>
+          <h2 class="book-now-h">See open slots and book instantly.</h2>
+          <p class="book-now-p">The calendar shows times that are actually free. Choose one, add your details, and you’re booked — no back-and-forth.</p>
+          <button
+            type="button"
+            class="btn btn-sun book-now-btn"
+            data-cal-link={calLink}
+            data-cal-namespace={calNamespace}
+            data-cal-config='{"layout":"month_view","useSlotsViewOnSmallScreen":"true"}'
+          >
+            Book now <Icon name="arrow-right" size={18} />
+          </button>
+          <p class="book-now-alt">
+            Calendar not opening?{' '}
+            <a href={booking.externalUrl} target="_blank" rel="noopener noreferrer">Book on Cal.com<span class="sr-only"> (opens in a new tab)</span></a>
           </p>
-
-          <p id="book-required" class="eform-req mono">Fields marked <span aria-hidden="true">*</span><span class="sr-only">with an asterisk</span> are required</p>
-
-          <fieldset class="eset">
-            <legend><span class="mono">01</span> When</legend>
-
-            <fieldset class="choices" aria-describedby="hint-day err-day">
-              <legend>Pick a day <span class="req" aria-hidden="true">*</span></legend>
-              <p class="hint" id="hint-day">Upcoming {daysPlural}.</p>
-              <div class="chips" data-day-chips data-days={booking.days.join(',')} data-weeks={booking.weeks}>
-                <input id="preferred-date" type="date" name="preferred-date" required data-label="A day" data-wa="Day" />
-              </div>
-              <p class="err" id="err-day" data-error-for="preferred-date" hidden></p>
-            </fieldset>
-
-            <fieldset class="choices" aria-describedby="err-time">
-              <legend>Preferred time <span class="req" aria-hidden="true">*</span></legend>
-              <div class="chips">
-                {
-                  booking.slots.map((t, i) => (
-                    <label class="choice">
-                      <input type="radio" name="preferred-time" value={t} required={i === 0} data-label="A time" data-wa="Time" />
-                      <span>{t}</span>
-                    </label>
-                  ))
-                }
-              </div>
-              <p class="hint hint-after">Indian Standard Time (IST).</p>
-              <p class="err" id="err-time" data-error-for="preferred-time" hidden></p>
-            </fieldset>
-
-            <fieldset class="choices">
-              <legend>How should we call you?</legend>
-              <div class="chips">
-                {
-                  booking.methods.map((m, i) => (
-                    <label class="choice">
-                      <input type="radio" name="call-method" value={m} checked={i === 0} data-wa="Call on" />
-                      <span>{m}</span>
-                    </label>
-                  ))
-                }
-              </div>
-            </fieldset>
-          </fieldset>
-
-          <fieldset class="eset">
-            <legend><span class="mono">02</span> You</legend>
-            <div class="row">
-              <div class="field">
-                <label for="b-name">Your name <span class="req" aria-hidden="true">*</span></label>
-                <input id="b-name" name="name" type="text" autocomplete="name" required maxlength="120" data-label="Your name" data-wa="Name" aria-describedby="err-b-name" />
-                <p class="err" id="err-b-name" data-error-for="b-name" hidden></p>
-              </div>
-              <div class="field">
-                <label for="b-phone">Phone / WhatsApp <span class="req" aria-hidden="true">*</span></label>
-                <input
-                  id="b-phone"
-                  name="phone"
-                  type="tel"
-                  autocomplete="tel"
-                  inputmode="tel"
-                  required
-                  maxlength="24"
-                  pattern="[0-9\s\+\(\)\-]{7,24}"
-                  data-label="Your phone number"
-                  data-pattern-message="Please enter a phone number using digits — you can include the country code, like +91."
-                  aria-describedby="err-b-phone"
-                />
-                <p class="err" id="err-b-phone" data-error-for="b-phone" hidden></p>
-              </div>
-            </div>
-            <div class="field">
-              <label for="b-email">Email <span class="req" aria-hidden="true">*</span></label>
-              <input id="b-email" name="email" type="email" autocomplete="email" required maxlength="200" data-label="Your email" aria-describedby="hint-b-email err-b-email" />
-              <p class="hint" id="hint-b-email">We’ll send the confirmation here (and the link, for Google Meet).</p>
-              <p class="err" id="err-b-email" data-error-for="b-email" hidden></p>
-            </div>
-            <div class="field">
-              <label for="b-topic">What would you like to talk about? <span class="opt">Optional</span></label>
-              <textarea id="b-topic" name="topic" rows="4" maxlength="2000" data-wa="Topic" placeholder="A line or two about your business or website idea."></textarea>
-            </div>
-          </fieldset>
-
-          <div class="eform-status" data-form-status role="alert" hidden>
-            <Icon name="alert" size={20} />
-            <p>
-              <span data-status-text></span>
-              {business.email && <> Email: <a href={`mailto:${business.email}`}>{business.email}</a></>}
-            </p>
-          </div>
-
-          <div class="eform-foot">
-            <p class="eform-privacy">This is a request — we’ll confirm the time with you. <a href="/privacy/">Privacy</a></p>
-            <div class="eform-actions">
-              {
-                wa && (
-                  <button type="button" class="btn btn-ghost" data-wa-send data-number={wa}>
-                    <Icon name="whatsapp" size={18} /> Send on WhatsApp
-                  </button>
-                )
-              }
-              <button type="submit" class="btn btn-ink eform-submit">
-                <span data-label>Request this call</span>
-                <Icon name="arrow-right" size={18} />
-              </button>
-            </div>
-          </div>
-        </form>
-
-        <div class="eform-success dark" data-form-success hidden>
-          <Orb class="success-orb" rings={false} />
-          <h2 tabindex="-1">Call requested<span data-success-name></span>.</h2>
-          <p class="lead">
-            You asked for: <strong data-success-summary></strong>. We’ll confirm the exact time by email or WhatsApp.
-          </p>
-          <div class="success-actions">
-            <a href="/work/" class="btn btn-ink">Browse our work</a>
-            <button type="button" class="btn btn-ghost" data-form-again>Request another time</button>
-          </div>
         </div>
 
         {
@@ -213,6 +95,18 @@ const cover = [
     </div>
   </section>
 </Base>
+
+<!-- Cal.com element-click embed: clicking "Book now" opens the booking calendar in a popup. -->
+<script is:inline define:vars={{ calNamespace }}>
+  (function (C, A, L) { let p = function (a, ar) { a.q.push(ar); }; let d = C.document; C.Cal = C.Cal || function () { let cal = C.Cal; let ar = arguments; if (!cal.loaded) { cal.ns = {}; cal.q = cal.q || []; d.head.appendChild(d.createElement("script")).src = A; cal.loaded = true; } if (ar[0] === L) { const api = function () { p(api, arguments); }; const namespace = ar[1]; api.q = api.q || []; if (typeof namespace === "string") { cal.ns[namespace] = cal.ns[namespace] || api; p(cal.ns[namespace], ar); p(cal, ["initNamespace", namespace]); } else p(cal, ar); return; } p(cal, ar); }; })(window, "https://app.cal.com/embed/embed.js", "init");
+  if (!window.__twCalInit) {
+    window.__twCalInit = true;
+    Cal("init", calNamespace, { origin: "https://app.cal.com" });
+    Cal.config = Cal.config || {};
+    Cal.config.forwardQueryParams = true;
+    Cal.ns[calNamespace]("ui", { hideEventTypeDetails: false, layout: "month_view" });
+  }
+</script>
 
 <style>
   .book {
@@ -287,8 +181,54 @@ const cover = [
     flex: none;
     margin-top: 0.25rem;
   }
-  .book-ext {
-    margin-top: 1.25rem;
+  .book-panel {
+    align-self: start;
+  }
+  .book-now {
+    position: relative;
+    overflow: hidden;
+    padding: clamp(1.75rem, 4vw, 3rem);
+    border: 1px solid var(--line-strong);
+    border-radius: var(--radius-lg);
+    background: radial-gradient(120% 90% at 100% 0%, #1a1a1a 0%, #070707 60%);
+  }
+  .book-now :global(.book-now-orb) {
+    position: absolute;
+    right: -4rem;
+    bottom: -4rem;
+    width: 14rem;
+    opacity: 0.55;
+    pointer-events: none;
+  }
+  .book-now-h {
+    position: relative;
+    margin: 0.75rem 0 1rem;
+    max-width: 16ch;
+    font-size: clamp(1.9rem, 3.4vw, 3rem);
+    font-weight: 800;
+    line-height: 1;
+  }
+  .book-now-p {
+    position: relative;
+    max-width: 40ch;
+    margin-bottom: 2rem;
+    color: var(--ink-2);
+  }
+  .book-now-btn {
+    position: relative;
+    min-height: 3.25rem;
+    padding-inline: 1.75rem;
+    font-size: 1.05rem;
+  }
+  .book-now-alt {
+    position: relative;
+    margin: 1.25rem 0 0;
+    color: var(--ink-3);
+    font-size: 0.95rem;
+  }
+  .book-now-inline {
+    display: none;
+    margin: -0.5rem 0 2rem;
   }
   .book-alt {
     margin: 1.5rem 0 0;
@@ -297,6 +237,9 @@ const cover = [
   @media (max-width: 960px) {
     .book-grid {
       grid-template-columns: 1fr;
+    }
+    .book-now-inline {
+      display: inline-flex;
     }
     .book-sticky {
       position: static;
