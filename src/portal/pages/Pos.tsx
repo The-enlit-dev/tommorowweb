@@ -50,8 +50,9 @@ function PosBody({ app }: { app: ReturnType<typeof useApp> }) {
   const [cart, setCart] = useState<CartLine[]>([])
   const [q, setQ] = useState('')
   const [category, setCategory] = useState('')
-  const [channel, setChannel] = useState('pos')
-  const [table, setTable] = useState('')
+  const [channel, setChannel] = useState(qs('table') ? 'table' : 'pos')
+  const [table, setTable] = useState(qs('table') ?? '')
+  const [scanning, setScanning] = useState(false)
   const [customer, setCustomer] = useState({ name: '', phone: '' })
   const [code, setCode] = useState('')
   const [order, setOrder] = useState<any>(null)
@@ -113,7 +114,9 @@ function PosBody({ app }: { app: ReturnType<typeof useApp> }) {
       <section class="pos-catalog" aria-label="Products">
         <div class="p-row" style={{ marginBottom: '0.6rem' }}>
           <input ref={searchRef} class="p-input" placeholder="Search or scan barcode" value={q} onInput={(e) => setQ((e.target as HTMLInputElement).value)} onKeyDown={onSearchKey} autoFocus style={{ flex: 1 }} aria-label="Search products or scan a barcode" />
+          {'BarcodeDetector' in window && <button class="btn btn-ghost p-btn" onClick={() => setScanning(true)}>Scan with camera</button>}
         </div>
+        {scanning && <CameraScanner onClose={() => setScanning(false)} onCode={(c) => { const hit = data!.vars.find((v) => v.barcode === c || v.sku === c); if (hit) add(items.find((i) => i.id === hit.id) ?? hit); else app.toast(`No product with barcode ${c}`, 'bad') }} />}
         <div class="p-tabs" role="tablist" style={{ marginBottom: '0.6rem' }}>
           <button role="tab" aria-selected={!category} onClick={() => setCategory('')}>All</button>
           {data!.cats.map((c) => <button key={c.id} role="tab" aria-selected={category === c.id} onClick={() => setCategory(c.id)}>{c.name}</button>)}
@@ -651,5 +654,37 @@ function ReceiptBody({ app, id, size }: { app: ReturnType<typeof useApp>; id: st
       <pre class={`thermal thermal-${size}`}>{txt}</pre>
       <button class="btn btn-ink p-btn no-print" onClick={() => print()}>Print</button>
     </div>
+  )
+}
+
+/** Phone/tablet camera barcode scanning (BarcodeDetector API, where the browser supports it). */
+function CameraScanner({ onCode, onClose }: { onCode: (code: string) => void; onClose: () => void }) {
+  const video = useRef<HTMLVideoElement>(null)
+  const [err, setErr] = useState('')
+  useEffect(() => {
+    let stream: MediaStream | null = null, raf = 0, last = '', lastAt = 0
+    const detector = new (window as any).BarcodeDetector({ formats: ['ean_13', 'ean_8', 'upc_a', 'upc_e', 'code_128', 'code_39', 'qr_code'] })
+    navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then((s) => {
+      stream = s
+      if (!video.current) return
+      video.current.srcObject = s
+      video.current.play()
+      const tick = async () => {
+        try {
+          const codes = await detector.detect(video.current)
+          const c = codes[0]?.rawValue
+          if (c && (c !== last || Date.now() - lastAt > 2000)) { last = c; lastAt = Date.now(); navigator.vibrate?.(60); onCode(c) }
+        } catch { /* frame not ready */ }
+        raf = requestAnimationFrame(tick)
+      }
+      tick()
+    }).catch(() => setErr('Camera not available. Allow camera access or use a USB scanner.'))
+    return () => { cancelAnimationFrame(raf); stream?.getTracks().forEach((t) => t.stop()) }
+  }, [])
+  return (
+    <Modal title="Scan barcode" onClose={onClose}>
+      {err ? <div class="p-notice" data-tone="bad">{err}</div> : <video ref={video} playsInline muted style={{ width: '100%', borderRadius: '12px' }} />}
+      <p class="p-small p-muted">Each item scanned is added to the sale.</p>
+    </Modal>
   )
 }
