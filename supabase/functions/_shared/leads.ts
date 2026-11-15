@@ -144,8 +144,8 @@ export function normalizeEmail(raw: string | null | undefined): string | null {
 const STOP = new Set(['the', 'and', 'pvt', 'private', 'ltd', 'limited', 'llp', 'co', 'company', 'india', 'pune', 'shop', 'store', 'a', 'of', 'by', 'n'])
 export function nameKey(name: string): string {
   return (name ?? '')
-    .normalize('NFKD').replace(/[̀-ͯ]/g, '')
-    .toLowerCase().replace(/&/g, ' and ').replace(/['’`]/g, '').replace(/[^a-z0-9ऀ-ॿ]+/g, ' ')
+    .normalize('NFKD').replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase().replace(/&/g, ' and ').replace(/['\u2019`]/g, '').replace(/[^a-z0-9\u0900-\u097f]+/g, ' ')
     .split(' ').filter((t) => t && !STOP.has(t)).join(' ').trim()
 }
 
@@ -273,7 +273,7 @@ export function fromPlace(p: any, fallback: { city?: string | null; locality?: s
 // ── CSV ───────────────────────────────────────────────────────────────────
 /** RFC 4180 CSV parser (quotes, escaped quotes, CRLF, BOM). Returns rows of cells. */
 export function parseCsv(text: string): string[][] {
-  const s = text.replace(/^﻿/, '')
+  const s = text.replace(/^\ufeff/, '')
   const rows: string[][] = []
   let row: string[] = [], cell = '', q = false
   for (let i = 0; i < s.length; i++) {
@@ -369,18 +369,21 @@ export function matchCandidate(c: Candidate, existing: ExistingLead[]): Match {
     const hit = existing.find((e) => e.phones.some((p) => phones.includes(p)))
     if (hit) return { type: 'same', id: hit.id, reason: 'phone' }
   }
-  let best: { id: string; sim: number; near: boolean } | null = null
+  // Auto-merge on name alone only with strong evidence: coordinates within 250 m and a very similar
+  // name, or an identical name in the same locality when there are no coordinates. A near-match
+  // ("Pizza Point" vs "Pizza Pointe") without coordinates goes to the review queue instead.
+  let best: { id: string; sim: number; sure: boolean } | null = null
   for (const e of existing) {
     const d = distanceM(c, e)
     const sameLoc = !!c.locality && locKey(c.locality) === locKey(e.locality)
-    const near = (d !== null && d <= 250) || (d === null && sameLoc)
     const nearish = (d !== null && d <= 600) || sameLoc
     if (!nearish) continue
     const sim = nameSimilarity(c.name, e.name)
     if (sim < 0.7) continue
-    if (!best || sim > best.sim) best = { id: e.id, sim, near }
+    const sure = d !== null ? d <= 250 && sim >= 0.9 : sameLoc && sim === 1
+    if (!best || sim > best.sim) best = { id: e.id, sim, sure }
   }
-  if (best && best.sim >= 0.9 && best.near) return { type: 'same', id: best.id, reason: 'name_location' }
+  if (best?.sure) return { type: 'same', id: best.id, reason: 'name_location' }
   if (best) return { type: 'possible', id: best.id, reason: 'similar_name_nearby', similarity: Math.round(best.sim * 100) / 100 }
   return { type: 'new' }
 }

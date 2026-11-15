@@ -7,6 +7,7 @@
 //   check_website  reachability check → website state (respects robots.txt)
 //   audit_queue    queue website audits;  audit_next  process the next queued audit(s)
 //   rescore        recompute opportunity scores
+//   overpass_status  health check of the public OpenStreetMap (Overpass) servers
 import { audit, clean, getCaller, handler, HttpError, json, requireAdmin, serviceClient, UUID_RE } from '../_shared/util.ts'
 import {
   type Candidate, CSV_FIELDS, type CsvField, type ExistingLead, fromCsvRow, fromOsm, fromPlace, industryByKey, overpassQuery, parseCsv,
@@ -17,7 +18,8 @@ import { checkLinks, fetchSite, NOTES, stateOf } from '../_shared/site.ts'
 
 const admin = serviceClient()
 const OSM_UA = 'TomorrowWebLeadFinder/1.0 (lead research; respects usage policies)'
-const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter']
+// Public Overpass instances with worldwide data (wiki.openstreetmap.org/wiki/Overpass_API#Public_Overpass_API_instances).
+const OVERPASS = ['https://overpass-api.de/api/interpreter', 'https://overpass.private.coffee/api/interpreter', 'https://overpass.kumi.systems/api/interpreter', 'https://maps.mail.ru/osm/tools/overpass/api/interpreter']
 
 const sha256 = async (s: string) => Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256', new TextEncoder().encode(s))), (b) => b.toString(16).padStart(2, '0')).join('')
 const must = <T>(r: { data: T; error: any }, what: string): T => {
@@ -25,16 +27,59 @@ const must = <T>(r: { data: T; error: any }, what: string): T => {
   return r.data
 }
 
-// ── Geocoding (Nominatim) ─────────────────────────────────────────────────
+// ── Geocoding (free, no key) ──────────────────────────────────────────────
+// Nominatim first; it refuses some cloud IP ranges (HTTP 403), so Photon (komoot, OSM data) and a
+// place-name lookup through Overpass are tried next. Results are cached in lead_localities.
+type Geo = { lat: number; lon: number; display_name: string; source: string }
+const reEsc = (s: string) => s.replace(/[.*+?^${}()|[\]\\"]/g, '\\$&')
+
+async function viaNominatim(name: string, city: string): Promise<Geo | null> {
+  const q = new URLSearchParams({ q: `${name}, ${city}, India`, format: 'jsonv2', limit: '1', countrycodes: 'in' })
+  const r = await fetch(`https://nominatim.openstreetmap.org/search?${q}`, { headers: { 'User-Agent': OSM_UA }, signal: AbortSignal.timeout(10_000) })
+  if (!r.ok) throw new Error(`Nominatim HTTP ${r.status}`)
+  const [hit] = await r.json()
+  return hit ? { lat: Number(hit.lat), lon: Number(hit.lon), display_name: hit.display_name, source: 'nominatim' } : null
+}
+
+async function viaPhoton(name: string, city: string): Promise<Geo | null> {
+  // Prefer settlement results (suburb, neighbourhood…) over hills, roads or shops with the same name.
+  for (const placeOnly of [true, false]) {
+    const q = new URLSearchParams({ q: `${name}, ${city}, India`, limit: '5', lang: 'en' })
+    if (placeOnly) q.set('osm_tag', 'place')
+    const r = await fetch(`https://photon.komoot.io/api/?${q}`, { headers: { 'User-Agent': OSM_UA }, signal: AbortSignal.timeout(10_000) })
+    if (!r.ok) throw new Error(`Photon HTTP ${r.status}`)
+    const f = ((await r.json()).features ?? []).find((x: any) => (x.properties?.countrycode ?? '').toUpperCase() === 'IN')
+    if (!f) continue
+    const p = f.properties
+    return { lon: Number(f.geometry.coordinates[0]), lat: Number(f.geometry.coordinates[1]), display_name: [p.name, p.district, p.city, p.state, 'India'].filter(Boolean).join(', '), source: 'photon' }
+  }
+  return null
+}
+
+async function viaOverpass(name: string, city: string): Promise<Geo | null> {
+  const n = reEsc(name), c = reEsc(city)
+  const query = name.toLowerCase() === city.toLowerCase()
+    ? `[out:json][timeout:20];area["ISO3166-1"="IN"]->.in;node["place"~"^(city|town)$"]["name"~"^${n}$",i](area.in);out 1;`
+    : `[out:json][timeout:20];area["name"~"^${c}$",i]["boundary"="administrative"]->.c;node["place"~"^(suburb|neighbourhood|quarter|locality|village|hamlet|town)$"]["name"~"^${n}$",i](area.c);out 1;`
+  const { elements } = await overpass(query, 30_000)
+  const e = elements[0]
+  return e ? { lat: Number(e.lat), lon: Number(e.lon), display_name: `${e.tags?.name ?? name}, ${city}, India`, source: 'overpass' } : null
+}
+
 async function geocode(name: string, city: string) {
+  if (!name) throw new HttpError(400, 'Enter a locality or city.')
   const { data: cached } = await admin.from('lead_localities').select('*').ilike('name', name).ilike('city', city).maybeSingle()
   if (cached) return cached
-  const q = new URLSearchParams({ q: `${name}, ${city}, India`, format: 'jsonv2', limit: '1', countrycodes: 'in' })
-  const r = await fetch(`https://nominatim.openstreetmap.org/search?${q}`, { headers: { 'User-Agent': OSM_UA }, signal: AbortSignal.timeout(15_000) })
-  if (!r.ok) throw new HttpError(502, `Location lookup failed (${r.status}). Try again in a minute.`)
-  const [hit] = await r.json()
-  if (!hit) throw new HttpError(404, `Couldn’t find “${name}, ${city}”. Check the spelling or enter coordinates.`)
-  return must(await admin.from('lead_localities').insert({ name, city, lat: Number(hit.lat), lon: Number(hit.lon), display_name: hit.display_name }).select('*').single(), 'save locality')
+  const errors: string[] = []
+  for (const look of [viaNominatim, viaPhoton, viaOverpass]) {
+    let hit: Geo | null = null
+    try { hit = await look(name, city) } catch (e) { errors.push((e as Error).message); continue }
+    if (hit && Number.isFinite(hit.lat) && Number.isFinite(hit.lon)) {
+      return must(await admin.from('lead_localities').insert({ name, city, lat: hit.lat, lon: hit.lon, display_name: hit.display_name, source: hit.source }).select('*').single(), 'save locality')
+    }
+  }
+  if (errors.length === 3) throw new HttpError(502, `Location lookup failed (${errors.join('; ')}). Try again in a minute, or enter coordinates.`)
+  throw new HttpError(404, `Couldn’t find “${name}, ${city}”. Check the spelling or enter coordinates.`)
 }
 
 // ── Existing leads + suppression ──────────────────────────────────────────
@@ -250,18 +295,59 @@ async function placesSearch(search: any, actor: string) {
 }
 
 // ── Overpass ──────────────────────────────────────────────────────────────
-async function overpass(query: string) {
-  let last = ''
+// Tries each public instance in turn within a time budget that keeps the whole request under the
+// Edge Function wall-clock limit; the error lists every instance's answer.
+async function overpassOnce(url: string, query: string, timeoutMs: number, minimal = false) {
+  const headers: Record<string, string> = minimal
+    ? { 'content-type': 'application/x-www-form-urlencoded' }
+    : { 'User-Agent': OSM_UA, Accept: '*/*', 'content-type': 'application/x-www-form-urlencoded' }
+  return await fetch(url, { method: 'POST', headers, body: `data=${encodeURIComponent(query)}`, signal: AbortSignal.timeout(timeoutMs) })
+}
+
+async function overpass(query: string, budgetMs = 100_000) {
+  const errors: string[] = []
+  const t0 = Date.now()
   for (const url of OVERPASS) {
-    try {
-      const r = await fetch(url, { method: 'POST', headers: { 'User-Agent': OSM_UA, 'content-type': 'application/x-www-form-urlencoded' }, body: `data=${encodeURIComponent(query)}`, signal: AbortSignal.timeout(45_000) })
-      if (r.ok) return { elements: (await r.json()).elements as any[], server: new URL(url).hostname }
-      last = `${new URL(url).hostname}: HTTP ${r.status}`
-    } catch (e) {
-      last = `${new URL(url).hostname}: ${(e as Error).message}`
+    const host = new URL(url).hostname
+    for (const minimal of [false, true]) {
+      const left = budgetMs - (Date.now() - t0)
+      if (left < 5_000) break
+      try {
+        const r = await overpassOnce(url, query, Math.min(40_000, left), minimal)
+        if (r.ok) {
+          const data = await r.json().catch(() => null)
+          if (data && Array.isArray(data.elements)) return { elements: data.elements as any[], server: host }
+          errors.push(`${host}: unexpected reply`)
+          break
+        }
+        await r.body?.cancel()
+        errors.push(`${host}: HTTP ${r.status}`)
+        if (r.status !== 406) break // only a 406 (headers refused) is worth retrying with minimal headers
+      } catch (e) {
+        errors.push(`${host}: ${(e as Error).name === 'TimeoutError' ? 'timed out' : (e as Error).message.slice(0, 80)}`)
+        break
+      }
     }
   }
-  throw new HttpError(503, `OpenStreetMap search servers are busy (${last}). Try again in a minute.`)
+  throw new HttpError(503, `OpenStreetMap search servers are busy (${errors.join('; ')}). Try again in a minute.`)
+}
+
+/** Health check for the admin dashboard: how each public Overpass instance answers a tiny query right now. */
+async function overpassStatus() {
+  const q = '[out:json][timeout:10];node["amenity"="cafe"](around:200,18.5204,73.8567);out ids 1;'
+  return await Promise.all(OVERPASS.map(async (url) => {
+    const host = new URL(url).hostname
+    const t0 = Date.now()
+    try {
+      let r = await overpassOnce(url, q, 20_000)
+      let minimal = false
+      if (r.status === 406) { await r.body?.cancel(); r = await overpassOnce(url, q, 20_000, true); minimal = true }
+      await r.body?.cancel()
+      return { host, status: r.status, ok: r.ok, ms: Date.now() - t0, minimal_headers: minimal }
+    } catch (e) {
+      return { host, status: null, ok: false, ms: Date.now() - t0, error: (e as Error).name === 'TimeoutError' ? 'timed out' : (e as Error).message.slice(0, 80) }
+    }
+  }))
 }
 
 async function discover(body: Record<string, unknown>, actor: string) {
@@ -286,14 +372,27 @@ async function discover(body: Record<string, unknown>, actor: string) {
     search.lon = loc.lon
     await admin.from('lead_searches').update({ lat: loc.lat, lon: loc.lon }).eq('id', search.id)
   }
+  // Public Overpass servers refuse many cloud data-centre IPs (overpass-api.de answers 406), so the
+  // portal can run the query from the administrator's own browser: step 1 returns the query, step 2
+  // posts the elements back here for matching, merging and scoring. A server-side query stays as the fallback.
+  const query = search.source === 'osm' ? overpassQuery(search.lat, search.lon, search.radius_m, search.industries) : null
+  if (body.prepare_only === true) return { prepared: true, search_id: search.id, source: search.source, query, servers: OVERPASS }
   const prevRun = search.last_run_at
   try {
     let res: IngestResult, server = 'google_places'
     if (search.source === 'google_places') res = await placesSearch(search, actor)
     else {
-      const o = await overpass(overpassQuery(search.lat, search.lon, search.radius_m, search.industries))
-      server = o.server
-      res = await ingest(o.elements.map((e) => fromOsm(e, { city: search.city, locality: search.locality })), { searchId: search.id, actor })
+      let elements: any[]
+      if (Array.isArray(body.elements)) {
+        if (body.elements.length > 5000) throw new HttpError(400, 'Too many results in one go — use a smaller radius.')
+        elements = body.elements.filter((e: any) => e && ['node', 'way', 'relation'].includes(e.type) && Number.isFinite(Number(e.id)) && e.tags && typeof e.tags === 'object')
+        server = `your browser → ${clean(body.server, 80) || 'OpenStreetMap'}`
+      } else {
+        const o = await overpass(query!)
+        elements = o.elements
+        server = o.server
+      }
+      res = await ingest(elements.map((e) => fromOsm(e, { city: search.city, locality: search.locality })), { searchId: search.id, actor })
     }
     let newSince = res.created
     if (prevRun) {
@@ -316,9 +415,11 @@ Deno.serve(handler(async (req, body) => {
   switch (body.action) {
     case 'geocode':
       return json(await geocode(clean(body.name, 80), clean(body.city, 80) || 'Pune'))
+    case 'overpass_status':
+      return json({ servers: await overpassStatus() })
     case 'discover': {
-      const r = await discover(body, actor)
-      await audit(admin, caller, 'leads:search', { search_id: r.search_id, found: r.found, created: r.created, updated: r.updated })
+      const r: any = await discover(body, actor)
+      if (!r.prepared) await audit(admin, caller, 'leads:search', { search_id: r.search_id, found: r.found, created: r.created, updated: r.updated, server: r.server })
       return json(r)
     }
     case 'import': {

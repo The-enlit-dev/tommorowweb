@@ -86,6 +86,10 @@ test('duplicate matching across sources', () => {
   assert.deepEqual(matchCandidate({ ...base, name: 'Hair Studio 9', locality: 'Aundh' }, existing).type, 'possible')
   assert.deepEqual(matchCandidate({ ...base, name: 'Hair Studio Nine', lat: 18.5581, lon: 73.8071 }, existing), { type: 'same', id: 'B', reason: 'name_location' })
   assert.deepEqual(matchCandidate({ ...base, name: 'Hair Studio Nine', locality: 'Kothrud', lat: 18.50, lon: 73.81 }, existing), { type: 'new' }, 'same name far away is a different business')
+  // No coordinates: an identical name in the same locality merges; a near-identical one is only flagged.
+  const noGeo = [{ id: 'P', name: 'Pizza Point', locality: 'Wakad', lat: null, lon: null, osm_ref: null, place_ref: null, domains: [], phones: [] }]
+  assert.deepEqual(matchCandidate({ ...base, name: 'Pizza Point', locality: 'Wakad', lat: null, lon: null }, noGeo), { type: 'same', id: 'P', reason: 'name_location' })
+  assert.equal(matchCandidate({ ...base, name: 'Pizza Pointe', locality: 'Wakad', lat: null, lon: null }, noGeo).type, 'possible')
 })
 
 test('opportunity score is transparent and bounded', () => {

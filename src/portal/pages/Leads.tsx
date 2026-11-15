@@ -209,17 +209,50 @@ function AddLead({ onClose, onDone }: { onClose: () => void; onDone: (id: string
 }
 
 // ── Searches ──────────────────────────────────────────────────────────────
+/**
+ * Runs the Overpass query from the administrator's browser. Public Overpass servers often refuse cloud
+ * data-centre IPs (where Edge Functions run) but answer normal connections. A form-encoded POST is a
+ * "simple" cross-origin request, and Overpass allows any origin, so no preflight is needed.
+ */
+async function overpassFromBrowser(query: string, servers: string[]): Promise<{ elements: unknown[]; server: string } | null> {
+  for (const url of servers) {
+    try {
+      const res = await fetch(url, { method: 'POST', body: new URLSearchParams({ data: query }), signal: AbortSignal.timeout(45_000) })
+      if (!res.ok) continue
+      const j = await res.json()
+      if (Array.isArray(j?.elements)) return { elements: j.elements, server: new URL(url).hostname }
+    } catch { /* try the next server */ }
+  }
+  return null
+}
+
 function Searches({ app, onRan }: { app: ReturnType<typeof useApp>; onRan: () => Promise<unknown> }) {
   const { busy, run } = useAction()
   const [result, setResult] = useState<any>(null)
   const [inds, setInds] = useState<string[]>(['restaurant', 'cafe'])
   const searches = useLoad(async () => check(await sb().from('lead_searches').select('*').order('last_run_at', { ascending: false, nullsFirst: false })) as any[])
   const settings = useLoad(async () => check(await sb().from('lead_settings').select('places_enabled, places_monthly_cap').single()) as any)
+  const [step, setStep] = useState('')
   const runSearch = (payload: Record<string, unknown>) => run(async () => {
     setResult(null)
-    const r = await callFn('leads', { action: 'discover', ...payload })
-    setResult(r)
-    await searches.reload(); await onRan()
+    try {
+      setStep('Finding the area…')
+      const prep = await callFn('leads', { action: 'discover', ...payload, prepare_only: true })
+      let r
+      if (prep.query) {
+        setStep('Searching OpenStreetMap from your browser…')
+        const got = await overpassFromBrowser(prep.query, prep.servers)
+        setStep(got ? 'Matching results with your existing leads…' : 'OpenStreetMap didn’t answer your browser; trying from the server…')
+        r = await callFn('leads', got ? { action: 'discover', search_id: prep.search_id, elements: got.elements, server: got.server } : { action: 'discover', search_id: prep.search_id })
+      } else {
+        setStep('Searching…')
+        r = await callFn('leads', { action: 'discover', search_id: prep.search_id })
+      }
+      setResult(r)
+    } finally {
+      setStep('')
+      await searches.reload(); await onRan()
+    }
   }, 'Search finished')
   return (
     <div class="p-grid-2">
@@ -247,6 +280,7 @@ function Searches({ app, onRan }: { app: ReturnType<typeof useApp>; onRan: () =>
         </fieldset>
         <Field label="Save as (optional name)"><input name="name" maxLength={120} placeholder="e.g. Baner cafés" /></Field>
         <button class="btn btn-ink p-btn" disabled={busy}>{busy ? 'Searching…' : 'Search and save'}</button>
+        {step && <p class="p-small" role="status" aria-live="polite">{step}</p>}
         <p class="p-small p-muted">{OSM_CREDIT}. Only public business listings are used. Repeated searches update existing leads instead of duplicating them.</p>
       </form>
       <div class="p-stack">
