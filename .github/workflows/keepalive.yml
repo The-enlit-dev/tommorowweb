@@ -1,0 +1,22 @@
+# Daily database activity so the free Supabase project doesn't pause (it pauses after ~7 idle days).
+# GitHub may disable scheduled workflows in repositories with no activity for 60 days, so the
+# portal shows "last keep-alive" and warns when it goes stale. Needs secret TW_HEARTBEAT_TOKEN.
+name: Keep-alive
+on:
+  schedule:
+    - cron: '17 3 * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@v4
+      - name: Record heartbeat
+        env:
+          TW_HEARTBEAT_TOKEN: ${{ secrets.TW_HEARTBEAT_TOKEN }}
+        run: |
+          if [ -z "$TW_HEARTBEAT_TOKEN" ]; then echo "::error::Add the TW_HEARTBEAT_TOKEN repository secret (see docs/BACKUP.md)"; exit 1; fi
+          scripts/heartbeat.sh keepalive '{"source":"github-actions"}'

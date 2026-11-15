@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from 'astro/config'
 import sitemap from '@astrojs/sitemap'
+import preact from '@astrojs/preact'
 
 /**
  * Canonical URLs, the sitemap and social-preview images need the site's
@@ -13,8 +14,10 @@ export default defineConfig({
   site,
   trailingSlash: 'always',
   integrations: [
+    // Preact powers the private portal only (/portal/**); public pages ship no framework JS.
+    preact(),
     sitemap({
-      filter: (page) => !/\/(thanks|404)\/?$/.test(page),
+      filter: (page) => !/\/(thanks|404)\/?$/.test(page) && !page.includes('/portal/'),
     }),
   ],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },

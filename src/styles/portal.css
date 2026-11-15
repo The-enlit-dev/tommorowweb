@@ -1,0 +1,567 @@
+/* ─────────────────────────────────────────────────────────────────────────────
+   Tomorrow Web portal — app shell and components.
+   Builds on the tokens in global.css; works from phone to desktop.
+   ───────────────────────────────────────────────────────────────────────────── */
+
+.portal body::before {
+  opacity: 0.55;
+}
+.p-noscript {
+  padding: 2rem;
+}
+
+/* ── Shell ── */
+.p-shell {
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  min-height: 100vh;
+}
+.p-side {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 1.25rem 0.9rem;
+  border-right: 1px solid var(--line);
+  background: rgb(5 5 5 / 0.85);
+  overflow-y: auto;
+}
+.p-brand {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.25rem 0.5rem 0.75rem;
+  color: var(--ink);
+  text-decoration: none;
+}
+.p-brand .logo {
+  height: 0.95rem;
+}
+.p-brand small {
+  font-family: var(--f-mono);
+  font-size: 0.62rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.p-biz {
+  width: 100%;
+  min-height: 2.6rem;
+  padding: 0.4rem 0.7rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--paper-2);
+  color: var(--ink);
+  font-size: 0.9rem;
+}
+.p-nav {
+  display: grid;
+  gap: 0.1rem;
+}
+.p-nav h3 {
+  margin: 0.9rem 0.6rem 0.35rem;
+  font-family: var(--f-mono);
+  font-size: 0.65rem;
+  font-weight: 500;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.p-nav a {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  min-height: 2.4rem;
+  padding: 0.45rem 0.7rem;
+  border-radius: 8px;
+  color: var(--ink-2);
+  font-size: 0.93rem;
+  text-decoration: none;
+  transition: background 0.2s, color 0.2s;
+}
+.p-nav a:hover {
+  background: var(--paper-3);
+  color: var(--ink);
+}
+.p-nav a[aria-current='page'] {
+  background: var(--paper-3);
+  color: var(--ink);
+  box-shadow: inset 2px 0 0 var(--sun);
+}
+.p-nav .p-badge {
+  margin-left: auto;
+}
+.p-side-foot {
+  margin-top: auto;
+  padding: 0.75rem 0.6rem 0;
+  border-top: 1px solid var(--line);
+  font-size: 0.85rem;
+  color: var(--ink-3);
+  overflow-wrap: anywhere;
+}
+.p-side-foot button {
+  margin-top: 0.6rem;
+}
+.p-main {
+  min-width: 0;
+  padding: clamp(1rem, 3vw, 2.25rem) clamp(1rem, 3vw, 2.5rem) 4rem;
+}
+.p-topbar {
+  display: none;
+}
+
+@media (max-width: 900px) {
+  .p-shell {
+    grid-template-columns: 1fr;
+  }
+  .p-side {
+    position: fixed;
+    inset: 0 auto 0 0;
+    z-index: 60;
+    width: min(84vw, 300px);
+    transform: translateX(-102%);
+    transition: transform 0.35s var(--ease-out);
+    background: var(--night);
+  }
+  .p-shell.is-open .p-side {
+    transform: none;
+    box-shadow: 0 0 0 100vmax rgb(0 0 0 / 0.6);
+  }
+  .p-topbar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.6rem 1rem;
+    border-bottom: 1px solid var(--line);
+    background: rgb(5 5 5 / 0.9);
+    backdrop-filter: blur(10px);
+  }
+  .p-topbar .logo {
+    height: 0.9rem;
+  }
+}
+
+/* ── Page header ── */
+.p-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+.p-head h1 {
+  font-size: clamp(1.8rem, 3.4vw, 2.6rem);
+  font-weight: 900;
+}
+.p-head p {
+  margin: 0.4rem 0 0;
+  color: var(--ink-2);
+}
+.p-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+}
+
+/* ── Cards & grids ── */
+.p-grid {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fill, minmax(min(100%, 240px), 1fr));
+}
+.p-grid-2 {
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 380px), 1fr));
+}
+.p-card {
+  position: relative;
+  padding: 1.1rem 1.2rem;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(160deg, #101010, #080808 70%);
+  min-width: 0;
+}
+.p-card h2,
+.p-card h3 {
+  font-family: var(--f-body);
+  font-size: 1.02rem;
+  font-weight: 650;
+  letter-spacing: -0.01em;
+  margin-bottom: 0.75rem;
+}
+.p-stat .p-stat-n {
+  display: block;
+  font-family: var(--f-display);
+  font-variation-settings: 'ROND' 100;
+  font-weight: 900;
+  font-size: 2.2rem;
+  line-height: 1.1;
+}
+.p-stat .p-stat-l {
+  font-family: var(--f-mono);
+  font-size: 0.7rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+}
+.p-muted {
+  color: var(--ink-3);
+}
+.p-small {
+  font-size: 0.85rem;
+}
+.p-stack {
+  display: grid;
+  gap: 1rem;
+}
+.p-row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.6rem;
+}
+.p-spacer {
+  flex: 1;
+}
+
+/* ── Badges ── */
+.p-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.12rem 0.55rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 99px;
+  font-size: 0.75rem;
+  font-weight: 550;
+  white-space: nowrap;
+}
+.p-badge[data-tone='ok'] {
+  border-color: rgb(255 255 255 / 0.6);
+  color: #fff;
+}
+.p-badge[data-tone='warn'] {
+  border-color: #c9a227;
+  color: #f0d26b;
+}
+.p-badge[data-tone='bad'] {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.p-badge[data-tone='ai'] {
+  border-style: dashed;
+  color: var(--ink-2);
+}
+
+/* ── Tables ── */
+.p-table-wrap {
+  overflow-x: auto;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+}
+.p-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.9rem;
+}
+.p-table th,
+.p-table td {
+  padding: 0.65rem 0.8rem;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+  vertical-align: top;
+}
+.p-table th {
+  font-family: var(--f-mono);
+  font-size: 0.68rem;
+  font-weight: 500;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  background: var(--paper-2);
+  white-space: nowrap;
+}
+.p-table tr:last-child td {
+  border-bottom: 0;
+}
+.p-table tbody tr:hover {
+  background: rgb(255 255 255 / 0.025);
+}
+.p-table .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+}
+
+/* ── Forms (portal variant of .eform) ── */
+.p-form {
+  display: grid;
+  gap: 0.9rem;
+}
+.p-form .row2 {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 0.9rem;
+}
+.p-field {
+  display: grid;
+  gap: 0.35rem;
+  min-width: 0;
+}
+.p-field > span {
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+.p-field small {
+  color: var(--ink-3);
+  font-size: 0.8rem;
+}
+.p-input,
+.p-field input:not([type='checkbox']):not([type='radio']),
+.p-field select,
+.p-field textarea {
+  width: 100%;
+  min-height: 2.75rem;
+  padding: 0.6rem 0.8rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: rgb(255 255 255 / 0.03);
+  color: var(--ink);
+  font-size: 0.95rem;
+}
+.p-field textarea {
+  min-height: 7rem;
+  resize: vertical;
+}
+.p-field select option {
+  background: #111;
+}
+.p-input:focus-visible,
+.p-field input:focus-visible,
+.p-field select:focus-visible,
+.p-field textarea:focus-visible {
+  outline: none;
+  border-color: var(--ink);
+  box-shadow: 0 0 0 3px rgb(255 255 255 / 0.15);
+}
+.p-check {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.9rem;
+}
+.p-check input {
+  width: 1.05rem;
+  height: 1.05rem;
+  accent-color: #fff;
+}
+@media (max-width: 640px) {
+  .p-form .row2 {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Buttons: smaller portal sizes reuse .btn */
+.p-btn {
+  min-height: 2.5rem;
+  padding: 0.45rem 1rem;
+  font-size: 0.9rem;
+}
+.p-btn-danger {
+  --bg: transparent;
+  --fg: var(--danger);
+  --bd: rgb(255 122 107 / 0.5);
+}
+.p-link {
+  background: none;
+  border: 0;
+  padding: 0;
+  color: var(--ink);
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+  cursor: pointer;
+  font: inherit;
+}
+
+/* ── Notices ── */
+.p-notice {
+  display: flex;
+  gap: 0.7rem;
+  align-items: flex-start;
+  padding: 0.85rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: var(--paper-2);
+  font-size: 0.92rem;
+}
+.p-notice[data-tone='bad'] {
+  border-color: rgb(255 122 107 / 0.45);
+  background: rgb(255 122 107 / 0.08);
+  color: #ffc2b9;
+}
+.p-notice[data-tone='warn'] {
+  border-color: rgb(201 162 39 / 0.5);
+  background: rgb(201 162 39 / 0.08);
+  color: #f6e3a1;
+}
+.p-notice[data-tone='ok'] {
+  border-color: rgb(255 255 255 / 0.4);
+}
+.p-secret {
+  display: inline-block;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  background: #000;
+  border: 1px dashed var(--line-strong);
+  font-family: var(--f-mono);
+  font-size: 0.95rem;
+  letter-spacing: 0.04em;
+  user-select: all;
+}
+
+/* ── Modal ── */
+.p-modal-back {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: rgb(0 0 0 / 0.7);
+  backdrop-filter: blur(4px);
+}
+.p-modal {
+  width: min(100%, 640px);
+  max-height: calc(100vh - 2rem);
+  overflow: auto;
+  padding: 1.4rem;
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: #0c0c0c;
+}
+.p-modal h2 {
+  font-size: 1.6rem;
+  font-weight: 900;
+  margin-bottom: 1rem;
+}
+
+/* ── Toasts ── */
+.p-toasts {
+  position: fixed;
+  right: 1rem;
+  bottom: 1rem;
+  z-index: 200;
+  display: grid;
+  gap: 0.5rem;
+  max-width: min(92vw, 380px);
+}
+.p-toast {
+  padding: 0.75rem 1rem;
+  border: 1px solid var(--line-strong);
+  border-radius: 10px;
+  background: #121212;
+  box-shadow: 0 10px 30px rgb(0 0 0 / 0.5);
+  font-size: 0.9rem;
+}
+.p-toast[data-tone='bad'] {
+  border-color: rgb(255 122 107 / 0.6);
+}
+
+/* ── Auth pages ── */
+.p-auth {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 1.5rem;
+}
+.p-auth-card {
+  width: min(100%, 420px);
+  padding: clamp(1.4rem, 4vw, 2.2rem);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-lg);
+  background: linear-gradient(160deg, #121212, #070707 70%);
+}
+.p-auth-card .logo {
+  height: 1.1rem;
+  margin-bottom: 1.6rem;
+}
+.p-auth-card h1 {
+  font-size: 2rem;
+  font-weight: 900;
+  margin-bottom: 0.4rem;
+}
+
+/* ── Empty / loading ── */
+.p-empty {
+  padding: 2rem 1rem;
+  text-align: center;
+  color: var(--ink-3);
+  border: 1px dashed var(--line-strong);
+  border-radius: var(--radius);
+}
+.p-loading {
+  display: grid;
+  place-items: center;
+  min-height: 40vh;
+  color: var(--ink-3);
+  font-family: var(--f-mono);
+  font-size: 0.8rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+/* ── Tabs ── */
+.p-tabs {
+  display: flex;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--line);
+  overflow-x: auto;
+}
+.p-tabs button {
+  padding: 0.6rem 0.9rem;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  background: none;
+  color: var(--ink-3);
+  font: 600 0.9rem var(--f-body);
+  cursor: pointer;
+  white-space: nowrap;
+}
+.p-tabs button[aria-selected='true'] {
+  color: var(--ink);
+  border-bottom-color: var(--ink);
+}
+
+/* ── Print (receipts, invoices, reports) ── */
+@media print {
+  .portal body::before,
+  .p-side,
+  .p-topbar,
+  .no-print {
+    display: none !important;
+  }
+  .p-shell {
+    display: block;
+  }
+  .p-main {
+    padding: 0;
+  }
+  body {
+    background: #fff !important;
+    color: #000 !important;
+  }
+  .print-area,
+  .print-area * {
+    color: #000 !important;
+    background: transparent !important;
+    border-color: #999 !important;
+    box-shadow: none !important;
+  }
+}

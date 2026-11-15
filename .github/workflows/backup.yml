@@ -1,0 +1,76 @@
+# Nightly encrypted backup with an automatic test restore into a throwaway PostgreSQL.
+# Secrets: SUPABASE_DB_URL (session pooler URL), BACKUP_AGE_RECIPIENT (age public key),
+#          TW_HEARTBEAT_TOKEN, optional SUPABASE_SERVICE_ROLE_KEY (to copy Storage files).
+# Artifacts are private to the repository and expire after 30 days: download one to your own
+# drive every month (docs/BACKUP.md).
+name: Backup
+on:
+  schedule:
+    - cron: '43 20 * * *' # 02:13 IST
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  backup:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    services:
+      scratch:
+        image: postgres:17
+        env:
+          POSTGRES_PASSWORD: scratch
+        ports: ['5432:5432']
+        options: >-
+          --health-cmd "pg_isready -U postgres" --health-interval 5s --health-timeout 5s --health-retries 20
+    env:
+      SOURCE_DB_URL: ${{ secrets.SUPABASE_DB_URL }}
+      AGE_RECIPIENT: ${{ secrets.BACKUP_AGE_RECIPIENT }}
+      TW_HEARTBEAT_TOKEN: ${{ secrets.TW_HEARTBEAT_TOKEN }}
+      SUPABASE_SERVICE_ROLE_KEY: ${{ secrets.SUPABASE_SERVICE_ROLE_KEY }}
+      OUT: backup-out
+    steps:
+      - uses: actions/checkout@v4
+      - name: Check secrets
+        run: |
+          missing=""
+          for v in SOURCE_DB_URL AGE_RECIPIENT TW_HEARTBEAT_TOKEN; do [ -n "${!v}" ] || missing="$missing $v"; done
+          if [ -n "$missing" ]; then echo "::error::Backup not configured, missing:$missing (see docs/BACKUP.md)"; exit 1; fi
+      - name: Install PostgreSQL 17 client and age
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y -qq postgresql-common age
+          sudo /usr/share/postgresql-common/pgdg/apt.postgresql.org.sh -y > /dev/null
+          sudo apt-get install -y -qq postgresql-client-17
+          echo "/usr/lib/postgresql/17/bin" >> "$GITHUB_PATH"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - name: Dump database
+        run: scripts/backup/backup.sh
+      - name: Copy Storage files (optional)
+        run: node scripts/backup/storage.mjs
+      - name: Test restore into throwaway PostgreSQL
+        env:
+          TARGET_DB_URL: postgresql://postgres:scratch@localhost:5432/postgres
+        run: scripts/backup/restore-test.sh
+      - name: Encrypt
+        run: |
+          name="tomorrow-web-backup-$(date -u +%Y%m%dT%H%MZ)"
+          tar -C "$OUT" -czf "$name.tar.gz" .
+          age -r "$AGE_RECIPIENT" -o "$name.tar.gz.age" "$name.tar.gz"
+          rm "$name.tar.gz"
+          sha256sum "$name.tar.gz.age" | tee "$name.tar.gz.age.sha256"
+          echo "BACKUP_NAME=$name" >> "$GITHUB_ENV"
+          { echo "### Backup $name"; echo; echo '```'; cat "$OUT/restore-result.json"; cat "$name.tar.gz.age.sha256"; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
+      - uses: actions/upload-artifact@v4
+        with:
+          name: ${{ env.BACKUP_NAME }}
+          path: |
+            ${{ env.BACKUP_NAME }}.tar.gz.age
+            ${{ env.BACKUP_NAME }}.tar.gz.age.sha256
+          retention-days: 30
+          if-no-files-found: error
+      - name: Record successful backup
+        run: |
+          details=$(jq -c --arg n "$BACKUP_NAME" --arg s "$(cut -d' ' -f1 "$BACKUP_NAME.tar.gz.age.sha256")" '. + {name:$n, sha256:$s}' "$OUT/restore-result.json")
+          scripts/heartbeat.sh backup "$details"
