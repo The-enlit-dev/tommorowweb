@@ -1,0 +1,63 @@
+---
+// Cart, checkout and payment. Totals shown here are previews; the server decides the final amount.
+---
+<main class="cart">
+  <h1>Your bag</h1>
+  <div id="lines"></div>
+  <form id="checkout" hidden>
+    <h2>Delivery details</h2>
+    <input name="name" placeholder="Full name" required autocomplete="name" />
+    <input name="phone" placeholder="Mobile number" required inputmode="tel" autocomplete="tel" />
+    <input name="email" type="email" placeholder="Email (for updates)" autocomplete="email" />
+    <input name="line1" placeholder="Address" required autocomplete="address-line1" />
+    <input name="line2" placeholder="Landmark (optional)" autocomplete="address-line2" />
+    <input name="city" placeholder="City" required autocomplete="address-level2" />
+    <input name="state" placeholder="State" required autocomplete="address-level1" />
+    <input name="pin" placeholder="PIN code" required inputmode="numeric" pattern="[1-9][0-9]{5}" autocomplete="postal-code" />
+    <input name="code" placeholder="Discount code (optional)" />
+    <p id="err" role="alert" hidden></p>
+    <button type="submit">Place order</button>
+  </form>
+  <div id="result" aria-live="polite"></div>
+</main>
+<script>
+  import { cart, checkout, money, payWithRazorpay, trackingLink, waitForPayment } from '../lib/commerce'
+  const lines = document.getElementById('lines')!, form = document.getElementById('checkout') as HTMLFormElement, out = document.getElementById('result')!, err = document.getElementById('err')!
+  function render() {
+    const c = cart.get()
+    form.hidden = !c.length
+    lines.innerHTML = c.length ? c.map((i) => `<p>${i.name} × <button data-v="${i.variant_id}" data-d="-1" aria-label="One less">−</button> ${i.qty} <button data-v="${i.variant_id}" data-d="1" aria-label="One more">+</button> ${money(i.price * i.qty)}</p>`).join('') + `<p>Subtotal ${money(cart.subtotal())} (shipping and discounts calculated at checkout)</p>` : '<p>Your bag is empty.</p>'
+  }
+  lines.addEventListener('click', (e) => { const b = (e.target as HTMLElement).closest('button'); if (!b) return; const i = cart.get().find((x) => x.variant_id === b.dataset.v); if (i) cart.update(i.variant_id, i.qty + Number(b.dataset.d)) })
+  addEventListener('tw-cart', render)
+  render()
+  form.addEventListener('submit', async (e) => {
+    e.preventDefault()
+    err.hidden = true
+    const f = Object.fromEntries(new FormData(form)) as Record<string, string>
+    const btn = form.querySelector('button[type=submit]') as HTMLButtonElement
+    btn.disabled = true
+    try {
+      const r = await checkout({ name: f.name, phone: f.phone, email: f.email, line1: f.line1, line2: f.line2, city: f.city, state: f.state, pin: f.pin }, { discountCode: f.code })
+      const track = trackingLink(r.tracking_token)
+      if (r.razorpay) {
+        const done = await payWithRazorpay(r.razorpay)
+        if (done === 'dismissed') { out.innerHTML = `<p>Order #${r.order_number} is saved but not paid yet. <button id="retry">Pay ${money(r.total)}</button></p>`; document.getElementById('retry')!.onclick = () => form.requestSubmit(); return }
+        out.innerHTML = '<p>Confirming your payment…</p>'
+        const status = await waitForPayment(r.tracking_token)
+        if (status === 'paid') { r.done(); out.innerHTML = `<p>Thank you! Order #${r.order_number} is confirmed. <a href="${track}">Track your order</a></p>`; form.hidden = true; lines.innerHTML = '' }
+        else out.innerHTML = status === 'failed' ? '<p>The payment didn’t go through. You can try again.</p>' : `<p>We’re still waiting for the bank. You’ll see the status here: <a href="${track}">order #${r.order_number}</a>.</p>`
+      } else if (r.manual_upi) {
+        r.done()
+        const u = r.manual_upi
+        const link = `upi://pay?pa=${encodeURIComponent(u.vpa)}&pn=${encodeURIComponent(u.name ?? '')}&am=${Number(u.amount).toFixed(2)}&cu=INR&tn=${encodeURIComponent(u.note)}`
+        out.innerHTML = `<p>Order #${r.order_number} placed. Pay <strong>${money(u.amount)}</strong> by UPI to <strong>${u.vpa}</strong> within ${u.expires_in_minutes} minutes (mention “${u.note}”). <a href="${link}">Open UPI app</a>. The store confirms your payment and you can follow it here: <a href="${track}">track order</a>.</p>`
+        form.hidden = true; lines.innerHTML = ''
+      } else {
+        r.done(); out.innerHTML = `<p>Order #${r.order_number} placed. <a href="${track}">Track your order</a></p>`
+      }
+    } catch (x) {
+      err.textContent = (x as Error).message; err.hidden = false
+    } finally { btn.disabled = false }
+  })
+</script>

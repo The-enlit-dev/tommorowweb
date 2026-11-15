@@ -1,0 +1,25 @@
+---
+import { getCatalog, mediaUrl, money } from '../../lib/commerce'
+const catalog = await getCatalog()
+---
+<main class="shop">
+  <h1>{catalog?.store.name ?? 'Shop'}</h1>
+  {!catalog ? <p>The shop is closed right now.</p> : catalog.categories.concat([{ id: '', name: 'More' }]).map((c) => {
+    const items = catalog.products.filter((p) => (p.category_id ?? '') === c.id)
+    return items.length > 0 && (
+      <section>
+        <h2>{c.name}</h2>
+        <ul class="shop-grid">
+          {items.map((p) => (
+            <li><a href={`/shop/${p.slug}/`}>
+              {p.image && <img src={mediaUrl(p.image)} alt={p.name} loading="lazy" width="600" height="750" />}
+              <span>{p.name}</span>
+              <span>{money(Math.min(...p.variants.map((v) => v.price)))}</span>
+              {!p.variants.some((v) => v.in_stock) && <em>Sold out</em>}
+            </a></li>
+          ))}
+        </ul>
+      </section>
+    )
+  })}
+</main>

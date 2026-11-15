@@ -17,7 +17,7 @@ export default defineConfig({
     // Preact powers the private portal only (/portal/**); public pages ship no framework JS.
     preact(),
     sitemap({
-      filter: (page) => !/\/(thanks|404)\/?$/.test(page) && !page.includes('/portal/'),
+      filter: (page) => !/\/(thanks|404|track)\/?$/.test(page) && !page.includes('/portal/'),
     }),
   ],
   prefetch: { prefetchAll: false, defaultStrategy: 'hover' },

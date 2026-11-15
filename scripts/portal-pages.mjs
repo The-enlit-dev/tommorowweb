@@ -41,6 +41,8 @@ export const ROUTES = [
   ['kitchen', 'Restaurant', 'Kitchen', 'Kitchen display'],
   ['tables', 'Restaurant', 'Tables', 'Tables'],
   ['appointments', 'Restaurant', 'Appointments', 'Appointments'],
+  ['store', 'Store', 'Store', 'Online store'],
+  ['fulfilment', 'Store', 'Fulfilment', 'Printify'],
 ]
 
 const root = new URL('..', import.meta.url).pathname

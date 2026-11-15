@@ -1,0 +1,49 @@
+---
+// Public order tracking for client stores (link sent to customers). Not indexed.
+import Base from '../layouts/Base.astro'
+---
+
+<Base title="Track your order" description="Order status and delivery tracking." noindex>
+  <section class="trk">
+    <div class="wrap">
+      <p class="eyebrow mono">Order tracking</p>
+      <h1 class="trk-title" id="trk-title">Your order</h1>
+      <div id="trk" class="trk-body" aria-live="polite"><p class="lead">Loading…</p></div>
+    </div>
+  </section>
+</Base>
+
+<script>
+  import { SUPABASE_KEY, SUPABASE_URL } from '../lib/supabase-config.js'
+  const esc = (s: unknown) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[c]!)
+  const money = (n: number) => new Intl.NumberFormat('en-IN', { style: 'currency', currency: 'INR' }).format(Number(n))
+  const LABEL: Record<string, string> = { pending_payment: 'Waiting for payment', new: 'Confirmed', accepted: 'Confirmed', processing: 'Being prepared', ready: 'Ready to ship', completed: 'Completed', cancelled: 'Cancelled', refunded: 'Refunded', payment_failed: 'Payment failed', failed: 'Payment not received' }
+  async function load() {
+    const el = document.getElementById('trk')
+    if (!el) return
+    const token = new URLSearchParams(location.search).get('t') ?? ''
+    if (!/^[0-9a-f]{32}$/.test(token)) { el.innerHTML = '<p class="lead">This tracking link is incomplete. Please use the link from your order confirmation.</p>'; return }
+    const r = await fetch(`${SUPABASE_URL}/rest/v1/rpc/store_track`, { method: 'POST', headers: { apikey: SUPABASE_KEY, 'content-type': 'application/json' }, body: JSON.stringify({ p_token: token }) }).catch(() => null)
+    const o = r && r.ok ? await r.json() : null
+    if (!o) { el.innerHTML = '<p class="lead">We couldn’t find this order. Check the link or contact the store.</p>'; return }
+    document.getElementById('trk-title')!.textContent = `Order #${o.number}`
+    const ship = (o.shipments as any[]).find((s) => s.tracking_url)
+    el.innerHTML = `
+      <p class="lead">${esc(o.store)} · <strong>${esc(LABEL[o.status] ?? o.status)}</strong>${o.name ? ` · for ${esc(o.name)}` : ''}</p>
+      ${ship ? `<p><a class="btn btn-sun" href="${esc(ship.tracking_url)}" target="_blank" rel="noopener noreferrer">Track with ${esc(ship.carrier ?? 'courier')} ${esc(ship.tracking_number ?? '')}</a></p>` : ''}
+      <ol class="trk-steps">${(o.events as any[]).map((e) => `<li><span class="mono">${esc(new Date(e.at).toLocaleString('en-IN', { dateStyle: 'medium', timeStyle: 'short' }))}</span> ${esc(e.message ?? e.status)}${e.tracking_url ? ` — <a href="${esc(e.tracking_url)}" target="_blank" rel="noopener noreferrer">track</a>` : ''}</li>`).join('')}</ol>
+      <h2 class="trk-h">Items</h2>
+      <ul class="trk-items">${(o.items as any[]).map((i) => `<li>${esc(i.qty)} × ${esc(i.name)}${i.variant ? ` (${esc(i.variant)})` : ''} <span>${money(i.total)}</span></li>`).join('')}</ul>
+      <p>${Number(o.shipping_total) > 0 ? `Shipping ${money(o.shipping_total)} · ` : ''}Total <strong>${money(o.total)}</strong></p>`
+  }
+  document.addEventListener('astro:page-load', load)
+</script>
+
+<style>
+  .trk { padding-top: calc(var(--header-h) + clamp(2.5rem, 7vw, 6rem)); padding-bottom: var(--section); }
+  .trk-title { margin: 0.5rem 0 1.5rem; font-size: clamp(2.4rem, 5.5vw, 4.4rem); font-weight: 800; line-height: 1; }
+  .trk-body :global(.trk-steps) { display: grid; gap: 0.6rem; margin: 1.5rem 0; padding-left: 1.2rem; color: var(--ink-2); }
+  .trk-body :global(.trk-h) { margin-top: 2rem; font-family: var(--f-body); font-size: 1.2rem; font-weight: 650; }
+  .trk-body :global(.trk-items) { display: grid; gap: 0.4rem; padding: 0; list-style: none; max-width: 32rem; }
+  .trk-body :global(.trk-items li) { display: flex; justify-content: space-between; gap: 1rem; border-bottom: 1px solid var(--line-night); padding-bottom: 0.4rem; }
+</style>

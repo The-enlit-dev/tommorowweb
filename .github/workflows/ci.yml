@@ -27,12 +27,14 @@ jobs:
       - run: npm ci
       - run: npm run build
       - run: npm run test:unit
+      - name: Client-site kit builds in a fresh Astro site
+        run: scripts/check-kit.sh
       - uses: denoland/setup-deno@v2
         with:
           deno-version: v2.5.6
       - name: Type-check Edge Functions
         working-directory: supabase/functions
-        run: deno check */index.ts
+        run: deno check */index.ts _shared/*.ts
       - name: Migrations apply cleanly (plain PostgreSQL + Supabase shim)
         env:
           DATABASE_URL: postgresql://postgres:ci@localhost:5432/postgres

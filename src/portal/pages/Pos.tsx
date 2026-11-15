@@ -6,6 +6,7 @@ import QRCode from 'qrcode'
 import { cartEstimate, changeDue, newIdempotencyKey, receiptText, upiLink, type CartLine } from '../pos'
 import { check, d, downloadCsv, dt, inr, qs, sb } from '../lib'
 import { Badge, Empty, ErrorNote, Field, Modal, PageHead, Portal, useAction, useApp, useLoad, formData } from '../ui'
+import { OrderFulfilment } from './Store'
 
 export const ORDER_STATUS: Record<string, { label: string; tone?: 'ok' | 'warn' | 'bad' | 'ai' }> = {
   pending_payment: { label: 'Awaiting payment', tone: 'warn' }, new: { label: 'New', tone: 'ai' }, accepted: { label: 'Accepted', tone: 'ai' },
@@ -547,7 +548,7 @@ function OrderBody({ app, id }: { app: ReturnType<typeof useApp>; id: string }) 
             {payments.length ? <ul class="p-small">{payments.map((p) => <li key={p.id}>{p.method.toUpperCase()} {inr(p.amount)} — <strong>{p.status}</strong>{p.upi_ref && ` · UTR ${p.upi_ref}`}{p.change_due > 0 && ` · change ${inr(p.change_due)}`}{p.failure_reason && ` · ${p.failure_reason}`}{p.confirmed_at && ` · confirmed ${dt(p.confirmed_at)}`}</li>)}</ul> : <p class="p-small p-muted">No payments yet.</p>}
             {refunds.length > 0 && <ul class="p-small">{refunds.map((r) => <li key={r.id}>Refund {inr(r.amount)} — {r.reason} ({dt(r.created_at)}){r.restocked && ' · restocked'}</li>)}</ul>}
             <div class="p-row">
-              {o.payment_status !== 'paid' && open && o.channel !== 'online' && (perm('pos.sell') || perm('orders.update')) && <button class="btn btn-ink p-btn" onClick={() => setPaying(true)}>{pendingUpi ? 'Confirm UPI payment' : 'Take payment'}</button>}
+              {o.payment_status !== 'paid' && open && !payments.some((p) => p.method === 'razorpay' && p.status === 'pending') && (perm('pos.sell') || perm('orders.update')) && <button class="btn btn-ink p-btn" onClick={() => setPaying(true)}>{pendingUpi ? 'Confirm UPI payment' : 'Take payment'}</button>}
               {['paid', 'partially_refunded'].includes(o.payment_status) && perm('refunds.issue') && <button class="btn btn-ghost p-btn" onClick={() => setRefunding(true)}>Refund</button>}
               {o.invoice_no && <span class="p-small p-muted">Invoice {o.invoice_no}</span>}
             </div>
@@ -571,6 +572,7 @@ function OrderBody({ app, id }: { app: ReturnType<typeof useApp>; id: string }) 
               </form>
             )}
           </div>
+          <OrderFulfilment order={o} />
           <div class="p-card">
             <h2>History</h2>
             <ol class="p-small" style={{ paddingLeft: '1.1rem' }}>{events.map((e) => <li key={e.id} style={{ marginBottom: '0.3rem' }}>{dt(e.at)} — <strong>{e.kind === 'status' || e.kind === 'created' ? ORDER_STATUS[e.to_status]?.label ?? e.to_status : `${e.kind}: ${e.to_status ?? ''}`}</strong> {e.actor_name && `by ${e.actor_name}`}{e.device && <span class="p-muted"> ({e.device})</span>}{e.reason && <div class="p-muted">{e.reason}</div>}</li>)}</ol>
