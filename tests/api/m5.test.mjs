@@ -13,7 +13,10 @@ test('setup restaurant with menu and an employee', async () => {
   const p = (await o.from('products').insert({ business_id: s.c.biz, name: 'Idli', tax_rate_id: tax.id, station: 'kitchen' }).select('id').single()).data
   s.idli = (await o.from('product_variants').insert({ product_id: p.id, price: 60, track_stock: true }).select('id').single()).data.id
   assert.ifError((await o.rpc('adjust_stock', { p_variant: s.idli, p_delta: 10, p_reason: 'opening' })).error)
-  await o.from('commerce_settings').upsert({ business_id: s.c.biz, upi_id: 'qacafe@okicici', state_code: '27' })
+  // Insert or update, as the portal does (an upsert would need UPDATE on business_id, which is not granted).
+  const cs = (await o.from('commerce_settings').select('business_id').eq('business_id', s.c.biz).maybeSingle()).data
+  const row = { upi_id: 'qacafe@okicici', state_code: '27' }
+  assert.ifError((cs ? await o.from('commerce_settings').update(row).eq('business_id', s.c.biz) : await o.from('commerce_settings').insert({ business_id: s.c.biz, ...row })).error)
   const email = qaEmail('waiter')
   const r = await fn(o, 'business-members', { action: 'create_member', business_id: s.c.biz, email, full_name: 'QA Waiter' })
   s.emp = await signIn(email, r.data.temp_password, strongPassword())

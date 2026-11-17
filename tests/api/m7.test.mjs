@@ -20,7 +20,9 @@ test('setup clothing brand with an online product and UPI', async () => {
   const p = (await o.from('products').insert({ business_id: s.c.biz, name: 'QA Tee', online: true, slug: 'qa-tee' }).select('id').single()).data
   s.tee = (await o.from('product_variants').insert({ product_id: p.id, name: 'Black / M', price: 799, track_stock: true }).select('id').single()).data.id
   await o.rpc('adjust_stock', { p_variant: s.tee, p_delta: 3, p_reason: 'opening' })
-  await o.from('commerce_settings').upsert({ business_id: s.c.biz, upi_id: 'qabrand@okicici' })
+  // Same as the portal's settings page: insert or update (an upsert would need UPDATE on business_id, which is not granted).
+  const cs = (await o.from('commerce_settings').select('business_id').eq('business_id', s.c.biz).maybeSingle()).data
+  assert.ifError((cs ? await o.from('commerce_settings').update({ upi_id: 'qabrand@okicici' }).eq('business_id', s.c.biz) : await o.from('commerce_settings').insert({ business_id: s.c.biz, upi_id: 'qabrand@okicici' })).error)
   assert.ifError((await o.from('store_settings').insert({ business_id: s.c.biz, enabled: true, shipping_flat: 60, free_shipping_above: 1500 })).error)
 })
 

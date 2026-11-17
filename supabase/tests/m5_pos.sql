@@ -174,6 +174,12 @@ insert into t_results (check_name, ok) values
   ('cannot sell another business’s items', pg_temp.fails(format('select public.create_order(%L, %L::jsonb, %L)', pg_temp.id('bizB'), jsonb_build_array(jsonb_build_object('variant_id', pg_temp.id('dosa'), 'qty', 1)), 'idem-0007-gggg'))),
   ('cannot change another business’s order', pg_temp.fails(format('select public.order_transition(%L, 3, %L)', pg_temp.id('o1'), 'ready'))),
   ('cannot confirm another business’s payment', pg_temp.fails(format('select public.confirm_upi_payment(%L)', pg_temp.id('p_upi'))));
+-- UPI ID check constraint (regression: a repetition count over 255 made every save fail).
+select pg_temp.act_as('ownerA');
+insert into t_results (check_name, ok, detail) select 'owner saves a valid UPI ID', not pg_temp.fails(format('update public.commerce_settings set upi_id = %L where business_id = %L', 'qacafe@okicici', pg_temp.id('bizA'))), null;
+insert into t_results (check_name, ok, detail) select 'UPI ID was stored', upi_id = 'qacafe@okicici', upi_id from public.commerce_settings where business_id = pg_temp.id('bizA');
+insert into t_results (check_name, ok) values ('an invalid UPI ID is refused', pg_temp.fails(format('update public.commerce_settings set upi_id = %L where business_id = %L', 'not a upi id', pg_temp.id('bizA'))));
+reset role;
 select pg_temp.act_as('anon');
 insert into t_results (check_name, ok) values ('anon cannot read orders', pg_temp.fails('select count(*) from public.orders'));
 reset role;
